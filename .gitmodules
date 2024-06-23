@@ -1,0 +1,3 @@
+[submodule "bultin_mods"]
+	path = builtin_mods
+	url = git@github.com:UntitledModGame/umg-mods.git
