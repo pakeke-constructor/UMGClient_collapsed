@@ -1,0 +1,119 @@
+
+[selene]
+base = "lua51"
+name = "love2d"
+
+
+[love]
+any = true
+# TODO: make actual bindings for this
+
+[string.buffer]
+any = true
+
+[bit]
+any = true
+
+[ffi]
+any = true
+
+[enet]
+any = true
+
+[constants]
+any = true
+
+[variables]
+any = true
+
+[tools]
+any = true
+
+
+[tc]
+any = true
+
+[ui]
+any = true
+
+[Slab]
+any = true
+
+[luasteam]
+any = true
+
+[log]
+any = true
+
+[LUI]
+any = true
+
+[Region]
+any = true
+
+
+[AsyncTask]
+any = true
+[StateClass]
+any = true
+[StringIdMapper]
+any = true
+
+
+[LoadingLogo]
+any = true
+
+
+[translate]
+any = true
+
+
+[SERVER_SIDE]
+any = true
+[CLIENT_SIDE]
+any = true
+
+
+
+# WARNING: inspect only exists if constants.DEBUG is truthy
+[inspect]
+any = true
+
+
+[table]
+any = true
+
+
+[json]
+any = true
+
+
+[channelService]
+any = true
+
+[userService]
+any = true
+
+
+[UMGSession]
+any = true
+[ModLoader]
+any = true
+
+
+
+
+[serverInitOptions]
+any = true
+
+[serverSession]
+any = true
+
+
+
+## Standard library modifications
+[assert]
+any = true
+
+
+

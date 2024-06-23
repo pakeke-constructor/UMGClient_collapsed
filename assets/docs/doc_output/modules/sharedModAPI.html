@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>UMG Mod API</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>sharedModAPI</strong></li>
+  <li><a href="../modules/serverSideModAPI.html">serverSideModAPI</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>sharedModAPI</code></h1>
+<p>UMG Modding API</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#exists">exists (ent)</a></td>
+	<td class="summary">Checks if something is an Entity</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#group">group (...)</a></td>
+	<td class="summary">Gets a group containing entities with all the required components</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#on">on (event_name)</a></td>
+	<td class="summary">Listens to a local event</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#call">call (event_name)</a></td>
+	<td class="summary">Broadcasts a local event</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#register">register (resource, alias)</a></td>
+	<td class="summary">Registers a resource for serialization.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#serialize">serialize (...)</a></td>
+	<td class="summary">Serializes arbitrary lua data into a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#deserialize">deserialize (string_data)</a></td>
+	<td class="summary">Deserializes string data that was serialized with serialize().</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "exists"></a>
+    <strong>exists (ent)</strong>
+    </dt>
+    <dd>
+    Checks if something is an Entity
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ent</span>
+         the data in question
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if `ent` is a valid (not deleted) entity, false otherwise.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "group"></a>
+    <strong>group (...)</strong>
+    </dt>
+    <dd>
+    Gets a group containing entities with all the required components
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         A list of components required for entities to be added to this group
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A group object
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "on"></a>
+    <strong>on (event_name)</strong>
+    </dt>
+    <dd>
+    Listens to a local event
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">event_name</span>
+         The event name to listen to
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/sharedModAPI.html#call">call</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "call"></a>
+    <strong>call (event_name)</strong>
+    </dt>
+    <dd>
+    Broadcasts a local event
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">event_name</span>
+         the event name to broadcast
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/sharedModAPI.html#on">on</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "register"></a>
+    <strong>register (resource, alias)</strong>
+    </dt>
+    <dd>
+    Registers a resource for serialization.
+ If something is being serialized, and it is registered as a resource,
+ it is replaced by `alias`. If you are registering something,
+ make sure to register it on clientside AND serverside!
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">resource</span>
+         The resource to register (e.g. a metatable)
+        </li>
+        <li><span class="parameter">alias</span>
+         The unique alias used (usually a unique string value)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "serialize"></a>
+    <strong>serialize (...)</strong>
+    </dt>
+    <dd>
+    Serializes arbitrary lua data into a string.
+ Every lua type can be serialized, except for functions and userdata.
+ When serializing entities, the entity(s) have their IDs removed, and
+ are serialized by value.  Only regular components are serialized;
+ everything else in the entity is ignored.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         The data to serialize
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/sharedModAPI.html#deserialize">deserialize</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "deserialize"></a>
+    <strong>deserialize (string_data)</strong>
+    </dt>
+    <dd>
+    Deserializes string data that was serialized with serialize().
+ If the string data is invalid, this function will return a pair: (nil, err_str)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">string_data</span>
+         The string data generated with serialize()
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        ... The deserialized lua objects
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/sharedModAPI.html#serialize">serialize</a>
+    </ul>
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-29 21:03:59 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

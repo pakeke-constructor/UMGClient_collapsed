@@ -1,0 +1,7 @@
+
+sound files go in here, and are automatically loaded by UMG.
+
+Supported types:
+mp3, wav
+
+(paths/files starting with "_" are ignored)

@@ -1,0 +1,87 @@
+
+#
+# Originally taken from 
+# https://github.com/pfirsich/lovejam20/blob/349f645ec65db9563b1c58f176f0207051294875/.github/workflows/build.yml
+#
+#
+
+
+name: build_umg
+
+
+on: workflow_dispatch
+
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+      #  ubuntu-21.10 <--- does this version do anything..?
+    # I think we gotta run on this ubuntu version, since this has FUSE installed.
+    # (Not too sure, but ubuntu-latest doesn't work in building appimages for some reason!)
+
+    # Checkout UMGClient
+    steps:
+    - uses: actions/checkout@v3
+      with: 
+        path: main
+
+    # Clone and build Darklua:
+    - name: Clone Darklua
+      uses: GuillaumeFalourd/clone-github-repo-action@v2.2
+      with:
+        depth: 1
+        branch: 'main'
+        owner: 'seaofvoices'
+        repository: 'darklua'
+    - name: Build Darklua
+      run: |
+        cd darklua
+        cargo build --locked --release --target x86_64-unknown-linux-gnu
+      env:
+        CARGO_TARGET_DIR: output
+    # Run darklua processor across lua files:
+    - name: Darklua Preprocessing
+      run: |
+        sudo chmod +x ./darklua/output/x86_64-unknown-linux-gnu/release/darklua
+        sudo ./darklua/output/x86_64-unknown-linux-gnu/release/darklua process main main --config main/.darklua.json
+
+
+    - name: Checkout makelove
+        # git+https://github.com/pfirsich/makelove.git@master
+      run: pip3 install git+https://github.com/UntitledModGame/makelove.git@master
+
+
+    - name: Debug0
+      run: tree
+    
+    - name: Build
+      run: cd main && python3 -m makelove win32 win64 appimage
+
+    - name: Debug
+      run: tree
+
+    - name: Win64 Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: win64
+        path: main/build_output/win64/
+
+    - name: Win32 Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: win32
+        path: main/build_output/win32/
+
+    - name: AppImage Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: linux
+        path: main/build_output/appimage/
+
+    - name: Love Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: love
+        path: main/build_output/love/
+
+

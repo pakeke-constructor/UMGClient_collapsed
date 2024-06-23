@@ -1,0 +1,344 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>UMG Mod API</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/sharedModAPI.html">sharedModAPI</a></li>
+  <li><strong>serverSideModAPI</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>serverSideModAPI</code></h1>
+<p>UMG Modding API</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#server.on">server.on (msg_name, func)</a></td>
+	<td class="summary">Server message listener
+ Listens to messages from all clients.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#server.broadcast">server.broadcast (msg_name, ...)</a></td>
+	<td class="summary">Server message broadcaster
+ Broadcasts a message across the network to all clients.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#server.lazyBroadcast">server.lazyBroadcast (msg_name, ...)</a></td>
+	<td class="summary">Lazy server message broadcaster
+ Same as `server.broadcast`, except in a more efficient manner.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#server.filter">server.filter ()</a></td>
+	<td class="summary">filter of server events
+ TODO: remove this function!</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#server.broadcast">server.broadcast (username, msg_name, ...)</a></td>
+	<td class="summary">Server message unicaster
+ Sends a message across the network to a specified client.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#server.broadcast">server.broadcast (username, msg_name, ...)</a></td>
+	<td class="summary">Server message unicaster
+ Same as `server.unicast`, except in a more efficient manner.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#server.getPlayers">server.getPlayers ()</a></td>
+	<td class="summary">Gets server players.<br>
+ Returns a list of clients (usernames) who are playing on the server</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#server.getPlayers">server.getPlayers (ent)</a></td>
+	<td class="summary">Force spawns an entity.<br>
+ When entities are created, they are buffered, and sent over the network
+ until the next frame.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "server.on"></a>
+    <strong>server.on (msg_name, func)</strong>
+    </dt>
+    <dd>
+    Server message listener
+ Listens to messages from all clients.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">msg_name</span>
+         The message name string
+        </li>
+        <li><span class="parameter">func</span>
+         The callback function
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "server.broadcast"></a>
+    <strong>server.broadcast (msg_name, ...)</strong>
+    </dt>
+    <dd>
+    Server message broadcaster
+ Broadcasts a message across the network to all clients.
+ The message sent will be received by `client.on`.
+ Entities are referenced by id when sent across the network, which is very efficient.
+ All other lua data can be sent across, except for functions.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">msg_name</span>
+         The message name string
+        </li>
+        <li><span class="parameter">...</span>
+         The data to sent across alongside the message name
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">server.broadcast(<span class="string">"my_event"</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="string">"blah"</span>) <span class="comment">-- Any lua data is supported, including entities.</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "server.lazyBroadcast"></a>
+    <strong>server.lazyBroadcast (msg_name, ...)</strong>
+    </dt>
+    <dd>
+    Lazy server message broadcaster
+ Same as `server.broadcast`, except in a more efficient manner.
+ The downside is that this message is not guaranteed to arrive.
+ (Since it is using raw UDP, basically)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">msg_name</span>
+         The message name string
+        </li>
+        <li><span class="parameter">...</span>
+         The data to sent across alongside the message name
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/serverSideModAPI.html#server.broadcast">server.broadcast</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">server.broadcast(<span class="string">"my_event"</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="string">"blah"</span>) <span class="comment">-- Any lua data is supported, including entities.</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "server.filter"></a>
+    <strong>server.filter ()</strong>
+    </dt>
+    <dd>
+    filter of server events
+ TODO: remove this function!
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "server.broadcast"></a>
+    <strong>server.broadcast (username, msg_name, ...)</strong>
+    </dt>
+    <dd>
+    Server message unicaster
+ Sends a message across the network to a specified client.
+ The message sent will be received by `client.on`.
+ Entities are referenced by id when sent across the network, which is very efficient.
+ All other lua data can be sent across, except for functions.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">username</span>
+         The username of the client to send the message to
+        </li>
+        <li><span class="parameter">msg_name</span>
+         The message name string
+        </li>
+        <li><span class="parameter">...</span>
+         The data to sent across alongside the message name
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">server.broadcast(<span class="string">"my_event"</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="string">"blah"</span>) <span class="comment">-- Any lua data is supported, including entities.</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "server.broadcast"></a>
+    <strong>server.broadcast (username, msg_name, ...)</strong>
+    </dt>
+    <dd>
+    Server message unicaster
+ Same as `server.unicast`, except in a more efficient manner.
+ The downside is that this message is not guaranteed to arrive.
+ (Since it is using raw UDP, basically)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">username</span>
+         The username of the client to send the message to
+        </li>
+        <li><span class="parameter">msg_name</span>
+         The message name string
+        </li>
+        <li><span class="parameter">...</span>
+         The data to sent across alongside the message name
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">server.broadcast(<span class="string">"my_event"</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="string">"blah"</span>) <span class="comment">-- Any lua data is supported, including entities.</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "server.getPlayers"></a>
+    <strong>server.getPlayers ()</strong>
+    </dt>
+    <dd>
+    Gets server players.<br>
+ Returns a list of clients (usernames) who are playing on the server
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        An array of usernames
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "server.getPlayers"></a>
+    <strong>server.getPlayers (ent)</strong>
+    </dt>
+    <dd>
+    Force spawns an entity.<br>
+ When entities are created, they are buffered, and sent over the network
+ until the next frame.
+ This function forces it to be sent over immediately.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ent</span>
+         The entity to spawn
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-09-29 21:03:59 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

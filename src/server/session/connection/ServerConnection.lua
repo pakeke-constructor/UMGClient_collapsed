@@ -1,0 +1,440 @@
+
+
+local path = tools.path(...)
+
+local ClientHandler = require(path .. ".ClientHandler")
+
+
+local BaseConnection = require("src.common.connection.Connection")
+
+local ServerConnection = tools.Class(BaseConnection)
+
+
+local REGULAR_CHANNEL = constants.ENET_REGULAR_CHANNEL
+local UNRELIABLE_CHANNEL = constants.ENET_UNRELIABLE_CHANNEL
+
+
+
+
+
+--[[
+
+=================================
+ENet backend thin wrapper:
+
+This makes it easy to swap networking backends in the future.
+Ie. if we switch to Steam networking sockets.
+=================================
+
+]]
+local function makeHost(ipport)
+    return enet.host_create(ipport)
+end
+
+
+local function unicast(self, clientId, data, isUnreliable)
+    -- using ENet backend, identifiers are ENet peers.
+    local peer = self.clientHandler:getIdentifier(clientId)
+    if isUnreliable then
+        peer:send(data, UNRELIABLE_CHANNEL, "unreliable")
+    else
+        peer:send(data, REGULAR_CHANNEL)
+    end
+end
+
+
+local broadcast
+do
+local function bcast(host, data, isUnreliable)
+    if isUnreliable then
+        host:broadcast(data, UNRELIABLE_CHANNEL, "unreliable")
+    else
+        host:broadcast(data, REGULAR_CHANNEL)
+    end
+end
+
+function broadcast(self, data, isUnreliable)
+    bcast(self.offlineEnetHost, data, isUnreliable)
+    if self.isOnline then
+        bcast(self.enetHost, data, isUnreliable)
+    end
+end
+end
+
+local function flushPackets(self)
+    -- flushes all outgoing packets
+    self.offlineEnetHost:flush()
+    if self.isOnline then
+        self.enetHost:flush()
+    end
+end
+
+--[[
+    TODO: combine into one call:
+        pollPackets(self)
+]]
+local function pollLocalPackets(self)
+    --[[
+        poll for all received packets
+    ]]
+    local host = self.offlineEnetHost
+    return function()
+        return host:service()
+    end
+end
+
+local function pollOnlinePackets(self)
+    if not self.isOnline then
+        return tools.nullFunction
+    end
+    return function()
+        return self.enetHost:service()
+    end
+end
+
+
+--[[
+
+==================================================
+    ENet backend END.
+==================================================
+
+]]
+
+
+
+
+
+
+
+
+local function initializeOnlineHost()
+    -- Hosting online via port forwarding or public IP
+    local host, err
+    local port = serverInitOptions.launchOptions.raw_port
+
+    local ip = tools.get_computer_ip()
+    log.trace("starting raw host on ip port: ", ip, port)
+
+    host, err = makeHost(ip .. ":" .. tostring(port))
+
+    if not host then
+        error("host failed creation: " .. tostring(err))
+    end
+    return host
+end
+
+
+
+local function makeWriterPair(self)
+    --[[
+        a writer pair is a pair of writers that is responsible for
+        Writing packets. Each pair has two writers:
+        one for unreliable packets, and one for normal packets.
+    ]]
+    local boxer = self.boxer
+    return {
+        unreliableWriter = boxer:newWriter(),
+        normalWriter = boxer:newWriter()
+    }
+end
+
+
+function ServerConnection:init(args)
+    tools.assertKeys(args, {"isOnline", "eventBus"})
+    tools.inlineMethods(self)
+    self:superInit(args)
+
+    -- port 0 --> OS will pick ephermeral port
+    self.offlineEnetHost = makeHost("127.0.0.1:0")
+    channelService.sendIPPort(tools.peer_to_ipport(self.offlineEnetHost))
+
+    self.isOnline = args.isOnline
+    if self.isOnline then
+        self.enetHost = initializeOnlineHost()
+    end
+
+    self.isReady = false
+
+    self.clientHandler = ClientHandler({
+        serverConnection = self,
+        eventBus = args.eventBus --[[
+            TODO::: wtf? should we really be passing the eventBus
+            in thru here...? ]]
+    })
+
+    self.globalWriters = makeWriterPair(self)
+
+    self.clientIdToWriterPair = {--[[
+        [clientId] -> {
+            writer = Boxer:newWriter()
+            unreliableWriter = Boxer:newWriter()
+        }
+    ]]}
+end
+
+
+
+
+
+local function getWriterFromPair(writerPair, options)
+    if options.isUnreliable then
+        return writerPair.unreliableWriter
+    else
+        return writerPair.normalWriter
+    end
+end
+
+local function getWriterFromClientId(self, clientId, options)
+    local map = self.clientIdToWriterPair
+    if not map[clientId] then
+        map[clientId] = makeWriterPair(self)
+    end
+    local writerPair = map[clientId]
+    return getWriterFromPair(writerPair, options)
+end
+
+
+local function writePacket(self, writer, packetName, a,b,c,d,e,f)
+    if self.isDynamicPacket[packetName] then
+        local data = self.packer:serializeVolatile(a,b,c,d,e,f)
+        writer:write(packetName, data)
+    else
+        writer:write(packetName, a,b,c,d,e,f)
+    end
+end
+
+
+local NULL_OPT = {}
+
+function ServerConnection:broadcast(options, packetName, a,b,c,d,e,f)
+    options = options or NULL_OPT
+    if packetName == "items:setInventorySlot" then
+        log.trace("items:setInventorySlot:::: ", a,b,c)
+    end
+    assert(type(options) == "table", "?")
+    if not self.isReady then
+        return -- no point in sending data if we aint ready!
+    end
+    local writer = getWriterFromPair(self.globalWriters, options)
+    writePacket(self, writer, packetName, a,b,c,d,e,f)
+end
+
+function ServerConnection:unicast(clientId, options, packetName, a,b,c,d,e,f)
+    options = options or NULL_OPT
+    assert(type(options) == "table", "?")
+    if not self.isReady then
+        return -- no point in sending data if we aint ready!
+    end
+    local writer = getWriterFromClientId(self, clientId, options)
+    writePacket(self, writer, packetName, a,b,c,d,e,f)
+end
+
+
+
+
+
+
+
+local function broadcastClientJoin(self, clientId)
+    local info = self.clientToInfo[clientId]
+    local data = json.encode(info)
+    self:broadcast(false, "@client_join", clientId, data)
+end
+
+
+local function broadcastClientLeave(self, clientId)
+    self:broadcast(false, "@client_leave", clientId)
+end
+
+
+
+
+
+
+
+local function flushAndBroadcast(self, writer, isUnreliable)
+    local data = writer:flush()
+    broadcast(self, data, isUnreliable)
+end
+
+
+local function flushAndUnicast(self, clientId, writer, isUnreliable)
+    local data = writer:flush()
+    unicast(self, clientId, data, isUnreliable)
+end
+
+local function flushClientWriters(self, clientId)
+    local writerPair = self.clientIdToWriterPair[clientId]
+    if not writerPair then
+        -- no unicasting has been done for this client
+        return
+    end
+
+    local writer = writerPair.normalWriter
+    flushAndUnicast(self, clientId, writer)
+
+    local unreliableWriter = writerPair.unreliableWriter
+    flushAndUnicast(self, clientId, unreliableWriter, true)
+end
+
+
+function ServerConnection:tick(dt)
+    -- unicasts:
+    for clientId in self.clientHandler:iter() do
+        -- flush client unicast buffers
+       flushClientWriters(self, clientId)
+    end
+
+    self:broadcast(false, "@tick", dt)
+
+    -- broadcasts:
+    local writerPair = self.globalWriters
+    flushAndBroadcast(self, writerPair.normalWriter)
+    flushAndBroadcast(self, writerPair.unreliableWriter, true)
+    
+    flushPackets(self)
+end
+
+
+
+function ServerConnection:getPlayers()
+    local tabl = {}
+    for clientId in self.clientHandler:iter() do
+       table.insert(tabl, clientId)
+    end
+    return tabl
+end
+
+
+
+
+local defineResponderTc = tc.assert("string", "table")
+
+function ServerConnection:defineResponder(packetName, options)
+    defineResponderTc(packetName, options)
+    --[[
+        :defineResponder("@my_packet", {
+            response = function(self, clientId, a,b,c,d,e,f)
+                broadcast(...)
+            end,
+            
+            responsesPerSecond = 1/60; 1 response every 60 seconds.
+        })
+    ]]
+    local lastRequestTime = {--[[
+        [clientId] --> time
+    ]]}
+
+    -- delay = time in seconds between packet responses
+    local delay = 1 / (options.responsesPerSecond or math.huge)
+
+    local function okayToRespond(clientId)
+        local time = love.timer.getTime()
+        local lastTime = lastRequestTime[clientId] or -0xfffffffff
+        local hasAuth = self.clientHandler:isAuthenticated(clientId) 
+        return hasAuth and ((lastTime + delay) <= time)
+    end
+
+    self:on(packetName, function(clientId, a,b,c,d,e,f)
+        if okayToRespond(clientId) then
+            options.response(self, clientId, a,b,c,d,e,f)
+            lastRequestTime[clientId] = love.timer.getTime() 
+        end
+    end)
+end
+
+
+
+
+
+local function dispatchConnect(self, ev)
+    self.isReady = true
+end
+
+local function dispatchDisconnect(self, ev)
+    local clientId = self.clientHandler:getClientId(ev.peer)
+    self.clientHandler:disconnectClient(ev.peer)
+    broadcastClientLeave(self, clientId)
+end
+
+
+local function acceptClient(self, identifier)
+    local clientId = self.clientHandler:getClientId(identifier)
+    local clientInitJson = {
+        -- Can put more data here if we want.
+        packetVersion = constants.BOXER_PACKET_VERSION,
+        boxerData = self.boxer:serializeData(),
+    }
+    local data = json.encode(clientInitJson)
+    -- unicast raw json data:
+    unicast(self, clientId, data)
+    broadcastClientJoin(self, clientId)
+    log.trace("ACCEPTING CLIENT: ", clientId)
+end
+
+
+
+local function dispatchReceive(self, ev)
+    local identifier = ev.peer
+    local data = ev.data
+    local clientHandler = self.clientHandler
+    local listener = self:getCurrentListener()
+    local clientId = clientHandler:getClientId(identifier)
+
+    if (not clientId) then
+        -- Then we need to attempt to authenticate the client.
+        -- Read and try accept the connectJson:
+        local connectJson = data
+        local success = clientHandler:tryAuthenticateClient(identifier, connectJson)
+        if success then
+            acceptClient(self, identifier)
+        end
+
+    elseif clientHandler:isAuthenticated(clientId) then
+        --[[
+            HMMM: should we be checking whether clientId is ready
+            before reading the packets..?
+            That could be a good idea.
+        ]]
+        self:foreachPacket(data, function(_self, packetName, a,b,c,d,e,f)
+            local func = listener[packetName]
+            if func then
+                func(clientId, a,b,c,d,e,f)
+            end
+        end)
+    else
+        log.trace("Wot wot??")
+    end
+end
+
+local dispatch = {
+    receive = dispatchReceive,
+    disconnect = dispatchDisconnect,
+    connect = dispatchConnect
+}
+
+
+
+function ServerConnection:update(dt)
+    for ev in pollLocalPackets(self) do
+        dispatch[ev.type](self, ev)
+    end
+
+    for ev in pollOnlinePackets(self) do
+        dispatch[ev.type](self, ev)
+    end
+end
+
+
+
+
+function ServerConnection:broadcastNewPacketId(packetName)
+    local packetId = self.boxer:getPacketId(packetName)
+    assert(packetId,"?")
+    self:broadcast(false, "@define_packet_id", packetId, packetName)
+end
+
+
+return ServerConnection
+

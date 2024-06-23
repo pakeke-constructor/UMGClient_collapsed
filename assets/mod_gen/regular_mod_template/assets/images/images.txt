@@ -1,0 +1,9 @@
+
+image files go in here, and are automatically loaded 
+(and put into a texture atlas) by UMG.
+
+Supported types:
+png, jpeg, jpg, bmp, tga, hdr, pic, exr
+
+
+(paths/files starting with "_" are ignored)
