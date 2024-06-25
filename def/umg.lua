@@ -132,22 +132,101 @@ umg.melt = error
 function umg.expose(variable_name, value)
 end
 
----@alias Entity table<string, any>
+---@class EntityClass
+---@field public id integer
+local EntityClass = {}
 
----@class EntityGroup
-local EntityGroup = {}
+---@return string
+function EntityClass:type()
+end
+
+---deletes an entity through buffering
+function EntityClass:shallowDelete()
+end
+
+---deletes an entity, and also deletes all entities inside of `Entity`
+function EntityClass:delete()
+end
+
+---shallow clones an entity
+function EntityClass:shallowClone()
+end
+
+---deep clones an entity
+function EntityClass:clone()
+end
+
+---adds components
+---@param compName string
+---@param value any
+function EntityClass:addComponent(compName, value)
+end
+
+---@param compName string
+function EntityClass:removeComponent(compName)
+end
+
+---@return fun(t: table<string, any>, idx?: string):(string, any), table<string, any>
+function EntityClass:components()
+end
+
+---@param compName string
+---@return any
+function EntityClass:getComponent(compName)
+end
+
+---@param compName string
+---@return boolean
+function EntityClass:hasComponent(compName)
+end
+
+---checks if component is a shared component
+---@param compName string
+---@return boolean
+function EntityClass:isSharedComponent(compName)
+end
+
+---checks if component is a regular component
+---@param compName string
+---@return boolean
+function EntityClass:isRegularComponent(compName)
+end
+
+---@return boolean
+function EntityClass:isDeleted()
+end
+
+---entities are ALWAYS owned on the server
+---@return boolean
+function EntityClass:isOwned()
+end
+
+---@return boolean
+function EntityClass:isClientSide()
+end
+
+---@alias Entity EntityClass|table<string, any>
+
+---@class EntityGroupClass
+local EntityGroupClass = {}
 
 ---@param callback fun(ent:Entity)
-function EntityGroup:onAdded(callback)
+function EntityGroupClass:onAdded(callback)
 end
 
 ---@param callback fun(ent:Entity)
-function EntityGroup:onRemoved(callback)
+function EntityGroupClass:onRemoved(callback)
 end
 
 ---@param ent Entity
 ---@return boolean
-function EntityGroup:has(ent)
+function EntityGroupClass:has(ent)
 end
+
+---@return integer
+function EntityGroupClass:size()
+end
+
+---@alias EntityGroup EntityGroupClass|Entity[]
 
 return umg

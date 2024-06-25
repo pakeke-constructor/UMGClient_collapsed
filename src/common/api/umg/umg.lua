@@ -95,7 +95,7 @@ local function addEntityFunctions(umg, lobj)
     end
 
     function umg.getEntity(id)
-        cyWorld:getEntity(id)
+        return cyWorld:getEntity(id)
     end
 
     local defineEntityTypeTc = tc.assert(tc.string, tc.table)
