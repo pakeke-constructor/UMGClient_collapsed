@@ -3,7 +3,7 @@
 ---@class umg
 umg = {}
 
----@param ent Entity
+---@param ent any
 ---@return boolean
 function umg.exists(ent)
 end
