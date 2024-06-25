@@ -99,7 +99,29 @@ end
 function umg.rawcall(name, ...)
 end
 
----@param name string
+---@alias UMGCallback string
+---| "@tick"
+---| "@load" 
+---| "@createWorld"
+---| "@playerJoin" 
+---| "@playerLeave"
+---| "@quit"
+---| "@draw" 
+---| "@update"
+---| "@keypressed" 
+---| "@textinput" 
+---| "@keyreleased"
+---| "@resize"
+---| "@wheelmoved" 
+---| "@mousepressed" 
+---| "@mousereleased" 
+---| "@mousemoved"
+---| "@entityInit" 
+---| "@newEntityType"
+---| "@debugComponentAccess" 
+---| "@debugComponentChange"
+
+---@param name UMGCallback
 ---@param callback fun(...:any)
 function umg.on(name, callback)
 end
@@ -149,10 +171,12 @@ function EntityClass:delete()
 end
 
 ---shallow clones an entity
+---@return Entity
 function EntityClass:shallowClone()
 end
 
 ---deep clones an entity
+---@return Entity
 function EntityClass:clone()
 end
 
