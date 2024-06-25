@@ -10,7 +10,7 @@ The state for where the game is actually being played
 
 local path = tools.path(...)
 
-local Settings = require(path .. ".settings.Settings")
+local Settings = require(path .. ".settings.settings")
 
 local hoster = require("src.client.hoster")
 

@@ -99,8 +99,6 @@ local oks = {
     "replaceTransform",
     "transformPoint",
     "inverseTransformPoint",
-    "setOrthoProjection",
-    "setPerspectiveProjection",
     "resetProjection",
     "getCanvasFormats",
     "getImageFormats",
@@ -213,7 +211,9 @@ return function(l)
     end
 
     for _, key in ipairs(oks) do
-        assert(love.graphics[key], "wot")
+        if not love.graphics[key] then
+            error("wot "..key)
+        end
         graphics[key] = love.graphics[key]
     end
 
