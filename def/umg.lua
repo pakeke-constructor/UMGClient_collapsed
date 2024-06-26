@@ -126,6 +126,12 @@ end
 function umg.on(name, callback)
 end
 
+---@param name UMGCallback
+---@param prio integer
+---@param callback fun(...:any)
+function umg.on(name, prio, callback)
+end
+
 ---@param question string
 ---@param reducer fun(...:any):...
 function umg.defineQuestion(question, reducer)
