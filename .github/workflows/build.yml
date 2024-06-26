@@ -14,74 +14,74 @@ on: workflow_dispatch
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
-      #  ubuntu-21.10 <--- does this version do anything..?
-    # I think we gotta run on this ubuntu version, since this has FUSE installed.
-    # (Not too sure, but ubuntu-latest doesn't work in building appimages for some reason!)
-
-    # Checkout UMGClient
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    # Preps
+    - name: Install libfuse2
+      run: sudo apt-get install libfuse2
+    - name: Download AppImageTool
+      run: |
+        set -e
+        curl -Lfo appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+        chmod +x appimagetool
+    # Checkout UMGClient and the mods
+    - name: Checkout
+      uses: actions/checkout@v4
       with: 
         path: main
-
+    - name: Checkout Mods
+      uses: actions/checkout@v4
+      with:
+        repository: UntitledModGame/umg-mods
+        ssh-key: ${{ secrets.UMG_MODS_CICD }}
+        path: main/builtin_mods
     # Clone and build Darklua:
     - name: Clone Darklua
-      uses: GuillaumeFalourd/clone-github-repo-action@v2.2
+      uses: actions/checkout@v4
       with:
-        depth: 1
-        branch: 'main'
-        owner: 'seaofvoices'
-        repository: 'darklua'
+        repository: seaofvoices/darklua
+        ref: v0.13.1
+        path: darklua
     - name: Build Darklua
-      run: |
-        cd darklua
-        cargo build --locked --release --target x86_64-unknown-linux-gnu
+      working-directory: darklua
+      run: cargo build --locked --release --target x86_64-unknown-linux-gnu
       env:
         CARGO_TARGET_DIR: output
     # Run darklua processor across lua files:
     - name: Darklua Preprocessing
       run: |
-        sudo chmod +x ./darklua/output/x86_64-unknown-linux-gnu/release/darklua
-        sudo ./darklua/output/x86_64-unknown-linux-gnu/release/darklua process main main --config main/.darklua.json
-
-
-    - name: Checkout makelove
-        # git+https://github.com/pfirsich/makelove.git@master
-      run: pip3 install git+https://github.com/UntitledModGame/makelove.git@master
-
-
-    - name: Debug0
-      run: tree
-    
-    - name: Build
-      run: cd main && python3 -m makelove win32 win64 appimage
-
-    - name: Debug
-      run: tree
-
-    - name: Win64 Artifact
-      uses: actions/upload-artifact@v2
+        set -e
+        chmod +x darklua/output/x86_64-unknown-linux-gnu/release/darklua
+        ./darklua/output/x86_64-unknown-linux-gnu/release/darklua process main main --config main/.darklua.json
+    # Linux fusing
+    - name: Extract LOVE AppImage (Linux Fusing)
+      run: main/build/love/linux64/love.AppImage --appimage-extract
+    - name: Copy UMG to /share/umg
+      run: |
+        set -e
+        cp -r main squashfs-root/share/umg
+    - name: Cleanup (Linux Fusing)
+      working-directory: squashfs-root/share/umg
+      run: |
+        rm -rf .git ARCHITECTURE build *.toml *.dll config.ld r.bat steam_api64.lib
+        rm -rf builtin_mods/.git
+    - name: Update AppRun
+      working-directory: squashfs-root
+      run: |
+        set -e
+        sed 's@#FUSE_PATH="$APPDIR/my_game.love"@FUSE_PATH="$APPDIR/share/umg"@' AppRun > newAppRun
+        mv newAppRun AppRun
+        chmod +x AppRun
+    - name: Add 3rd-party Libs (Linux Fusing)
+      run: |
+        set -e
+        cp main/build/dlls/linux64/luasteam.so squashfs-root/share/lua/5.1/luasteam.so
+        cp main/build/dlls/linux64/libsteam_api.so squashfs-root/lib/libsteam_api.so
+    - name: Build AppImage (Linux Fusing)
+      run: ./appimagetool squashfs-root umg.AppImage
+    - name: Artifact Linux AppImage
+      uses: actions/upload-artifact@v4
       with:
-        name: win64
-        path: main/build_output/win64/
-
-    - name: Win32 Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: win32
-        path: main/build_output/win32/
-
-    - name: AppImage Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: linux
-        path: main/build_output/appimage/
-
-    - name: Love Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: love
-        path: main/build_output/love/
-
-
+        name: umg-linux
+        path: umg.AppImage
+        if-no-files-found: error
