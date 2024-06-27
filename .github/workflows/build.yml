@@ -1,19 +1,10 @@
-
-#
-# Originally taken from 
-# https://github.com/pfirsich/lovejam20/blob/349f645ec65db9563b1c58f176f0207051294875/.github/workflows/build.yml
-#
-#
-
-
 name: build_umg
-
 
 on: workflow_dispatch
 
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
     # Preps
@@ -63,7 +54,7 @@ jobs:
     - name: Cleanup (Linux Fusing)
       working-directory: squashfs-root/share/umg
       run: |
-        rm -rf .git ARCHITECTURE build *.toml *.dll config.ld r.bat steam_api64.lib
+        rm -rf .git .darklua.json ARCHITECTURE build *.toml *.dll config.ld r.bat steam_api64.lib .git*
         rm -rf builtin_mods/.git
     - name: Update AppRun
       working-directory: squashfs-root
@@ -75,8 +66,9 @@ jobs:
     - name: Add 3rd-party Libs (Linux Fusing)
       run: |
         set -e
-        cp main/build/dlls/linux64/luasteam.so squashfs-root/share/lua/5.1/luasteam.so
+        mkdir -p squashfs-root/lib/lua/5.1
         cp main/build/dlls/linux64/libsteam_api.so squashfs-root/lib/libsteam_api.so
+        cp main/build/dlls/linux64/luasteam.so squashfs-root/lib/lua/5.1/luasteam.so
     - name: Build AppImage (Linux Fusing)
       run: ./appimagetool squashfs-root umg.AppImage
     - name: Artifact Linux AppImage
@@ -84,4 +76,35 @@ jobs:
       with:
         name: umg-linux
         path: umg.AppImage
+        if-no-files-found: error
+    # Windows fusing
+    - name: Prepare Windows Fusing
+      run: |
+        set -e
+        cp -r main/build/love/win64 windows
+        rm windows/love.exe windows/love.ico windows/lovec.exe
+    - name: Add 3rd-party Libs (Windows Fusing)
+      run: |
+        set -e
+        cp main/build/dlls/luasteam.dll windows/luasteam.dll
+        cp main/build/dlls/steam_api.dll windows/steam_api.dll
+        cp main/build/dlls/steam_api64.dll windows/steam_api64.dll
+    - name: Zip Game (Windows Fusing)
+      working-directory: squashfs-root/share/umg
+      run: 7z a -mx9 ../../../umg.zip *
+    - name: Fuse (Windows)
+      run: cat main/build/love/win64/windows/love.exe umg.zip > windows/umg.exe
+    - name: Prepare to Zip Binaries (Windows Fusing)
+      run: |
+        set -e
+        mkdir -p umg_build_windows
+        mv windows umg_build_windows/umg
+    - name: Zip Binaries
+      working-directory: umg_build_windows
+      run: 7z a -mx9 ../umg-win64.zip umg
+    - name: Artifact Windows Binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: umg-windows
+        path: umg-win64.zip
         if-no-files-found: error
