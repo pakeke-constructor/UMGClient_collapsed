@@ -86,9 +86,9 @@ jobs:
     - name: Add 3rd-party Libs (Windows Fusing)
       run: |
         set -e
-        cp main/build/dlls/luasteam.dll windows/luasteam.dll
-        cp main/build/dlls/steam_api.dll windows/steam_api.dll
-        cp main/build/dlls/steam_api64.dll windows/steam_api64.dll
+        cp main/build/dlls/win64/luasteam.dll windows/luasteam.dll
+        cp main/build/dlls/win64/steam_api.dll windows/steam_api.dll
+        cp main/build/dlls/win64/steam_api64.dll windows/steam_api64.dll
     - name: Zip Game (Windows Fusing)
       working-directory: squashfs-root/share/umg
       run: 7z a -mx9 ../../../umg.zip *
