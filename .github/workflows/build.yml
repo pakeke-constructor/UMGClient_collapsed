@@ -93,13 +93,14 @@ jobs:
       run: |
         set -e
         cp -r main/build/love/win64 windows
-        rm windows/love.exe windows/love.ico windows/lovec.exe
+        rm windows/love.exe windows/love_orig.exe windows/love.ico windows/lovec.exe
     - name: Add 3rd-party Libs (Windows Fusing)
       run: |
         set -e
         cp main/build/dlls/win64/luasteam.dll windows/luasteam.dll
         cp main/build/dlls/win64/steam_api.dll windows/steam_api.dll
         cp main/build/dlls/win64/steam_api64.dll windows/steam_api64.dll
+        cp main/steam_appid.txt windows/steam_appid.txt
     - name: Zip Game (Windows Fusing)
       working-directory: squashfs-root/share/umg
       run: 7z a -mx9 ../../../umg.zip *
