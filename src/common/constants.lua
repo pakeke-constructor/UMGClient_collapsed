@@ -30,7 +30,7 @@ return setmetatable({
     MAX_USERNAME_LENGTH = 16,
 
     MOD_TEXTURE_ATLAS_SIZE = 4096; -- X by X pixels
-    
+
     COSMETIC_COLOURS = {
         GREY = {140/255, 140/255, 140/255}; -- default
 
