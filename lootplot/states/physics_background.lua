@@ -8,6 +8,8 @@ local NUM_ITEMS = 400
 ---@class lootplot.PhysicsItem
 local PhysicsItem = tools.SafeClass()
 
+local PHYSICS_ITEM_SIZE = 6
+
 ---@param world lootplot.PhysicsWorldScreen
 ---@param quad love.Quad
 function PhysicsItem:init(world, quad)
@@ -17,15 +19,16 @@ function PhysicsItem:init(world, quad)
     local worldWidth, worldHeight = world:getDimensions()
     local x,y = love.math.random(-worldWidth / 2, worldWidth / 2), love.math.random(-worldHeight / 2, worldHeight / 2)
     self.body = love.physics.newBody(world:getWorld(), x, y, "dynamic")
-    self.shape = love.physics.newCircleShape(self.body, 8)
+    self.shape = love.physics.newCircleShape(self.body, PHYSICS_ITEM_SIZE)
     self.width, self.height = select(3, quad:getViewport())
 end
 
-function PhysicsItem:update(dt)
+function PhysicsItem:getPosition()
+    return self.body:getPosition()
 end
 
 function PhysicsItem:draw(atlas)
-    local x, y = self.body:getPosition()
+    local x, y = self:getPosition()
     local angle = self.body:getAngle()
     atlas:draw(self.quad, x, y, angle, 1, 1, self.width / 2, self.height / 2)
 end
@@ -155,12 +158,28 @@ function PhysicsWorldScreen:addButton(def)
     return self.buttons:add(PhysicsButton(self, def.x, def.y, self.namedQuads[def.image], def.text, def.onClick))
 end
 
-function PhysicsWorldScreen:clickButton(x, y)
+
+local function length(x, y)
+	return math.sqrt(x * x + y * y)
+end
+
+function PhysicsWorldScreen:boom(x, y)
+    for _, item in ipairs(self.items) do
+        local xx,yy = item:getPosition()
+        if length(x-xx, y-yy) < 50 then
+            item.body:applyLinearImpulse(xx-x, yy-y)
+        end
+    end
+end
+
+
+function PhysicsWorldScreen:click(x, y)
     for _, button in ipairs(self.buttons) do
         if button:tryTriggerClick(x, y) then
             return
         end
     end
+    self:boom(x,y)
 end
 
 return PhysicsWorldScreen

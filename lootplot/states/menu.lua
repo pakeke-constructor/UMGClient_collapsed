@@ -110,7 +110,14 @@ end)
 
 Host:on("mousereleased", function(self, x, y, b)
     if b == 1 then
-        self.physicsWorld:clickButton(self.physicsTransform:inverseTransformPoint(x, y))
+        self.physicsWorld:click(self.physicsTransform:inverseTransformPoint(x, y))
+    end
+end)
+
+Host:on("keypressed", function(self, x, y, b)
+    if x == "r" then
+        self:_free()
+        self:_setup()
     end
 end)
 
