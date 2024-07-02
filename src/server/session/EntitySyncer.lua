@@ -81,7 +81,7 @@ function setupCallbacks(self)
     local packer = self.packer
     local serverConnection = self.serverConnection
 
-    local function addComponent(ent, compName, compVal)
+    local function addComponent(ent, compName)
         if not packer:isEntityKnown(ent) then
             -- no need to sync the change, since the entity isn't know about.
             return -- (the sync will be sent over in the future anyway)
@@ -90,6 +90,7 @@ function setupCallbacks(self)
             return -- don't sync id.
         end
 
+        local compVal = ent[compName]
         log.trace("add component: ", ent:type(), compName, compVal)
         local data = packer:serializeVolatile(compVal)
         serverConnection:broadcast(false, "@ent_add_component", ent, compName, data)
