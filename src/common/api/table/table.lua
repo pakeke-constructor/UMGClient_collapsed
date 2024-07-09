@@ -1,7 +1,8 @@
 
 
 local allowed = {
-    "insert", "remove", "sort", -- lua functions
+    -- lua functions
+    "insert", "remove", "sort", "foreach", "concat", "move",
 }
 
 return function()
