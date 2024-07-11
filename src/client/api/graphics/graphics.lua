@@ -156,11 +156,16 @@ local shaders = {
     "validateShader"
 }
 
-
+---@param obj any
+---@param t string
+---@return boolean
+local function isLOVEType(obj, t)
+    return type(obj) == "userdata" and obj.typeOf and obj:typeOf(t)
+end
 
 local conv_tc = tc.assert("table", "function")
 
-local function convert_first_arg_to_imagedata(lobj, func)
+local function convert_first_arg_to_filedata(lobj, func)
     conv_tc(lobj, func)
     --[[
         we need to restrict the user so they can't load arbitrary
@@ -169,12 +174,19 @@ local function convert_first_arg_to_imagedata(lobj, func)
         and if so, mangle it.
     ]]
     return function(a,...)
-        if type(a) == "string"  then
-            -- its a filename, convert first arg to imagedata
+        local t = type(a)
+        if t == "string"  then
+            -- its a filename, convert first arg to filedata
             local path = a
             local filedata = lobj.fsysObj:newFileData(path)
-            local image_data = love.image.newImageData(filedata)
-            return func(image_data, ...)
+            return func(filedata, ...)
+        elseif not isLOVEType(a, "FileData") then
+            if isLOVEType(a, "Object") then
+                ---@cast a love.Object
+                t = a:type()
+            end
+
+            error("argument type '"..t.."' is not allowed")
         end
 
         return func(a,...) -- a is not a path, so OK.
@@ -183,6 +195,7 @@ end
 
 
 local first_arg_imagedata = {
+    "newFont",
     "newImage",
     "newImageFont",
     "newCubeImage"
@@ -202,7 +215,7 @@ return function(l)
 
     for _, key in ipairs(first_arg_imagedata) do
         local func = love.graphics[key]
-        graphics[key] = convert_first_arg_to_imagedata(l, func)
+        graphics[key] = convert_first_arg_to_filedata(l, func)
     end
 
     for _, key in ipairs(shaders) do

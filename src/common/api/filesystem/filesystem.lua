@@ -31,7 +31,13 @@ return function(lobj)
 
     addFSysFuncs(lobj, filesystem)
 
-    filesystem.newFileData = love.filesystem.newFileData
+    filesystem.newFileData = function(contents, filename)
+        if filename == nil then
+            return lobj.fsysObj:newFileData(contents)
+        else
+            return love.filesystem.newFileData(contents, filename)
+        end
+    end
 
     filesystem.read = function(fname_or_ct, size_or_fname, size_or_nil)
         local fname = fname_or_ct
