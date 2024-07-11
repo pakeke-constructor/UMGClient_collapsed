@@ -68,7 +68,7 @@ client.atlas = {}
 ---@param sy number?
 ---@param ox number?
 ---@param oy number?
-function client.atlas:draw(quad, x,y, r, sx,sy, ox,oy)
+function client.atlas:draw(quad, x,y, r, sx,sy, ox,oy, kx,ky)
 end
 
 return client
