@@ -18,8 +18,14 @@ local function setupSpawnAndDelete(ingameSession)
 
     clientConnection:on("@spawn_entities", function(entityPckrData)
         local t, err = packer:deserializeVolatile(entityPckrData)
-        if not t then
-            log.error("@spawn_entities: Couldn't deserialize: ", err)
+        if constants.DEBUG then
+            if (not t) then
+                log.error("@spawn_entities: Couldn't deserialize: ", err)
+            else
+                for _, ent in ipairs(t)do
+                    log.trace("entity-spawn: ", tostring(ent))
+                end
+            end
         end
     end)
 

@@ -68,6 +68,7 @@ function EntitySyncer:sendEntitySpawn()
     local entData = packer:serializeVolatile(self.createEntityBuffer)
     self.serverConnection:broadcast(false, "@spawn_entities", entData)
     for _, ent in ipairs(self.createEntityBuffer) do
+        log.trace("entity-spawn: ", tostring(ent))
         packer:makeEntityKnown(ent)
     end
     
@@ -91,7 +92,7 @@ function setupCallbacks(self)
         end
 
         local compVal = ent[compName]
-        log.trace("add component: ", ent:type(), compName, compVal)
+        log.trace("add component: ", tostring(ent), compName, compVal)
         local data = packer:serializeVolatile(compVal)
         serverConnection:broadcast(false, "@ent_add_component", ent, compName, data)
     end
@@ -100,7 +101,7 @@ function setupCallbacks(self)
         if not packer:isEntityKnown(ent) then
             return -- no need to sync. Same as above.
         end
-        log.trace("remove component: ", ent:type(), compName)
+        log.trace("remove component: ", tostring(ent), compName)
         serverConnection:broadcast(false, "@ent_remove_component", ent, compName)
     end
 

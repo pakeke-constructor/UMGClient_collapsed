@@ -114,20 +114,24 @@ end
 if SERVER_SIDE then
 --[[
     Only available on server-side!!!
+    (On clientside, we ALWAYS serialize by id.)
 
     known-entities are entities that are "known" about on Client-side.
     Useful for checking whether we serialized by id or not.
 ]]
 
 function Packer:isEntityKnown(ent)
+    -- Should we serialize by id or not?
     return self.knownEntities[ent]
 end
 
 function Packer:removeKnownEntity(ent)
+    -- We will NO LONGER serialize this entity by id.
     self.knownEntities[ent] = nil
 end
 
 function Packer:makeEntityKnown(ent)
+    -- We will now serialize this entity by id.
     self.knownEntities[ent] = true
 end
 
