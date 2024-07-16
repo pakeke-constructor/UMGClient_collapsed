@@ -58,7 +58,7 @@ end
 
 
 
-function EntitySyncer:sendEntitySpawn()
+function EntitySyncer:sendSpawnEntities()
     local packer = self.packer
     if #self.createEntityBuffer <= 0 then
         -- nothing in the creation-buffer!

@@ -75,7 +75,7 @@ local function tick(self, dt)
     -- order of this is kinda important.
     -- (If its out of order, it'll be a bit more inefficient)
     self.umgSession:tick(dt)
-    self.entitySyncer:sendEntitySpawn()
+    self.entitySyncer:sendSpawnEntities()
     self.serverConnection:tick(dt)
 end
 
