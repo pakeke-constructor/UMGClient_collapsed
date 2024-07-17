@@ -32,7 +32,7 @@ rawset(_G.string, "buffer", require("string.buffer")) -- luaJIT's string.buffer
 
 rawset(_G, "tools",     require "libs.tools.tools" )
 rawset(_G, "tc",        require "libs.typecheck.typecheck")
-rawset(_G, "log",     require("src.common.log"))
+rawset(_G, "log",     require("src.common.log.log"))
 
 
 rawset(_G, "AsyncTask", require("src.common.misc.AsyncTask"))

@@ -15,13 +15,8 @@ BE CONFLICTS, because the threads will be shared.
 local channelService = tools.SafeTable()
 
 local LaunchOptions = require("src.common.misc.LaunchOptions")
-local log = require("src.common.log")
+local log = require("src.common.log.log")
 
-local outputLoggers
-
-if CLIENT_SIDE then
-    outputLoggers = require("src.common.log.setup")
-end
 
 
 local function enum(t)
@@ -142,7 +137,6 @@ function channelService.provideServerInitOptions(launchOptions)
         fileLogLevel = outputLoggers.file and outputLoggers.file.level or "none",
         serializedLaunchOptions = launchOptions:serialize(),
     }
-    print(log.getLevel())
     clearAndSend("server_init_options", options)
 end
 

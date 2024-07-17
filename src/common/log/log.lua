@@ -89,34 +89,8 @@ log.warn = makelogfunc("warn")
 log.error = makelogfunc("error")
 log.fatal = makelogfunc("fatal")
 
--- monkeypatch: 
----@param level log.level
-function log.setLevel(level)
-    if not modes[level] then
-        return false
-    end
-    mainLogLevel = level
-    return true
-end
 
----Get main log level
-function log.getLevel()
-    return mainLogLevel
-end
 
----@param ... log.level
-function log.getHighestLevel(...)
-    local currentHighest = ...
-
-    for i = 2, select("#", ...) do
-        local loglevel = select(i, ...)
-        if modes[loglevel] < modes[currentHighest] then
-            currentHighest = loglevel
-        end
-    end
-
-    return currentHighest
-end
 
 ---lowest level index has highest priority
 ---@param loglevel string
