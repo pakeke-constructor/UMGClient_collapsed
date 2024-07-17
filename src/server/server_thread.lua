@@ -16,6 +16,7 @@ end})
 require("love.timer")
 require("love.physics")
 require("love.math")
+require("love.system")
 
 rawset(_G, "CLIENT_SIDE", false)
 rawset(_G, "SERVER_SIDE", true)
