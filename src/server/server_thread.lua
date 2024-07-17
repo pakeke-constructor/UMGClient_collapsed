@@ -36,6 +36,27 @@ local function print(...)
 end
 rawset(_G, "print", print)
 
+local serverInitOptions = channelService.getServerInitOptions()
+rawset(_G, "serverInitOptions", serverInitOptions)
+
+-- Init logs
+do
+
+log.setLevel("trace")
+log.registerLogger({
+    level = serverInitOptions.consoleLogLevel,
+    output = function(level, lineinfo, text)
+        channelService.sendPrint(string.format("%s%s\27[0m", log.ansicodes[level], log.formatLog(level, lineinfo, text)))
+    end
+})
+log.registerLogger({
+    level = serverInitOptions.fileLogLevel,
+    output = function(level, lineinfo, text)
+        channelService.sendLog(level, lineinfo, text)
+    end
+})
+end
+
 log.info("Server thread started!")
 
 rawset(_G, "luasteam",  require "src.common.misc.luasteam")
@@ -49,10 +70,7 @@ local time = love.timer.getTime()
 log.trace("Server UMG modules loaded successfully.")
 
 
-local serverInitOptions = channelService.getServerInitOptions()
 local launchOptions = serverInitOptions.launchOptions
-rawset(_G, "serverInitOptions", serverInitOptions)
-
 
 
 local ServerSession = require("src.server.session.ServerSession")

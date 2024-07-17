@@ -15,7 +15,13 @@ BE CONFLICTS, because the threads will be shared.
 local channelService = tools.SafeTable()
 
 local LaunchOptions = require("src.common.misc.LaunchOptions")
+local log = require("src.common.log")
 
+local outputLoggers
+
+if CLIENT_SIDE then
+    outputLoggers = require("src.common.log.setup")
+end
 
 
 local function enum(t)
@@ -31,7 +37,8 @@ end
 
 local serverToClient = enum({
     "server_memory", -- keep count of mem use on client
-    "print", -- proxying prints to client
+    "console_output", -- proxying prints to client
+    "log_output", -- proxying log text from server to client
     "ipport" -- providing local port to clientside
 })
 
@@ -131,8 +138,11 @@ function channelService.provideServerInitOptions(launchOptions)
     local options = {
         clientId = userService.clientId,
         username = userService.username,
+        consoleLogLevel = outputLoggers.console and outputLoggers.console.level or "none",
+        fileLogLevel = outputLoggers.file and outputLoggers.file.level or "none",
         serializedLaunchOptions = launchOptions:serialize(),
     }
+    print(log.getLevel())
     clearAndSend("server_init_options", options)
 end
 
@@ -143,8 +153,9 @@ function channelService.getServerInitOptions()
     assert(launchOptions, "no launch options given")
     assert(options.username, "needs username")
     assert(options.clientId, "needs clientId")
+    assert(options.consoleLogLevel, "need console log level")
+    assert(options.fileLogLevel, "need file log level")
     options.clientId = tostring(options.clientId)
-
     options.serializedLaunchOptions = nil
     options.launchOptions = launchOptions
     return options
@@ -161,11 +172,11 @@ function channelService.sendPrint(...)
     for i,v in ipairs(t) do
         t[i] = tostring(v)
     end
-    local channel = getSendChannel("print")
+    local channel = getSendChannel("console_output")
     channel:push(t)
 end
 function channelService.executePrints()
-    local channel = getReceiveChannel("print")
+    local channel = getReceiveChannel("console_output")
     local tabl = channel:pop()
     while tabl do
         print("[Server] ", unpack(tabl))
@@ -173,8 +184,26 @@ function channelService.executePrints()
     end
 end
 
+function channelService.sendLog(level, lineinfo, text)
+    local channel = getSendChannel("log_output")
+    channel:push({level, lineinfo, text})
+end
 
+function channelService.executeLogs()
+    local channel = getReceiveChannel("log_output")
+    while true do
+        local logdata = channel:pop()
 
+        if not logdata then
+            break
+        end
+
+        local level, lineinfo, text = unpack(logdata)
+        if outputLoggers.file then
+            outputLoggers.file.output(level, lineinfo, "[Server] "..text)
+        end
+    end
+end
 
 
 function channelService.sendMemoryUsage()

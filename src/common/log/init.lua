@@ -1,12 +1,15 @@
+local ansicolor = require("src.common.ansicolor")
+
+---@class log
 local log = {}
 
----@alias log.level "trace"|"debug"|"info"|"warn"|"error"|"fatal"
+---@alias log.level "trace"|"debug"|"info"|"warn"|"error"|"fatal"|"none"
 ---@class log.logger
 ---@field public level log.level
 ---@field public output fun(level:log.level,lineinfo:string,text:string)
 
 ---@type log.level
-local mainLogLevel = constants.DEFAULT_LOG_LEVEL
+local mainLogLevel = "trace"
 
 ---@type log.logger[]
 local loggers = {}
@@ -32,6 +35,7 @@ local modes = {
     "warn",
     "error",
     "fatal",
+    "none"
 }
 
 for i, v in ipairs(modes) do
@@ -69,6 +73,15 @@ local function makelogfunc(level)
     end
 end
 
+log.ansicodes = {
+    trace = ansicolor.BLUE,
+    debug = ansicolor.CYAN,
+    info  = ansicolor.GREEN,
+    warn  = ansicolor.YELLOW,
+    error = ansicolor.RED,
+    fatal = ansicolor.MAGENTA,
+}
+
 log.trace = makelogfunc("trace")
 log.debug = makelogfunc("debug")
 log.info = makelogfunc("info")
@@ -80,14 +93,36 @@ log.fatal = makelogfunc("fatal")
 ---@param level log.level
 function log.setLevel(level)
     if not modes[level] then
-        error("Invalid log level: " .. tostring(level))
+        return false
     end
     mainLogLevel = level
+    return true
 end
 
 ---Get main log level
 function log.getLevel()
     return mainLogLevel
+end
+
+---@param ... log.level
+function log.getHighestLevel(...)
+    local currentHighest = ...
+
+    for i = 2, select("#", ...) do
+        local loglevel = select(i, ...)
+        if modes[loglevel] < modes[currentHighest] then
+            currentHighest = loglevel
+        end
+    end
+
+    return currentHighest
+end
+
+---lowest level index has highest priority
+---@param loglevel string
+---@return integer?
+function log.getLevelIndex(loglevel)
+    return modes[loglevel]
 end
 
 ---@param usecolor boolean?
@@ -105,48 +140,40 @@ function log.createConsoleLogger(usecolor)
         end
     end
 
-    local writelog
-    if usecolor then
-        function writelog(ansicolor, text)
-            io.write(ansicolor, text, "\27[0m", "\n")
-        end
-    else
-        function writelog(ansicolor, text)
-            io.write(text, "\n")
-        end
-    end
-
-    local ansicodes = {
-        trace = "\27[34m",
-        debug = "\27[36m",
-        info  = "\27[32m",
-        warn  = "\27[33m",
-        error = "\27[31m",
-        fatal = "\27[35m",
-    }
-
     return {
-        level = mainLogLevel,
+        level = "trace",
         output = function(level, lineinfo, text)
-            return writelog(
-                ansicodes[level],
-                string.format(
-                    "[%-6s%s] %s: %s",
-                    level:upper(),
-                    os.date("%H:%M:%S"),
-                    lineinfo,
-                    text
-                )
+            return io.write(
+                ansicolor.wrap(log.ansicodes[level],
+                    string.format(
+                        "[%-6s%s] %s: %s",
+                        level:upper(),
+                        os.date("%H:%M:%S"),
+                        lineinfo,
+                        text
+                    )
+                ), "\n"
             )
         end
     }
 end
 
-local envlog = os.getenv(constants.PRINT_LEVEL_ENVIRONMENT_VARIABLE)
-if envlog and modes[envlog] then
-    log.setLevel(envlog)
+---@param f {write:fun(self:any,text:string),flush:fun(self:any)}
+function log.createWriteableFlushableLogger(f)
+    return {
+        level = "trace",
+        output = function(level, lineinfo, text)
+            f:write(log.formatLog(level, lineinfo, text).."\n")
+            f:flush()
+        end
+    }
 end
 
-log.registerLogger(log.createConsoleLogger())
+---@param level log.level
+---@param lineinfo string
+---@param text string
+function log.formatLog(level, lineinfo, text)
+    return string.format("[%-6s%s] %s: %s", level:upper(), os.date("%H:%M:%S"), lineinfo, text)
+end
 
 return log

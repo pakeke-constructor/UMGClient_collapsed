@@ -90,6 +90,7 @@ local function wait_until_closed()
             break; -- well, shit.
         end
         channelService.executePrints()
+        channelService.executeLogs()
         wait_time = wait_time + 0.1
         love.timer.sleep(0.1)
     end
@@ -127,6 +128,7 @@ end
 
 function hoster.threaderror(_, errorstr)
     channelService.executePrints()
+    channelService.executeLogs()
     error("Server error:\n" .. errorstr)
 end
 
@@ -136,6 +138,7 @@ end
 function hoster.update()
     if ctx then
         channelService.executePrints()
+        channelService.executeLogs()
     end
 end
 
