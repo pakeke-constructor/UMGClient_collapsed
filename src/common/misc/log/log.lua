@@ -2,12 +2,9 @@
 
 local log = require("libs.nm_log.log")
 
-
 if (not love.system) or love.system.getOS() == "Windows" then
     log.usecolor = false
 end
-
-log.level = "trace"
 
 
 local logLevels = {
@@ -18,7 +15,6 @@ local logLevels = {
     error = true,
     fatal = true,
 }
-
 
 -- monkeypatch: 
 function log.setLevel(level)
@@ -31,5 +27,10 @@ end
 
 log.setLevel(constants.DEFAULT_LOG_LEVEL)
 
+local envlog = os.getenv(constants.PRINT_LEVEL_ENVIRONMENT_VARIABLE)
+
+if logLevels[envlog] then
+    log.setLevel(envlog)
+end
 
 return log

@@ -66,7 +66,8 @@ return setmetatable({
         We should probably fix e2e tests before running AGGRESSIVE_DEBUG mode.
     ]]
 
-    DEFAULT_LOG_LEVEL = "trace",
+    DEFAULT_LOG_LEVEL = "error",
+    PRINT_LEVEL_ENVIRONMENT_VARIABLE = "UMG_PRINT_LEVEL",
 
     LOVE_EVENTS = {
         "load", "draw", "update", "keypressed", "keyreleased", 
