@@ -190,7 +190,7 @@ function channelService.executeLogs()
         end
 
         local level, lineinfo, text = unpack(logdata)
-        log.logDirectly(level, lineinfo, text)
+        log.logDirectly(level, "[Server] "..lineinfo, text)
     end
 end
 
