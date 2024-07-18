@@ -68,7 +68,7 @@ function EntitySyncer:sendSpawnEntities()
     local entData = packer:serializeVolatile(self.createEntityBuffer)
     self.serverConnection:broadcast(false, "@spawn_entities", entData)
     for _, ent in ipairs(self.createEntityBuffer) do
-        log.trace("entity-spawn: ", tostring(ent))
+        log.debug("entity-spawn: ", tostring(ent))
         packer:makeEntityKnown(ent)
     end
     

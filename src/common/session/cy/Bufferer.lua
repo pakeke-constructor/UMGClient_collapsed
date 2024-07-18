@@ -10,14 +10,20 @@ end
 
 
 function Bufferer:addBuffered(ent)
-    self.remBuffer:remove(ent)
-    self.addBuffer:add(ent)
+    if self.remBuffer:has(ent) then
+        self.remBuffer:remove(ent)
+    else
+        self.addBuffer:add(ent)
+    end
 end
 
 
 function Bufferer:removeBuffered(ent)
-    self.addBuffer:remove(ent)
-    self.remBuffer:add(ent)
+    if self.addBuffer:has(ent) then
+        self.addBuffer:remove(ent)
+    else
+        self.remBuffer:add(ent)
+    end
 end
 
 

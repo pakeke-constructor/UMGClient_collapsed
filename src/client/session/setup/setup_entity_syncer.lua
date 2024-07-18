@@ -23,7 +23,7 @@ local function setupSpawnAndDelete(ingameSession)
                 log.error("@spawn_entities: Couldn't deserialize: ", err)
             else
                 for _, ent in ipairs(t)do
-                    log.trace("entity-spawn: ", tostring(ent))
+                    log.debug("entity-spawn: ", tostring(ent))
                 end
             end
         end

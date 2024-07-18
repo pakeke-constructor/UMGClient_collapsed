@@ -253,6 +253,7 @@ local function make_umg(lobj)
         rawset(modLoader.globals, variable_name, value)
     end
 
+    umg.log = require("src.common.log")
     return umg
 end
 
