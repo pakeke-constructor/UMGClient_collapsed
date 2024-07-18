@@ -13,16 +13,6 @@ local loggers = {}
 
 local mainLogLevel = "none"
 
-local function computeLogLevel()
-    local level = "none"
-
-    for _, logger in ipairs(loggers) do
-        level = log.getHighestLevel(level, logger.level)
-    end
-
-    return level
-end
-
 local modes = {
     "trace",
     "debug",
@@ -35,6 +25,22 @@ local modes = {
 
 for i, v in ipairs(modes) do
     modes[v] = i
+end
+
+---@param log1 log.level
+---@param log2 log.level
+local function getHighestLevel(log1, log2)
+    return modes[log1] < modes[log2] and log1 or log2
+end
+
+local function computeLogLevel()
+    local level = "none"
+
+    for _, logger in ipairs(loggers) do
+        level = getHighestLevel(level, logger.level)
+    end
+
+    return level
 end
 
 ---@param level log.level
@@ -78,7 +84,7 @@ function log.logDirectly(level, lineinfo, text)
     end
 end
 
-log.ansicodes = {
+local ansicodes = {
     trace = ansicolor.BLUE,
     debug = ansicolor.CYAN,
     info  = ansicolor.GREEN,
@@ -99,27 +105,6 @@ function log.getLevel()
     return mainLogLevel
 end
 
----@param ... log.level
-function log.getHighestLevel(...)
-    local currentHighest = ...
-
-    for i = 2, select("#", ...) do
-        local loglevel = select(i, ...)
-        if modes[loglevel] < modes[currentHighest] then
-            currentHighest = loglevel
-        end
-    end
-
-    return currentHighest
-end
-
----lowest level index has highest priority
----@param loglevel string
----@return integer?
-function log.getLevelIndex(loglevel)
-    return modes[loglevel]
-end
-
 ---@param level log.level
 ---@param lineinfo string
 ---@param text string
@@ -132,7 +117,7 @@ local function createConsoleLogger()
         level = "trace",
         output = function(level, lineinfo, text)
             return io.write(
-                ansicolor.wrap(log.ansicodes[level], formatLog(level, lineinfo, text))"\n"
+                ansicolor.wrap(ansicodes[level], formatLog(level, lineinfo, text)), "\n"
             )
         end
     }
@@ -152,13 +137,13 @@ end
 if CLIENT_SIDE then
     -- Setup console log level
     local consoleLogLevel = os.getenv(constants.CONSOLE_LOG_LEVEL_ENVVAR) or constants.DEFAULT_CONSOLE_LOG_LEVEL
-    if not log.getLevelIndex(consoleLogLevel) then
+    if not modes[consoleLogLevel] then
         consoleLogLevel = constants.DEFAULT_CONSOLE_LOG_LEVEL
     end
 
     -- Setup file log level
     local fileLogLevel = os.getenv(constants.FILE_LOG_LEVEL_ENVVAR) or constants.DEFAULT_FILE_LOG_LEVEL
-    if not log.getLevelIndex(fileLogLevel) then
+    if not modes[fileLogLevel] then
         fileLogLevel = constants.DEFAULT_FILE_LOG_LEVEL
     end
 

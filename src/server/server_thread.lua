@@ -40,16 +40,12 @@ local serverInitOptions = channelService.getServerInitOptions()
 rawset(_G, "serverInitOptions", serverInitOptions)
 
 -- Init logs
-do
-
-log.setLevel("trace")
 log.registerLogger({
     level = serverInitOptions.loglevel,
     output = function(level, lineinfo, text)
         channelService.sendLog(level, lineinfo, text)
     end
 })
-end
 
 log.info("Server thread started!")
 
