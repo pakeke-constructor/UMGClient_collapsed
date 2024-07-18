@@ -196,7 +196,7 @@ local function setupPckrClient(self)
             -- since it (could) be more up to date.
             -- (A common situation where this occurs is when nested entities are serialized)
 
-            log.trace("Deserializing duplicate entity: ", ent.id)
+            -- log.trace("Deserializing duplicate entity: ", ent.id)
             local oldEnt = cyWorld:getEntity(ent.id)
             copyComponents(ent, oldEnt)
             return oldEnt

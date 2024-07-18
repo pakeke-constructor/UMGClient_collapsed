@@ -210,6 +210,9 @@ function EntityType.entityFromData(etype, components)
 
         (ie, its likely that this entity is a clone, or a deserialized ent.)
     ]]
+    if components.id then
+        error("Cannot have `id` as a component!")
+    end
     local ent
     if constants.AGGRESSIVE_DEBUG then
         ent = {
