@@ -467,18 +467,21 @@ local function serialize_entity(buffer, ent, meta)
         local typename = etype:getTypename()
         serializers.string(buffer, typename)
 
+        -- Serialize ID:
+        -- (we serialize separately)
+        if self.shouldSerializeIdOfEntity then
+            serializers.number(buffer, ent.id)
+        else
+            serializers.boolean(buffer, false)
+        end
+
         add_ref(buffer, ent)
 
-        local old_id = ent.id
-        if not self.shouldSerializeIdOfEntity then
-            -- Then we don't serialize the entity id
-            ent.id = nil
-        end
         for comp_name, comp_value in ent:components() do
             serializers[type(comp_name)](buffer, comp_name)
             serializers[type(comp_value)](buffer, comp_value)
         end
-        ent.id = old_id
+
         push_str(buffer, TABLE_END)
     end
 end
@@ -867,7 +870,15 @@ deserializers[ENT] = function(re)
         return nil, "deserializers[ENT]: etype was not registered: `" .. tostring(etypename) .. "`\nAre you sure all the entity types are loaded?"
     end
 
-    local ent = etype:entityFromData({})
+    -- deser ent.id:
+    local id_or_false, er2 = pull(re)
+    if id_or_false == nil then
+        return nil, "deserializers[ENT]: failed deser id: `" .. er2
+    end
+
+    local ent = etype:entityFromData({
+        id = id_or_false or nil
+    })
     pull_ref(re, ent)
 
     --while true do
