@@ -8,25 +8,7 @@ local log = {}
 ---@field public level log.level
 ---@field public output fun(level:log.level,lineinfo:string,text:string)
 
----@type log.level
-local mainLogLevel = "trace"
 
----@type log.logger[]
-local loggers = {}
-
----@param logger log.logger
-function log.registerLogger(logger)
-    loggers[#loggers+1] = logger
-end
-
----@param logger log.logger
-function log.unregisterLogger(logger)
-    for i, l in ipairs(loggers) do
-        if l == logger then
-            table.remove(loggers, i)
-        end
-    end
-end
 
 local modes = {
     "trace",
@@ -42,33 +24,42 @@ for i, v in ipairs(modes) do
     modes[v] = i
 end
 
+
+function log.setup()
+    
+end
+
+
+local function getLogInfo(...)
+    local stringized = {}
+
+    for i = 1, select("#", ...) do
+        stringized[#stringized+1] = tostring((select(i, ...)))
+    end
+
+    local info = debug.getinfo(3, "Sl")
+    local logstring = table.concat(stringized, "\t")
+    local lineinfo = tostring(info.short_src)..":"..tostring(info.currentline)
+    return logstring, lineinfo
+end
+
+
 ---@param level log.level
 local function makelogfunc(level)
-    local levelid = assert(modes[level])
+local levelid = assert(modes[level])
 
-    ---@param ... any
+---@param ... any
     return function(...)
-        if levelid >= modes[mainLogLevel] then
-            local logstring --string representation of log is lazily created
-            local lineinfo
+        local logstring --string representation of log is lazily created
+        local lineinfo
 
-            for _, logger in ipairs(loggers) do
-                if levelid >= modes[logger.level] then
-                    if not logstring then
-                        local stringized = {}
-
-                        for i = 1, select("#", ...) do
-                            stringized[#stringized+1] = tostring((select(i, ...)))
-                        end
-
-                        local info = debug.getinfo(2, "Sl")
-                        logstring = table.concat(stringized, "\t")
-                        lineinfo = tostring(info.short_src)..":"..tostring(info.currentline)
-                    end
-
-                    logger.output(level, lineinfo, logstring)
-                end
+        if levelid >= modes[logger.level] then
+            if not logstring then
+                logstring, lineinfo = getLogInfo(...)
             end
+
+            logToConsole(level, lineinfo, logstring)
+            logToFile(level, lineinfo, logstring)
         end
     end
 end
@@ -117,17 +108,11 @@ function log.createConsoleLogger(usecolor)
     return {
         level = "trace",
         output = function(level, lineinfo, text)
-            return io.write(
-                ansicolor.wrap(log.ansicodes[level],
-                    string.format(
-                        "[%-6s%s] %s: %s",
-                        level:upper(),
-                        os.date("%H:%M:%S"),
-                        lineinfo,
-                        text
-                    )
-                ), "\n"
-            )
+            local txt = log.formatLog(level, lineinfo, text)
+            if usecolor then
+                txt = ansicolor.wrap(log.ansicodes[level], txt)
+            end
+            return io.write(txt, "\n")
         end
     }
 end
