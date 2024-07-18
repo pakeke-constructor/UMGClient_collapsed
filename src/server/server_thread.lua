@@ -44,13 +44,7 @@ do
 
 log.setLevel("trace")
 log.registerLogger({
-    level = serverInitOptions.consoleLogLevel,
-    output = function(level, lineinfo, text)
-        channelService.sendPrint(string.format("%s%s\27[0m", log.ansicodes[level], log.formatLog(level, lineinfo, text)))
-    end
-})
-log.registerLogger({
-    level = serverInitOptions.fileLogLevel,
+    level = serverInitOptions.loglevel,
     output = function(level, lineinfo, text)
         channelService.sendLog(level, lineinfo, text)
     end

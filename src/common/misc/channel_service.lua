@@ -17,12 +17,6 @@ local channelService = tools.SafeTable()
 local LaunchOptions = require("src.common.misc.LaunchOptions")
 local log = require("src.common.log")
 
-local outputLoggers
-
-if CLIENT_SIDE then
-    outputLoggers = require("src.common.log.setup")
-end
-
 
 local function enum(t)
     -- TODO: this should prolly be in tools module        
@@ -138,11 +132,9 @@ function channelService.provideServerInitOptions(launchOptions)
     local options = {
         clientId = userService.clientId,
         username = userService.username,
-        consoleLogLevel = outputLoggers.console and outputLoggers.console.level or "none",
-        fileLogLevel = outputLoggers.file and outputLoggers.file.level or "none",
+        loglevel = log.getLevel(),
         serializedLaunchOptions = launchOptions:serialize(),
     }
-    print(log.getLevel())
     clearAndSend("server_init_options", options)
 end
 
@@ -153,8 +145,7 @@ function channelService.getServerInitOptions()
     assert(launchOptions, "no launch options given")
     assert(options.username, "needs username")
     assert(options.clientId, "needs clientId")
-    assert(options.consoleLogLevel, "need console log level")
-    assert(options.fileLogLevel, "need file log level")
+    assert(options.loglevel, "need server log level")
     options.clientId = tostring(options.clientId)
     options.serializedLaunchOptions = nil
     options.launchOptions = launchOptions
@@ -199,9 +190,7 @@ function channelService.executeLogs()
         end
 
         local level, lineinfo, text = unpack(logdata)
-        if outputLoggers.file then
-            outputLoggers.file.output(level, lineinfo, "[Server] "..text)
-        end
+        log.logDirectly(level, lineinfo, text)
     end
 end
 
