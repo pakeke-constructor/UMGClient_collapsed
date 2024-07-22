@@ -167,28 +167,28 @@ end
 
 umg.log = {}
 
----@param text string
-function umg.log.trace(text)
+---@param ... string
+function umg.log.trace(...)
 end
 
----@param text string
-function umg.log.debug(text)
+---@param ... string
+function umg.log.debug(...)
 end
 
----@param text string
-function umg.log.info(text)
+---@param ... string
+function umg.log.info(...)
 end
 
----@param text string
-function umg.log.warn(text)
+---@param ... string
+function umg.log.warn(...)
 end
 
----@param text string
-function umg.log.error(text)
+---@param ... string
+function umg.log.error(...)
 end
 
----@param text string
-function umg.log.fatal(text)
+---@param ... string
+function umg.log.fatal(...)
 end
 
 ---@class EntityClass
