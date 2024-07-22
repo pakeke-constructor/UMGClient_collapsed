@@ -160,6 +160,37 @@ umg.melt = error
 function umg.expose(variable_name, value)
 end
 
+---@param path string
+---@return umg.DirectoryObject
+function umg.newDirectoryObject(path)
+end
+
+umg.log = {}
+
+---@param text string
+function umg.log.trace(text)
+end
+
+---@param text string
+function umg.log.debug(text)
+end
+
+---@param text string
+function umg.log.info(text)
+end
+
+---@param text string
+function umg.log.warn(text)
+end
+
+---@param text string
+function umg.log.error(text)
+end
+
+---@param text string
+function umg.log.fatal(text)
+end
+
 ---@class EntityClass
 ---@field public id integer
 local EntityClass = {}
@@ -258,5 +289,30 @@ function EntityGroupClass:size()
 end
 
 ---@alias EntityGroup EntityGroupClass|Entity[]
+
+---@class umg.DirectoryObject
+local DirectoryObject = {}
+
+---@param fname any
+---@param filtertype love.FileType
+---@return {type: love.FileType, size: number, modtime: number, readonly: boolean}?
+function DirectoryObject:getInfo(fname, filtertype)
+end
+
+---@param fname string
+---@param func fun(path:string,filename:string,extension:string?)
+function DirectoryObject:foreachFile(fname, func)
+end
+
+---@param dir string
+---@return string[]
+function DirectoryObject:getDirectoryItems(dir)
+end
+
+---@param fname string
+---@return string? contents The file contents (or nil on failure).
+---@return number|string size How many bytes have been read (or error message on failure).
+function DirectoryObject:read(fname)
+end
 
 return umg

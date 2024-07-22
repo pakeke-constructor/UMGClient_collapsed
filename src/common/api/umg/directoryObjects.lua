@@ -7,8 +7,8 @@ local DirObj_mt = {__index=DirObj}
 local SEP = constants.FILE_SEP
 local function newDirObj(fsysObj, append_path)
     local self = setmetatable({}, DirObj_mt)
-    function self:getInfo(fname)
-        return fsysObj:getInfo(self.pth .. SEP .. fname)
+    function self:getInfo(fname, filtertype)
+        return fsysObj:getInfo(self.pth .. SEP .. fname, filtertype)
     end
 
     function self:foreachFile(fname, func)

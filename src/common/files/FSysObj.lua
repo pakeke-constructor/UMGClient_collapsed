@@ -59,11 +59,11 @@ function FSysObj:newFileData(path)
 end
 
 
-function FSysObj:getInfo(path)
+function FSysObj:getInfo(path, filtertype)
     if self.is_local_path then
-        return love.filesystem.getInfo(self.append_path .. path)
+        return love.filesystem.getInfo(self.append_path .. path, filtertype)
     else
-        return nativefs.getInfo(self.append_path .. path)
+        return nativefs.getInfo(self.append_path .. path, filtertype)
     end
 end
 
