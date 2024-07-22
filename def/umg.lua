@@ -167,27 +167,27 @@ end
 
 umg.log = {}
 
----@param ... string
+---@param ... any
 function umg.log.trace(...)
 end
 
----@param ... string
+---@param ... any
 function umg.log.debug(...)
 end
 
----@param ... string
+---@param ... any
 function umg.log.info(...)
 end
 
----@param ... string
+---@param ... any
 function umg.log.warn(...)
 end
 
----@param ... string
+---@param ... any
 function umg.log.error(...)
 end
 
----@param ... string
+---@param ... any
 function umg.log.fatal(...)
 end
 
