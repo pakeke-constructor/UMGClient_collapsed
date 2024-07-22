@@ -192,7 +192,6 @@ local function finalizeConnection(self, clientInitJson)
     end
     local data = clientInitJson.boxerData
     self.boxer:deserializeData(data)
-    print(inspect(clientInitJson))
     
     log.trace("Client connection finalized.")
     self.hasConnected = true

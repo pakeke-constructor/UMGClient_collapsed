@@ -68,6 +68,28 @@ function FSysObj:getInfo(path)
 end
 
 
+function FSysObj:walkDirectory(pth, func)
+    local directory = self:getDirectoryItems(pth)
+
+    -- selene: allow(incorrect_standard_library_use)
+    table.stable_sort(directory) -- Sorts by alphabetical I think?? hopefully she'll be right
+
+    for _,file in ipairs(directory) do
+        if file:sub(1,1) ~= "_" then
+            local full_path = pth..SEP..file
+            local info = self:getInfo(full_path)
+
+            if info.type == "directory" then
+                self:walkDirectory(full_path, func)
+            else
+                local name, exten = tools.remove_extension(file), tools.get_extension(file)
+                func(pth, name, exten)
+            end
+        end
+    end
+end
+
+
 
 
 return FSysObj
