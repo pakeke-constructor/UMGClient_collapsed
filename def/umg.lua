@@ -294,7 +294,7 @@ end
 local DirectoryObject = {}
 
 ---@param fname any
----@param filtertype love.FileType
+---@param filtertype love.FileType?
 ---@return {type: love.FileType, size: number, modtime: number, readonly: boolean}?
 function DirectoryObject:getInfo(fname, filtertype)
 end
