@@ -315,4 +315,10 @@ end
 function DirectoryObject:read(fname)
 end
 
+---@param fname string
+---@return love.FileData? filedata The file contents (or nil on failure).
+---@return string? err
+function DirectoryObject:newFileData(fname)
+end
+
 return umg
