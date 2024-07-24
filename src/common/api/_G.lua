@@ -60,6 +60,11 @@ return function(lobj)
     G.tostring = tostring
     G.tonumber = tonumber
 
+    G.json = {
+        decode = json.decode,
+        encode = json.encode
+    }
+
     -- TODO: Ensure these other ones are fully safe
     G.string = string
 
