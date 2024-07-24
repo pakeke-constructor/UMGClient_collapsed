@@ -50,25 +50,32 @@ end
 
 
 
-function FSysObj:newFileData(path)
+function FSysObj:newFileData(contents, filename)
+    if contents and filename then
+        return love.filesystem.newFileData(contents, filename)
+    end
+
     if self.is_local_path then
-        return love.filesystem.newFileData(self.append_path .. path)
+        return love.filesystem.newFileData(self.append_path .. contents)
     else
-        return nativefs.newFileData(self.append_path .. path)
+        return nativefs.newFileData(self.append_path .. contents)
     end
 end
 
 
-function FSysObj:getInfo(path)
+function FSysObj:getInfo(path, filtertype)
+    local ret
     if self.is_local_path then
-        return love.filesystem.getInfo(self.append_path .. path)
+        ret = love.filesystem.getInfo(self.append_path .. path, filtertype)
     else
-        return nativefs.getInfo(self.append_path .. path)
+        ret = nativefs.getInfo(self.append_path .. path, filtertype)
     end
+    log.debug("FSysObj:getInfo", path, filtertype, ret)
+    return ret
 end
 
 
-function FSysObj:walkDirectory(pth, func)
+function FSysObj:foreachFile(pth, func)
     local directory = self:getDirectoryItems(pth)
 
     -- selene: allow(incorrect_standard_library_use)
@@ -80,7 +87,7 @@ function FSysObj:walkDirectory(pth, func)
             local info = self:getInfo(full_path)
 
             if info.type == "directory" then
-                self:walkDirectory(full_path, func)
+                self:foreachFile(full_path, func)
             else
                 local name, exten = tools.remove_extension(file), tools.get_extension(file)
                 func(pth, name, exten)
@@ -88,7 +95,6 @@ function FSysObj:walkDirectory(pth, func)
         end
     end
 end
-
 
 
 

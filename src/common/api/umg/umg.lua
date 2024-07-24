@@ -4,6 +4,8 @@ local path = "src.common.api"
 
 local newBuses = require(path .. ".umg.buses")
 
+local newDirObj = require(path .. ".umg.directoryObjects")
+
 
 
 local function namespaceByContext(lobj, str)
@@ -251,6 +253,10 @@ local function make_umg(lobj)
         end
         env[variable_name] = value
         rawset(modLoader.globals, variable_name, value)
+    end
+
+    function umg.newDirectoryObject(pth)
+        return newDirObj(lobj.fsysObj, pth)
     end
 
     umg.log = require("src.common.log")
