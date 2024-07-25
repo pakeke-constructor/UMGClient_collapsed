@@ -24,7 +24,7 @@ local function startHost(self)
         starts hosting a server with test mod loaded
     ]]
     local launchOptions = LaunchOptions({
-        modlist = {"lootplot.main"},
+        modlist = {"lootplot.bundle.s0"},
         onlineMode = "offline",
     })
     local hosterSetupState = HosterSetup(launchOptions)
