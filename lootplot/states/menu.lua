@@ -23,12 +23,30 @@ love.filesystem.setIdentity("lootplot")
 local PHYSICS_WORLD_WIDTH, PHYSICS_WORLD_HEIGHT = 360, 180
 
 
+local function getModsInSaveDirectory()
+    local result = {}
+
+    for _, mod in ipairs(love.filesystem.getDirectoryItems("mods")) do
+        if mod:sub(1, 1) ~= "_" and mod:sub(1, 1) ~= "." then
+            if love.filesystem.getInfo("mods/"..mod, "directory") then
+                result[#result+1] = mod
+            end
+        end
+    end
+
+    return result
+end
+
+
 local function startHost(self)
     --[[
         starts hosting a server with test mod loaded
     ]]
+    local modlist = getModsInSaveDirectory()
+    modlist[#modlist+1] = "lootplot.bundle.s0"
+
     local launchOptions = LaunchOptions({
-        modlist = {"lootplot.bundle.s0"},
+        modlist = modlist,
         onlineMode = "offline",
     })
     local hosterSetupState = HosterSetup(launchOptions)
