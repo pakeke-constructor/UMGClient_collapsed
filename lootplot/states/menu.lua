@@ -15,6 +15,10 @@ local lg = love.graphics
 
 local Host = StateClass()
 
+love.filesystem.setIdentity("lootplot")
+
+
+
 
 local PHYSICS_WORLD_WIDTH, PHYSICS_WORLD_HEIGHT = 360, 180
 

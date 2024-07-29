@@ -1,6 +1,8 @@
 
-
 love.graphics.setDefaultFilter("nearest", "nearest")
+
+love.filesystem.setIdentity("umg")
+
 
 setmetatable(_G, {__index = function(_,k)
     error("Undefined variable: "..tostring(k))
