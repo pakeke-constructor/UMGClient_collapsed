@@ -56,7 +56,7 @@ local function load_file(path, lobj, cache, load_string)
         error("couldn't load: " .. path_slash, 2)
     end
 
-    local prefix = constants.MOD_REQUIRE_CHUNK_PREFIX 
+    local prefix = "="..constants.MOD_REQUIRE_CHUNK_PREFIX
     local chunk_name = prefix .. modname .. ": " .. path_slash .. ".lua"
     local chunk, load_err = load_string(str, chunk_name)
     if not chunk then
