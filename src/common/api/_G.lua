@@ -20,6 +20,7 @@ return function(lobj)
 
     G.math = require(path .. ".math.math")(lobj)
     G.table = require(path .. ".table.table")(lobj)
+    G.debug = require(path .. ".debug")(lobj)
 
     G.love = {
         physics = require(path .. ".physics.physics")(lobj),
