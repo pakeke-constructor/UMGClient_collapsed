@@ -67,7 +67,7 @@ local function deep_delete(obj, ctx)
     end
     if exists(obj, ctx) then
         -- it's an entity!
-        obj:delete()
+        obj:delete(ctx)
     end
 end
 
