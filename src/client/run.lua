@@ -191,6 +191,10 @@ local function handle_error(msg)
 
     print(errmsg)
 
+    if love.audio then
+        love.audio.stop()
+    end
+
     loop = errorloop
 end
 
