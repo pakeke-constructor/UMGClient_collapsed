@@ -157,10 +157,10 @@ end
 
 
 
-
 function channelService.sendPrint(...)
-    local t = {...}
-    for i,v in ipairs(t) do
+    local t = {}
+    for i=1, select("#", ...) do
+        local v = select(i, ...)
         t[i] = tostring(v)
     end
     local channel = getSendChannel("console_output")
