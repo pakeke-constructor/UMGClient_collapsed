@@ -15,7 +15,7 @@ return {
     ingame_paused = false; -- whether the ingame client is paused
     
     ingame_sfx_volume = 0.5;
-    ingame_music_volume = 0.5;
+    ingame_music_volume = 0.0;
 
     ingame_master_volume = 0.5;
 
