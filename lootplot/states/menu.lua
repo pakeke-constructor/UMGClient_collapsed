@@ -29,7 +29,7 @@ local function getModsInSaveDirectory()
     for _, mod in ipairs(love.filesystem.getDirectoryItems("mods")) do
         if mod:sub(1, 1) ~= "_" and mod:sub(1, 1) ~= "." then
             if love.filesystem.getInfo("mods/"..mod, "directory") then
-                result[#result+1] = mod
+                result[#result+1] = "/"..mod
             end
         end
     end
