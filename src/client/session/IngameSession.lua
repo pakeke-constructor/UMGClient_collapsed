@@ -27,6 +27,9 @@ function IngameSession:init(ingameOptions)
     self.umgSession = UMGSession()
     self.setupPipeline = false
 
+    self.quitFlag = false
+    self.disconnectReason = false
+
     self.clientConnection = ClientConnectionObject({
         cyWorld = self.umgSession.cyWorld,
         packer = self.umgSession.packer,
@@ -74,6 +77,27 @@ function IngameSession:loadMods(modlist)
         session = self,
     })
     return modLoader:loadMods(modlist)
+end
+
+
+
+
+--[[
+
+TODO:
+im not happy with this useless layer of coupling.
+The only purpose of these two functions are to serve as "glue"
+between clientConnection -> IngameSession -> Ingame state.
+
+Is there an easier way to pop Ingame state...??
+]]
+function IngameSession:shouldQuit()
+    return self.quitFlag
+end
+
+function IngameSession:disconnectFromServer(reason)
+    self.disconnectReason = reason
+    self.quitFlag = true
 end
 
 

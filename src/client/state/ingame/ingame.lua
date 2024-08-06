@@ -44,35 +44,29 @@ end
 
 Ingame:on("update", function(self, dt)
     self.ingameSession:update(dt)
+
+    local ClientState = require("src.client.state.client_state")
+    if self.ingameSession:shouldQuit() then
+        -- we also have disconnect reason here, in IngameSession
+        self:pop()
+        self:push(ClientState())
+    end
 end)
 
 
 
 function Ingame:onExit()
-    -- TODO: WTF IS THIS????!?!
-    -- @playerLeave should definitely be put somewhere else
-
-    error[[
-        Double check that @playerLeave aint being called twice pls.
-    ]]
-    self.umgSession.eventBus:call("@playerLeave", userService.clientId)
 end
 
-
-local function goto_menu(self)
-    self:change_state("in_menu")
-end
 
 
 
 local function onQuit()
     hoster.close()
-    goto_menu()
 end
 
 local function onSaveQuit()
     hoster.saveAndClose()
-    goto_menu()
 end
 
 

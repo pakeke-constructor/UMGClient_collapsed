@@ -40,6 +40,11 @@ local function setup(ingameSession)
         print("Client disconnected")
         clientConnection:forceDisconnect("TODO: Reason")
     end)
+
+    clientConnection:onDisconnect(function (reason)
+        log.info("Disconnected from server, with reason: ", reason)
+        ingameSession:disconnectFromServer(reason)
+    end)
 end
 
 
