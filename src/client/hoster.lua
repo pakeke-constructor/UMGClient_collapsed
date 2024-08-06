@@ -109,9 +109,9 @@ end
 function hoster.close()
     log.trace("hoster.close()")
     if not ctx then return end
-    ctx = false
     channelService.closeServer()
     closeServer()
+    ctx = false
 end
 
 

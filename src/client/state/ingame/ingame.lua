@@ -53,6 +53,9 @@ end)
 
 
 function Ingame:onExit()
+    if hoster.isHosting() then
+        hoster.close()
+    end
 end
 
 
