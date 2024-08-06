@@ -80,9 +80,14 @@ end
 function ClientHandler:flush()
     for _, cid in ipairs(self.bufferedDisconnections) do
         local id = self.clientToIdentifier[cid]
-        self.clientToIdentifier[cid] = nil
-        self.identifierToClient[id] = nil
+
+        if id then
+            self.clientToIdentifier[cid] = nil
+            self.identifierToClient[id] = nil
+        end
     end
+
+    self.bufferedDisconnections:clear()
 end
 
 

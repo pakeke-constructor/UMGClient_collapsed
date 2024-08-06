@@ -135,6 +135,9 @@ function server.getTickrate()
 end
 
 
+function server.shutdown()
+    serverSession:close()
+end
 
 
 server.entities = lobj.modLoader.entities

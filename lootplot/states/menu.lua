@@ -43,7 +43,7 @@ local function startHost(self)
         starts hosting a server with test mod loaded
     ]]
     local modlist = getModsInSaveDirectory()
-    modlist[#modlist+1] = "lootplot.bundle.s0"
+    modlist[#modlist+1] = "lootplot.test"
 
     local launchOptions = LaunchOptions({
         modlist = modlist,
