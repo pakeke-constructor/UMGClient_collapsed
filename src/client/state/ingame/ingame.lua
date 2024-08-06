@@ -44,35 +44,29 @@ end
 
 Ingame:on("update", function(self, dt)
     self.ingameSession:update(dt)
+
+    if self.ingameSession:shouldQuit() then
+        self:pop()
+    end
 end)
 
 
 
 function Ingame:onExit()
-    -- TODO: WTF IS THIS????!?!
-    -- @playerLeave should definitely be put somewhere else
-
-    error[[
-        Double check that @playerLeave aint being called twice pls.
-    ]]
-    self.umgSession.eventBus:call("@playerLeave", userService.clientId)
+    if hoster.isHosting() then
+        hoster.close()
+    end
 end
 
-
-local function goto_menu(self)
-    self:change_state("in_menu")
-end
 
 
 
 local function onQuit()
     hoster.close()
-    goto_menu()
 end
 
 local function onSaveQuit()
     hoster.saveAndClose()
-    goto_menu()
 end
 
 

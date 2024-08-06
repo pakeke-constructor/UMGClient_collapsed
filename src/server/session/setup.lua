@@ -14,6 +14,12 @@ local function setup(serverSession)
         -- one response every 120 seconds, per clientId
         responsesPerSecond = 1/120;
     })
+
+    serverConnection:defineResponder("@client_wants_to_disconnect", {
+        response = function(self, clientId)
+            serverConnection:disconnectClient(clientId)
+        end
+    })
 end
 
 

@@ -110,35 +110,10 @@ print(("="):rep(50))
 
 
 
-
-
-
-local function close()
-    eventBus:call("@quit")
-
-    if channelService.shouldSaveWorld() then
-        local worldname = launchOptions.worldname
-        local mod_struct = launchOptions.modstruct
-        if worldname then
-            serverSession:saveWorld(worldname, mod_struct)
-        else
-            log.error("Attempted to save world, but no world name exists!")
-        end
-    end
-
-    --[[ TODO: DO THIS ]]
-    serverSession:close()
-end
-
-
-
-
-
-
 local timeSinceLastSend = 0
 
 
-while 1 do
+while not serverSession:isClosed() do
     love.timer.sleep(0.005)-- Give CPU some rest aye
 
     local now = love.timer.getTime()
@@ -146,10 +121,10 @@ while 1 do
     time = now
 
     if channelService.shouldCloseServer() then
-        close()
+        serverSession:close()
         break
     end
-    
+
     if timeSinceLastSend > 1 then
         timeSinceLastSend = 0
         channelService.sendMemoryUsage()

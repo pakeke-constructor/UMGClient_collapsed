@@ -118,7 +118,8 @@ function SetupPipeline:init(args)
         args = {
             ingameSession = IngameSession(),
             onSuccess = onSuccess,
-            onFail = onFail
+            onFail = onFail,
+            onDisconnect = onDisconnect
         }
     ]]
     self.ingameSession = args.ingameSession
@@ -131,6 +132,7 @@ function SetupPipeline:init(args)
 
     self.onSuccess = args.onSuccess
     self.onFail = args.onFail
+    self.onDisconnect = args.onDisconnect
 
     setupListeners(self)
 end

@@ -78,8 +78,6 @@ function ClientHandler:iter()
 end
 
 
-
-
 function ClientHandler:isReady(clientId)
     return self.clientToStatus[clientId] == READY
 end

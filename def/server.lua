@@ -60,4 +60,7 @@ end
 function server.getTickrate()
 end
 
+function server.shutdown()
+end
+
 return server

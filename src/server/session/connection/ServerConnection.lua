@@ -171,6 +171,7 @@ function ServerConnection:init(args)
             unreliableWriter = Boxer:newWriter()
         }
     ]]}
+    self.bufferedDisconnections = tools.Set()
 end
 
 
@@ -278,15 +279,22 @@ local function flushClientWriters(self, clientId)
     flushAndUnicast(self, clientId, unreliableWriter, true)
 end
 
+local function disconnectClientReal(self, clientId)
+    local peer = self.clientHandler:getIdentifier(clientId)
+    peer:disconnect_later()
+end
 
 function ServerConnection:tick(dt)
+    self:broadcast(false, "@tick", dt)
+    self:flushPackets()
+end
+
+function ServerConnection:flushPackets()
     -- unicasts:
     for clientId in self.clientHandler:iter() do
         -- flush client unicast buffers
        flushClientWriters(self, clientId)
     end
-
-    self:broadcast(false, "@tick", dt)
 
     -- broadcasts:
     local writerPair = self.globalWriters
@@ -294,9 +302,12 @@ function ServerConnection:tick(dt)
     flushAndBroadcast(self, writerPair.unreliableWriter, true)
     
     flushPackets(self)
+
+    for _, clientId in ipairs(self.bufferedDisconnections) do
+        disconnectClientReal(self, clientId)
+    end
+    self.bufferedDisconnections:clear()
 end
-
-
 
 function ServerConnection:getPlayers()
     local tabl = {}
@@ -354,8 +365,12 @@ end
 
 local function dispatchDisconnect(self, ev)
     local clientId = self.clientHandler:getClientId(ev.peer)
-    self.clientHandler:disconnectClient(ev.peer)
-    broadcastClientLeave(self, clientId)
+
+    if clientId then
+        self:disconnectClient(clientId)
+    else
+        log.fatal("Trying to disconnect nil clientId")
+    end
 end
 
 
@@ -426,13 +441,37 @@ function ServerConnection:update(dt)
     end
 end
 
-
+local function unicastServerDisconnect(self, clientId)
+    -- TODO: Allow specifying reason
+    return self:unicast(clientId, nil, "@server_disconnect", "Disconnected normally by server")
+end
 
 
 function ServerConnection:broadcastNewPacketId(packetName)
     local packetId = self.boxer:getPacketId(packetName)
     assert(packetId,"?")
     self:broadcast(false, "@define_packet_id", packetId, packetName)
+end
+
+---TODO: Pass reason string or number, whatever lighter.
+---Example:
+---```lua
+---function ban(clientId)
+---    serverConnection:disconnectClient(clientId, BANNED_IDENTIFIER)
+---    banlistManager:addToBans(clientId)
+---end
+---```
+function ServerConnection:disconnectClient(clientId)
+    unicastServerDisconnect(self, clientId)
+    broadcastClientLeave(self, clientId)
+    self.bufferedDisconnections:add(clientId)
+end
+
+
+function ServerConnection:disconnectEveryone()
+    for clientId in self.clientHandler:iter() do
+        self:disconnectClient(clientId)
+    end
 end
 
 

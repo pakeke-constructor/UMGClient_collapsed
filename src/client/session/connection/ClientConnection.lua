@@ -108,6 +108,7 @@ function ClientConnection:init(args)
     self.isTryingToConnect = false
     self.connectStartTime = false
     self.hasConnected = false
+    self.tryingToDisconnect = false
 
     local callbacks = {}
     callbacks.onConnect = tools.nullFunction
@@ -203,7 +204,7 @@ end
 local function dispatchReceive(self, ev)
     if self.hasConnected then
         self:foreachPacket(ev.data, receivePacket)
-    else
+    elseif self.isTryingToConnect then
         -- look to load clientInitJson:
         local success, clientInitJson = pcall(json.decode, ev.data)
         if not success then
@@ -233,7 +234,10 @@ local function dispatchDisconnect(self)
     --[[
         TODO: Do something! Check the old code.
     ]]
-    self.callbacks.onDisconnect()
+    if self.hasConnected then
+        -- This means we lose connection to server (e.g. timeout/network error)
+        self.callbacks.onDisconnect("Probably timeout?")
+    end
 end
 
 local dispatch = {
@@ -285,6 +289,26 @@ function ClientConnection:update(_dt)
     end
 end
 
+
+function ClientConnection:forceDisconnect(reason)
+    self.hasConnected = false
+    self.isTryingToConnect = false
+    self.tryingToDisconnect = false
+    self.callbacks.onDisconnect(reason)
+end
+
+
+function ClientConnection:tryDisconnect()
+    if not self.tryingToDisconnect then
+        self:send(nil, "@client_wants_to_disconnect")
+        self.tryingToDisconnect = true
+    end
+end
+
+
+function ClientConnection:isDisconnecting()
+    return self.tryingToDisconnect
+end
 
 
 return ClientConnection

@@ -68,7 +68,7 @@ function IngameSetup:onEnter()
 
     self.ingameSession:startSetupPipeline({
         onSuccess = onSuccess,
-        onFail = onFail
+        onFail = onFail,
     })
 end
 

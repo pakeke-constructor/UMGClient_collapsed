@@ -27,8 +27,9 @@ end
 
 
 
-function ClientState:startGame()
+function ClientState:joinGame()
     self:popAboveStates()
+    umg.melt("nyi!")
 end
 
 

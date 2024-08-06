@@ -40,6 +40,7 @@ function ServerSession:init(args)
     self.entitySyncer = EntitySyncer({
         serverSession = self
     })
+    self.closed = false
     
     setup(self)
 end
@@ -114,7 +115,31 @@ function ServerSession:flush()
 end
 
 
+function ServerSession:close()
+    if self.closed then
+        return
+    end
 
+    self.umgSession.eventBus:call("@quit")
 
+    if channelService.shouldSaveWorld() then
+        local worldname = self.launchOptions.worldname
+        local mod_struct = self.launchOptions.modstruct
+        if worldname then
+            serverSession:saveWorld(worldname, mod_struct)
+        else
+            log.error("Attempted to save world, but no world name exists!")
+        end
+    end
+
+    self:flush()
+    self.serverConnection:disconnectEveryone()
+    self.serverConnection:flushPackets()
+    self.closed = true
+end
+
+function ServerSession:isClosed()
+    return self.closed
+end
 
 return ServerSession
