@@ -114,7 +114,11 @@ function ServerSession:flush()
 end
 
 
-
+function ServerSession:close()
+    self:flush()
+    self.serverConnection:disconnectEveryone()
+    self.serverConnection:flushPackets()
+end
 
 
 return ServerSession

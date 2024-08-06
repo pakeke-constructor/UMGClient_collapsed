@@ -73,6 +73,9 @@ def("@client_join", {CLIENT_ID, JSON})
 def("@client_leave", {CLIENT_ID})
 
 
+def("@server_disconnect") -- server --> client
+-- tells the client that server kicks them out
+
 
 --[[
 <<Mod events>>

@@ -33,6 +33,7 @@ function ClientHandler:init(args)
 
     self.connection = args.serverConnection
     self.eventBus = args.eventBus
+    self.bufferedDisconnections = tools.Set()
 
     --[[
     We also need a map: clientId <--> enet-peer.
@@ -58,8 +59,7 @@ end
 function ClientHandler:disconnectClient(identifier)
     local clientId = self.identifierToClient[identifier]
     if clientId then
-        self.clientToIdentifier[clientId] = nil
-        self.identifierToClient[identifier] = nil
+        self.bufferedDisconnections:add(clientId)
     end
 end
 
@@ -77,7 +77,13 @@ function ClientHandler:iter()
     return pairs(self.clientToIdentifier)
 end
 
-
+function ClientHandler:flush()
+    for _, cid in ipairs(self.bufferedDisconnections) do
+        local id = self.clientToIdentifier[cid]
+        self.clientToIdentifier[cid] = nil
+        self.identifierToClient[id] = nil
+    end
+end
 
 
 function ClientHandler:isReady(clientId)
