@@ -279,6 +279,10 @@ local function flushClientWriters(self, clientId)
     flushAndUnicast(self, clientId, unreliableWriter, true)
 end
 
+local function disconnectClientReal(self, clientId)
+    local peer = self.clientHandler:getIdentifier(clientId)
+    peer:disconnect_later()
+end
 
 function ServerConnection:tick(dt)
     self:broadcast(false, "@tick", dt)
@@ -300,7 +304,7 @@ function ServerConnection:flushPackets()
     flushPackets(self)
 
     for _, clientId in ipairs(self.bufferedDisconnections) do
-        self:_disconnectClientReal(clientId)
+        disconnectClientReal(self, clientId)
     end
     self.bufferedDisconnections:clear()
 end
@@ -439,7 +443,7 @@ end
 
 local function unicastServerDisconnect(self, clientId)
     -- TODO: Allow specifying reason
-    return self:unicast(clientId, nil, "@server_disconnect", "TODO: reason")
+    return self:unicast(clientId, nil, "@server_disconnect", "Disconnected normally by server")
 end
 
 
@@ -447,11 +451,6 @@ function ServerConnection:broadcastNewPacketId(packetName)
     local packetId = self.boxer:getPacketId(packetName)
     assert(packetId,"?")
     self:broadcast(false, "@define_packet_id", packetId, packetName)
-end
-
-function ServerConnection:_disconnectClientReal(clientId)
-    local peer = self.clientHandler:getIdentifier(clientId)
-    peer:disconnect()
 end
 
 ---TODO: Pass reason string or number, whatever lighter.

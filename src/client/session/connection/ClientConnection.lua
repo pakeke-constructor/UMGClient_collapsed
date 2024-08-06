@@ -204,7 +204,7 @@ end
 local function dispatchReceive(self, ev)
     if self.hasConnected then
         self:foreachPacket(ev.data, receivePacket)
-    else
+    elseif self.isTryingToConnect then
         -- look to load clientInitJson:
         local success, clientInitJson = pcall(json.decode, ev.data)
         if not success then
@@ -235,7 +235,8 @@ local function dispatchDisconnect(self)
         TODO: Do something! Check the old code.
     ]]
     if self.hasConnected then
-        self.callbacks.onDisconnect("FIXME: Got disconnect in dispatchDisconnect")
+        -- This means we lose connection to server (e.g. timeout/network error)
+        self.callbacks.onDisconnect("Probably timeout?")
     end
 end
 
