@@ -36,9 +36,8 @@ local function setup(ingameSession)
         clientConnection:removeClient(clientId)
     end)
 
-    clientConnection:on("@server_disconnect", function()
-        print("Client disconnected")
-        clientConnection:forceDisconnect("TODO: Reason")
+    clientConnection:on("@server_disconnect", function(reason)
+        clientConnection:forceDisconnect(reason)
     end)
 
     clientConnection:onDisconnect(function (reason)

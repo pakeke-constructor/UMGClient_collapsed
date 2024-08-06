@@ -171,6 +171,7 @@ function ServerConnection:init(args)
             unreliableWriter = Boxer:newWriter()
         }
     ]]}
+    self.bufferedDisconnections = tools.Set()
 end
 
 
@@ -298,7 +299,10 @@ function ServerConnection:flushPackets()
     
     flushPackets(self)
 
-    self.clientHandler:flush()
+    for _, clientId in ipairs(self.bufferedDisconnections) do
+        self:_disconnectClientReal(clientId)
+    end
+    self.bufferedDisconnections:clear()
 end
 
 function ServerConnection:getPlayers()
@@ -357,7 +361,12 @@ end
 
 local function dispatchDisconnect(self, ev)
     local clientId = self.clientHandler:getClientId(ev.peer)
-    self:disconnectClient(clientId)
+
+    if clientId then
+        self:disconnectClient(clientId)
+    else
+        log.fatal("Trying to disconnect nil clientId")
+    end
 end
 
 
@@ -430,7 +439,7 @@ end
 
 local function unicastServerDisconnect(self, clientId)
     -- TODO: Allow specifying reason
-    return self:unicast(clientId, nil, "@server_disconnect")
+    return self:unicast(clientId, nil, "@server_disconnect", "TODO: reason")
 end
 
 
@@ -438,6 +447,11 @@ function ServerConnection:broadcastNewPacketId(packetName)
     local packetId = self.boxer:getPacketId(packetName)
     assert(packetId,"?")
     self:broadcast(false, "@define_packet_id", packetId, packetName)
+end
+
+function ServerConnection:_disconnectClientReal(clientId)
+    local peer = self.clientHandler:getIdentifier(clientId)
+    peer:disconnect()
 end
 
 ---TODO: Pass reason string or number, whatever lighter.
@@ -449,21 +463,14 @@ end
 ---end
 ---```
 function ServerConnection:disconnectClient(clientId)
-    local peer = self.clientHandler:getIdentifier(clientId)
     unicastServerDisconnect(self, clientId)
     broadcastClientLeave(self, clientId)
-    self.clientHandler:disconnectClient(peer)
+    self.bufferedDisconnections:add(clientId)
 end
 
 
 function ServerConnection:disconnectEveryone()
-    local clientIds = {}
-
     for clientId in self.clientHandler:iter() do
-        clientIds[#clientIds+1] = clientId
-    end
-
-    for _, clientId in ipairs(clientIds) do
         self:disconnectClient(clientId)
     end
 end

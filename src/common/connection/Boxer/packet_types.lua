@@ -75,7 +75,7 @@ def("@client_leave", {CLIENT_ID})
 def("@client_wants_to_disconnect") -- client --> server
 -- tells the server that we'd like to disconnect
 
-def("@server_disconnect") -- server --> client
+def("@server_disconnect", {"string"}) -- server --> client
 -- tells the client that server kicks them out
 
 

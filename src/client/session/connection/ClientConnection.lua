@@ -234,7 +234,9 @@ local function dispatchDisconnect(self)
     --[[
         TODO: Do something! Check the old code.
     ]]
-    self.callbacks.onDisconnect()
+    if self.hasConnected then
+        self.callbacks.onDisconnect("FIXME: Got disconnect in dispatchDisconnect")
+    end
 end
 
 local dispatch = {
