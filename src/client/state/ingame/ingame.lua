@@ -45,11 +45,8 @@ end
 Ingame:on("update", function(self, dt)
     self.ingameSession:update(dt)
 
-    local ClientState = require("src.client.state.client_state")
     if self.ingameSession:shouldQuit() then
-        -- we also have disconnect reason here, in IngameSession
         self:pop()
-        self:push(ClientState())
     end
 end)
 
