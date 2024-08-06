@@ -53,11 +53,6 @@ function Group:deleteCallback(func)
     self.removed_cbs:remove(func)
 end
 
-
-function Group:has(obj)
-   return self.pointers[obj]
-end
-
 Group.contains = Group.has
 
 

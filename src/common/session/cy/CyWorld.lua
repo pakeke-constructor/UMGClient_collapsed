@@ -26,17 +26,6 @@ end
 
 
 
-function CyWorld:setCallbacks(callbacks)
-    --[[
-        addComponentCallback = func
-        removeComponentCallback = func
-        entityCreatedCallback = func
-    ]]
-    self.entityManager:setCallbacks(callbacks)
-end
-
-
-
 function CyWorld:clear()
     -- Clears all entities
     self:flush()
