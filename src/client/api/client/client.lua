@@ -71,6 +71,9 @@ function client.getClient()
 end
 
 
+function client.disconnect()
+    clientConnection:tryDisconnect()
+end
 
 
 local mLoader = lobj.modLoader

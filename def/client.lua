@@ -53,6 +53,9 @@ end
 function client.getMusicVolume()
 end
 
+function client.disconnect()
+end
+
 ---access to global texture atlas
 ---@class Atlas
 client.atlas = {}

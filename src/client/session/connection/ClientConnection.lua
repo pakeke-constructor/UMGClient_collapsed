@@ -108,6 +108,7 @@ function ClientConnection:init(args)
     self.isTryingToConnect = false
     self.connectStartTime = false
     self.hasConnected = false
+    self.tryingToDisconnect = false
 
     local callbacks = {}
     callbacks.onConnect = tools.nullFunction
@@ -285,6 +286,26 @@ function ClientConnection:update(_dt)
     end
 end
 
+
+function ClientConnection:forceDisconnect(reason)
+    self.hasConnected = false
+    self.isTryingToConnect = false
+    self.tryingToDisconnect = false
+    self.callbacks.onDisconnect(reason)
+end
+
+
+function ClientConnection:tryDisconnect()
+    if not self.tryingToDisconnect then
+        self:send(nil, "@client_wants_to_disconnect")
+        self.tryingToDisconnect = true
+    end
+end
+
+
+function ClientConnection:isDisconnecting()
+    return self.tryingToDisconnect
+end
 
 
 return ClientConnection

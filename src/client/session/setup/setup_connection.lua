@@ -35,6 +35,11 @@ local function setup(ingameSession)
         eventBus:call("@playerLeave", clientId)
         clientConnection:removeClient(clientId)
     end)
+
+    clientConnection:on("@server_disconnect", function()
+        print("Client disconnected")
+        clientConnection:forceDisconnect("TODO: Reason")
+    end)
 end
 
 
