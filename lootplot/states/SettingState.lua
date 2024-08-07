@@ -62,14 +62,26 @@ local function debugRegion(region, r, g, b, a)
 end
 
 function SettingScene:onRender(x, y, w, h)
-    local region = Region(x, y, w, h):pad(0.04)
-    local titleBase, contentUnpad, closeButtonBase = region:splitVertical(3, 8, 2)
+    -- Make below state slightly darker
+    local region = Region(x, y, w, h)
+    love.graphics.setColor(0, 0, 0, 0.24)
+    love.graphics.rectangle("fill", region:get())
+
+    local horizontalWindow = select(2, region:splitHorizontal(3, 4, 3))
+    local verticalWindow = select(2, region:splitVertical(1, 8, 1))
+    local settingWindowRegionBase = horizontalWindow:intersection(verticalWindow)
+    love.graphics.setColor(love.math.colorFromBytes(133, 81, 21))
+    love.graphics.rectangle("fill", settingWindowRegionBase:get())
+
+    local windowRegion = settingWindowRegionBase:pad(0.04)
+    local titleBase, contentUnpad, closeButtonBase = windowRegion:splitVertical(3, 8, 2)
 
     local titleArea = titleBase:splitVertical(1, 1)
     do
         local closeButtonAlt = Region(0, 0, 18, 18):scaleToFit(titleArea)
+        local wx, wy, ww = settingWindowRegionBase:get()
         local rw, rh = select(3, closeButtonAlt:get())
-        self.closeButtonAlt:render(x + w - rw, y, rw, rh)
+        self.closeButtonAlt:render(wx + ww - rw / 2, wy - rh / 2, rw, rh)
     end
 
     local title = titleBase:pad(0.01)
@@ -103,19 +115,7 @@ end)
 SettingState:on("draw", function(self)
     love.graphics.setColor(1, 1, 1)
     self:broadcastBelow("draw")
-
-    local region = Region(0, 0, love.graphics.getDimensions())
-
-    -- Make below state slightly darker
-    love.graphics.setColor(0, 0, 0, 0.24)
-    love.graphics.rectangle("fill", region:get())
-
-    local horizontalWindow = select(2, region:splitHorizontal(3, 4, 3))
-    local verticalWindow = select(2, region:splitVertical(1, 8, 1))
-    local settingWindowRegion = horizontalWindow:intersection(verticalWindow)
-    love.graphics.setColor(love.math.colorFromBytes(133, 81, 21))
-    love.graphics.rectangle("fill", settingWindowRegion:get())
-    return self.scene:render(settingWindowRegion:get())
+    return self.scene:render(0, 0, love.graphics.getDimensions())
 end)
 
 local function forwardToScene(name)
