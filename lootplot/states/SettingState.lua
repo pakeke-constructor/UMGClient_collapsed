@@ -1,6 +1,7 @@
 local AutoAtlas = require("libs.AutoAtlas.AutoAtlas")
 
 local Button = require("src.client.ui.elements.Button")
+local PixelButton = require("lootplot.elements.PixelButton")
 local Slider = require("src.client.ui.elements.Slider")
 local Text = require("src.client.ui.elements.Text")
 
@@ -36,10 +37,14 @@ function SettingScene:init(args)
             print("new bgm slider value", value)
         end
     })
-    self.closeButton = Button({
-        image = love.graphics.newImage("src/client/ui/images/long_buttons/green_long.png"),
+    self.closeButton = PixelButton({
+        color = "green",
         text = "Close",
-        onClick = assert(args.onClose)
+        onClick = assert(args.onClose),
+    })
+    self.closeButtonAlt = Button({
+        image = love.graphics.newImage("lootplot/assets/ui/red_square_1.png"),
+        onClick = assert(args.onClose),
     })
     self:addChild(self.title)
     self:addChild(self.sfxSliderLabel)
@@ -47,6 +52,7 @@ function SettingScene:init(args)
     self:addChild(self.bgmSliderLabel)
     self:addChild(self.bgmSlider)
     self:addChild(self.closeButton)
+    self:addChild(self.closeButtonAlt)
 end
 
 local function debugRegion(region, r, g, b, a)
@@ -56,10 +62,17 @@ local function debugRegion(region, r, g, b, a)
 end
 
 function SettingScene:onRender(x, y, w, h)
-    local region = Region(x, y, w, h)
-    local titleUnpad, contentUnpad, closeButton = region:splitVertical(2, 8, 2)
+    local region = Region(x, y, w, h):pad(0.04)
+    local titleBase, contentUnpad, closeButtonBase = region:splitVertical(3, 8, 2)
 
-    local title = titleUnpad:pad(0.01)
+    local titleArea = titleBase:splitVertical(1, 1)
+    do
+        local closeButtonAlt = Region(0, 0, 18, 18):scaleToFit(titleArea)
+        local rw, rh = select(3, closeButtonAlt:get())
+        self.closeButtonAlt:render(x + w - rw, y, rw, rh)
+    end
+
+    local title = titleBase:pad(0.01)
     love.graphics.setColor(1, 1, 1)
     self.title:render(title:get())
 
@@ -69,6 +82,8 @@ function SettingScene:onRender(x, y, w, h)
     self.sfxSlider:render(sfx:get())
     self.bgmSliderLabel:render(bgmLabel:get())
     self.bgmSlider:render(bgm:get())
+
+    local closeButton = Region(0, 0, 70, 18):scaleToFit(closeButtonBase):center(closeButtonBase):pad(0.05)
     self.closeButton:render(closeButton:get())
 end
 
