@@ -3,6 +3,8 @@
 
 local path = tools.path(...)
 
+local Button = require("src.client.ui.elements.Button")
+local PixelButton = require("lootplot.elements.PixelButton")
 
 local LaunchOptions = require("src.common.misc.LaunchOptions")
 
@@ -59,11 +61,45 @@ local function getScreenView()
     return 0,0,lg.getDimensions()
 end
 
+local HostButtonScene = LUI.Element()
+
+function HostButtonScene:init()
+    self.discordButton = Button({
+        image = love.graphics.newImage("lootplot/assets/ui/modified_discord_logo.png")
+    })
+    self.wishlistButton = PixelButton({
+        color = "green",
+        text = "Wishlist!",
+        onClick = function()
+            print("Wishlist on steam link goes here")
+        end
+    })
+    self.settingButton = Button({
+        image = love.graphics.newImage("lootplot/assets/ui/modified_settings.png")
+    })
+
+    self:addChild(self.discordButton)
+    self:addChild(self.wishlistButton)
+    self:addChild(self.settingButton)
+end
+
+function HostButtonScene:onRender(x, y, w, h)
+    local region = Region(x, y, w, h)
+    local footer = select(2, region:splitVertical(8, 1))
+    local fx, fy = footer:get()
+
+    do
+        local wishlistButton = Region(0, 0, 70, 18):scaleToFit(footer)
+        self.wishlistButton:render(fx + 10, fy - 10, select(3, wishlistButton:get()))
+    end
+end
 
 function Host:init()
     self.physicsTransform = love.math.newTransform()
     self.doNotFree = false
     self.settingState = SettingState()
+    self.hostButtonScene = HostButtonScene()
+    self.hostButtonScene:makeRoot()
 end
 
 function Host:_gotoSettings()
@@ -125,6 +161,8 @@ Host:on("draw", function(self)
         self.physicsWorld:draw()
         love.graphics.pop()
     end
+
+    self.hostButtonScene:render(0, 0, love.graphics.getDimensions())
 end)
 
 Host:on("resize", function(self, w, h)
