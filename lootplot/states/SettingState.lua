@@ -23,7 +23,7 @@ function SettingScene:init(args)
         min = 0,
         max = 100,
         value = variables.ingame_sfx_volume * 100,
-        onValueChanged = function(value)
+        onValueChanged = function(_, value)
             print("new sfx slider value", value)
         end
     })
@@ -32,7 +32,7 @@ function SettingScene:init(args)
         min = 0,
         max = 100,
         value = variables.ingame_music_volume * 100,
-        onValueChanged = function(value)
+        onValueChanged = function(_, value)
             print("new bgm slider value", value)
         end
     })
