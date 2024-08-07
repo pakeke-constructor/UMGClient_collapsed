@@ -9,6 +9,7 @@ local LaunchOptions = require("src.common.misc.LaunchOptions")
 local PhysicsWorldScreen = require(path .. ".physics_background")
 
 local HosterSetup = require("src.client.state.setup.HosterSetup")
+local SettingState = require("lootplot.states.SettingState")
 
 local lg = love.graphics
 
@@ -61,6 +62,13 @@ end
 
 function Host:init()
     self.physicsTransform = love.math.newTransform()
+    self.doNotFree = false
+    self.settingState = SettingState()
+end
+
+function Host:_gotoSettings()
+    self.doNotFree = true
+    self:push(self.settingState)
 end
 
 function Host:_updatePhysicsTransform()
@@ -76,20 +84,25 @@ function Host:_updatePhysicsTransform()
 end
 
 function Host:_setup()
-    self.physicsWorld = PhysicsWorldScreen(PHYSICS_WORLD_WIDTH, PHYSICS_WORLD_HEIGHT)
-    self.physicsWorld:addButton({
-        x = 0, y = 0,
-        text = "Play",
-        image = "src/client/ui/images/big_buttons/blue_big.png",
-        onClick = function()
-            startHost(self)
-        end
-    })
-    self:_updatePhysicsTransform()
+    if not self.physicsWorld then
+        self.physicsWorld = PhysicsWorldScreen(PHYSICS_WORLD_WIDTH, PHYSICS_WORLD_HEIGHT)
+        self.physicsWorld:addButton({
+            x = 0, y = 0,
+            text = "Play",
+            image = "src/client/ui/images/big_buttons/blue_big.png",
+            onClick = function()
+                startHost(self)
+            end
+        })
+        self:_updatePhysicsTransform()
+    end
+    self.doNotFree = false
 end
 
 function Host:_free()
-    self.physicsWorld = nil
+    if not self.doNotFree then
+        self.physicsWorld = nil
+    end
 end
 Host.onEnter = Host._setup
 Host.onExit = Host._free
@@ -121,6 +134,8 @@ end)
 Host:on("mousereleased", function(self, x, y, b)
     if b == 1 then
         self.physicsWorld:click(self.physicsTransform:inverseTransformPoint(x, y))
+    elseif b == 2 then
+        self:_gotoSettings()
     end
 end)
 

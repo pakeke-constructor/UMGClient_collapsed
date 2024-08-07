@@ -78,7 +78,7 @@ function Slider:init(args)
     self.min = args.min
     self.max = args.max
     assert(self.min<=self.max,"wot wot")
-    self.value = clamp(0, self.min, self.max)
+    self.value = clamp(args.value or 0, self.min, self.max)
     self.position = 0
 
     self.thumb = Thumb()
