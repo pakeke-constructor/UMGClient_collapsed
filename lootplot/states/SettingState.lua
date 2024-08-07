@@ -17,24 +17,30 @@ end
 
 local SettingScene = LUI.Element()
 
+local function formatSliderLabel(elem, prefix, newvalue)
+    elem:setText(string.format("%s: %3d", prefix, newvalue * 100))
+end
+
 function SettingScene:init(args)
     self.title = Text("Settings")
-    self.sfxSliderLabel = Text("SFX Volume")
+    self.sfxSliderLabel = Text(" ")
     self.sfxSlider = Slider({
         min = 0,
         max = 100,
         value = variables.ingame_sfx_volume * 100,
         onValueChanged = function(_, value)
-            print("new sfx slider value", value)
+            value = math.floor(value + 0.5) -- floating imprecision
+            formatSliderLabel(self.sfxSliderLabel, "SFX Volume", value / 100)
         end
     })
-    self.bgmSliderLabel = Text("BGM Volume")
+    self.bgmSliderLabel = Text(" ")
     self.bgmSlider = Slider({
         min = 0,
         max = 100,
         value = variables.ingame_music_volume * 100,
         onValueChanged = function(_, value)
-            print("new bgm slider value", value)
+            value = math.floor(value + 0.5)
+            formatSliderLabel(self.bgmSliderLabel, "BGM Volume", value / 100)
         end
     })
     self.closeButton = PixelButton({
@@ -46,6 +52,10 @@ function SettingScene:init(args)
         image = love.graphics.newImage("lootplot/assets/ui/red_square_1.png"),
         onClick = assert(args.onClose),
     })
+
+    formatSliderLabel(self.sfxSliderLabel, "BGM Volume", variables.ingame_sfx_volume)
+    formatSliderLabel(self.bgmSliderLabel, "BGM Volume", variables.ingame_music_volume)
+
     self:addChild(self.title)
     self:addChild(self.sfxSliderLabel)
     self:addChild(self.sfxSlider)
