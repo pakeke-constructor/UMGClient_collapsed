@@ -216,8 +216,15 @@ function State:replaceBelowWith(new)
     assert(oldState, "No state to replace!")
     tryCall(oldState, "onExit")
     self.stateStack[i] = new
+    new.stateStack = self.stateStack
 end
 
+
+function State:getSecondTop()
+    local sze = self.stateStack:size()
+    local i = sze - 1
+    return self.stateStack[sze]
+end
 
 --[[
 ------------

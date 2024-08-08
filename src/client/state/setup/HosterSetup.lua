@@ -79,8 +79,7 @@ HosterSetup:on("update", function(self, _dt)
         }
 
         log.trace("HosterSetup transitioning to IngameSetup, with ingameOptions: ", inspect(ingameOptions))
-        self:pop()
-        self:push(IngameSetup(ingameOptions, self.progress))
+        self:transition(IngameSetup(ingameOptions, self.progress))
     end
 end)
 

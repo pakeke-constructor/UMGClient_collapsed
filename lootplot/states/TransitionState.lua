@@ -10,12 +10,13 @@ local function easing(x)
     end
 end
 
-function TransitionState:init(to, duration)
+function TransitionState:init(to, duration, retain)
     self.to = to
     self.stateChanged = false
     self.duration = duration
     self.fadeOutDuration = duration
     self.fadeInDuration = duration
+    self.retain = retain
 end
 
 TransitionState:on("update", function(self, dt)
@@ -33,7 +34,14 @@ TransitionState:on("update", function(self, dt)
             return self:broadcastBelow("update", dt)
         else
             -- Perform state transition
-            self:replaceBelowWith(self.to)
+            if self.retain then
+                local below = self:getSecondTop()
+                self:pop()
+                below:push(self.to)
+                self.to:push(self)
+            else
+                self:replaceBelowWith(self.to)
+            end
             self.stateChanged = true
         end
     end
