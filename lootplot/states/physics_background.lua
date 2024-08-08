@@ -39,14 +39,22 @@ local PhysicsButton = tools.SafeClass()
 ---@param world lootplot.PhysicsWorldScreen
 ---@param x number
 ---@param y number
+---@param scale number
+---@param padding number
 ---@param quad love.Quad
 ---@param onclick fun()
-function PhysicsButton:init(world, x, y, quad, text, onclick)
+function PhysicsButton:init(world, x, y, quad, scale, padding, text, onclick)
+    self.scale = scale
+    self.padding = padding
     self.width, self.height = select(3, quad:getViewport())
     self.quad = quad
     self.text = text
     self.body = love.physics.newBody(world:getWorld(), x, y, "dynamic")
-    self.shape = love.physics.newRectangleShape(self.body, self.width, self.height)
+    self.shape = love.physics.newRectangleShape(
+        self.body,
+        self.width * self.scale + self.padding,
+        self.height * self.scale + self.padding
+    )
     self.click = onclick
 end
 
@@ -79,8 +87,8 @@ function PhysicsButton:draw(atlas)
     local fh = font:getHeight()
     local fs = math.min(self.width / (fw + 4), self.height / (fh + 4))
 
-    atlas:draw(self.quad, x, y, angle, 1, 1, self.width / 2, self.height / 2)
-    printWithOutline(self.text, x, y, angle, fs, fs, fw / 2, fh / 2)
+    atlas:draw(self.quad, x, y, angle, self.scale, self.scale, self.width / 2, self.height / 2)
+    printWithOutline(self.text, x, y, angle, fs * self.scale, fs * self.scale, fw / 2, fh / 2)
 end
 
 ---@class lootplot.PhysicsWorldScreen
@@ -155,7 +163,7 @@ function PhysicsWorldScreen:addButton(def)
         self.namedQuads[def.image] = self.atlas:add(image)
     end
 
-    return self.buttons:add(PhysicsButton(self, def.x, def.y, self.namedQuads[def.image], def.text, def.onClick))
+    return self.buttons:add(PhysicsButton(self, def.x, def.y, self.namedQuads[def.image], def.scale or 1, def.padding or 0, def.text, def.onClick))
 end
 
 

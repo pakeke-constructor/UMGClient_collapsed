@@ -30,6 +30,7 @@ function SettingScene:init(args)
         value = variables.ingame_sfx_volume * 100,
         onValueChanged = function(_, value)
             value = math.floor(value + 0.5) -- floating imprecision
+            variables.ingame_sfx_volume = value / 100
             formatSliderLabel(self.sfxSliderLabel, "SFX Volume", value / 100)
         end
     })
@@ -40,6 +41,7 @@ function SettingScene:init(args)
         value = variables.ingame_music_volume * 100,
         onValueChanged = function(_, value)
             value = math.floor(value + 0.5)
+            variables.ingame_music_volume = value / 100
             formatSliderLabel(self.bgmSliderLabel, "BGM Volume", value / 100)
         end
     })
@@ -53,7 +55,7 @@ function SettingScene:init(args)
         onClick = assert(args.onClose),
     })
 
-    formatSliderLabel(self.sfxSliderLabel, "BGM Volume", variables.ingame_sfx_volume)
+    formatSliderLabel(self.sfxSliderLabel, "SFX Volume", variables.ingame_sfx_volume)
     formatSliderLabel(self.bgmSliderLabel, "BGM Volume", variables.ingame_music_volume)
 
     self:addChild(self.title)

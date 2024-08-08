@@ -64,6 +64,7 @@ end
 
 function Host:init()
     self.physicsTransform = love.math.newTransform()
+    self.physicsScale = 1
     self.doNotFree = false
     self.settingState = SettingState()
 
@@ -110,26 +111,19 @@ end
 -- Since we're making all the button a root element, we have to render them ourselves.
 function Host:_performLUIRender(x, y, w, h)
     local region = Region(x, y, w, h)
-    local footer = select(2, region:splitVertical(8, 1))
-    local fx, fy, fw, fh = footer:get()
 
     -- Uh this is ugly. We have to compute the position ourself.
     -- Unfortunately Kirigami doesn't offer a way to position element based on
     -- other position of an existing elements.
-    local wishlistButton = Region(0, 0, 70, 18):scaleToFit(footer)
-    self.wishlistButton:render(fx + 10, fy - 10, select(3, wishlistButton:get()))
+    local ww, wh = 70 * self.physicsScale, 18 * self.physicsScale
+    local wy =  h - wh - 10
+    self.wishlistButton:render(x + 10, wy, ww, wh)
 
-    do
-        local discordButton = Region(0, 0, 26, 26):scaleToFit(footer)
-        local wh = select(4, wishlistButton:get())
-        self.discordButton:render(fx + 10, fy - wh - 15, select(3, discordButton:get()))
-    end
+    local dd = 26 * self.physicsScale
+    self.discordButton:render(x + 10, wy - dd - 10, dd, dd)
 
-    do
-        local settingsButton = Region(0, 0, 26, 26):scaleToFit(footer)
-        local sw, sh = select(3, settingsButton:get())
-        self.settingButton:render(fx + fw - sw - 10, fy - 10, sw, sh)
-    end
+    local settingDim = 32 * self.physicsScale
+    self.settingButton:render(x + w - settingDim - 10, y + h - settingDim - 10, settingDim, settingDim)
 end
 
 function Host:_gotoSettings()
@@ -144,6 +138,7 @@ function Host:_updatePhysicsTransform()
     local sx = w / PHYSICS_WORLD_WIDTH
     local sy = h / PHYSICS_WORLD_HEIGHT
     local s = math.max(sx, sy)
+    self.physicsScale = s
     self.physicsTransform:reset()
     self.physicsTransform:translate(w/2, h/2)
     self.physicsTransform:scale(s, s)
@@ -159,6 +154,14 @@ function Host:_setup()
             onClick = function()
                 startHost(self)
             end
+        })
+        self.physicsWorld:addButton({
+            x = 0, y = 0,
+            text = "",
+            image = "lootplot/assets/LOGO_PIXELATED.png",
+            scale = 0.75,
+            padding = -10,
+            onClick = tools.nullFunction
         })
         self:_updatePhysicsTransform()
     end
