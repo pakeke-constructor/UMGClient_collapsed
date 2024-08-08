@@ -5,10 +5,10 @@ love.filesystem.setIdentity("umg")
 
 
 setmetatable(_G, {__index = function(_,k)
-    error("Undefined variable: "..tostring(k))
+    error("Undefined variable: "..tostring(k), 2)
 end;
 __newindex = function(_,k,_)
-    error("Non local created: " .. tostring(k))
+    error("Non local created: " .. tostring(k), 2)
 end})
 
 
