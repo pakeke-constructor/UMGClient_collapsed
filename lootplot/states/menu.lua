@@ -13,6 +13,9 @@ local PhysicsWorldScreen = require(path .. ".physics_background")
 local HosterSetup = require("src.client.state.setup.HosterSetup")
 local SettingState = require("lootplot.states.SettingState")
 
+local Progress = require("lootplot.states.Progress")
+local TransitionState = require("lootplot.states.TransitionState")
+
 local lg = love.graphics
 
 
@@ -52,8 +55,8 @@ local function startHost(self)
         modlist = modlist,
         onlineMode = "offline",
     })
-    local hosterSetupState = HosterSetup(launchOptions)
-    self:push(hosterSetupState)
+    local hosterSetupState = HosterSetup(launchOptions, Progress(self.physicsWorld:getAtlasAndItemQuads()))
+    self:push(TransitionState(hosterSetupState, 1))
 end
 
 
@@ -152,6 +155,7 @@ function Host:_setup()
             text = "Play",
             image = "src/client/ui/images/big_buttons/blue_big.png",
             onClick = function()
+                self.doNotFree = true
                 startHost(self)
             end
         })

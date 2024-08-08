@@ -12,7 +12,7 @@ local assertIngameOptions = require("src.client.session.IngameOptions")
 
 local Ingame = require("src.client.state.ingame.ingame")
 
-
+local TransitionState = require("lootplot.states.TransitionState")
 
 local IngameSetup = StateClass()
 
@@ -20,20 +20,19 @@ local IngameSetup = StateClass()
 
 
 
-function IngameSetup:init(ingameOptions)
+function IngameSetup:init(ingameOptions, progress)
     assertIngameOptions(ingameOptions)
     local ingameSession = IngameSession(ingameOptions)
     self.ingameSession = ingameSession
     self.isHosting = ingameOptions.isHosting
     self.ingameOptions = ingameOptions
-
-    self.loadingLogo = LoadingLogo()
+    self.progress = progress
 end
 
 
 
 IngameSetup:on("draw", function(self)
-    self.loadingLogo:draw()
+    self.progress:draw()
 end)
 
 
@@ -41,7 +40,7 @@ end)
 IngameSetup:on("update", function(self, dt)
     self.ingameSession:update(dt)
     self.ingameSession:tick(dt)
-    self.loadingLogo:update(dt)
+    self.progress:update(dt)
 end)
 
 
@@ -58,7 +57,7 @@ function IngameSetup:onEnter()
         log.trace("Setup pipeline succeeded. Pushing IngameState.")
         self:pop()
         local state = Ingame(self.ingameSession)
-        self:push(state)
+        self:push(TransitionState(state, 1))
     end
 
     local function onFail()

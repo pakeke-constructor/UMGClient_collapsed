@@ -110,8 +110,7 @@ end
 ---@param width number
 ---@param height number
 function PhysicsWorldScreen:init(width, height)
-    local quads
-    self.atlas, quads = loadAtlas()
+    self.atlas, self.quads = loadAtlas()
     self.width, self.height = width, height
     self.world = love.physics.newWorld(0, GRAVITY)
     self.items = tools.Array()
@@ -130,9 +129,13 @@ function PhysicsWorldScreen:init(width, height)
     self.bottomBoundary = love.physics.newRectangleShape(self.bottomBoxBody, width * 2, 16)
 
     for _ = 1, NUM_ITEMS do
-        local q = table.pick_random(quads)
+        local q = table.pick_random(self.quads)
         self.items:add(PhysicsItem(self, q))
     end
+end
+
+function PhysicsWorldScreen:getAtlasAndItemQuads()
+    return self.atlas, self.quads
 end
 
 function PhysicsWorldScreen:update(dt)

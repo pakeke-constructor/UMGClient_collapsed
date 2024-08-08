@@ -89,7 +89,7 @@ function State:pop()
         and returning control to the state above.
     ]]
     if not self:isActive() then
-        log.error("Attempted to pop state without owning context")
+        error("Attempted to pop state without owning context")
         return
     end
     local top = getTop(self)
@@ -208,6 +208,15 @@ function State:isActive()
 end
 
 
+function State:replaceBelowWith(new)
+    assert(self:isActive(), "Cannot replace below without owning context")
+    local sze = self.stateStack:size()
+    local i = sze - 1
+    local oldState = self.stateStack[i]
+    assert(oldState, "No state to replace!")
+    tryCall(oldState, "onExit")
+    self.stateStack[i] = new
+end
 
 
 --[[
