@@ -6,7 +6,8 @@ function PixelButton:init(args)
     self.onClick = args.onClick
     self.text = args.text
     self.imageElement = ui.elements.Image({
-        image = love.graphics.newImage(DIR..args.color:lower().."_long.png")
+        image = love.graphics.newImage(DIR..args.color:lower().."_long.png"),
+        noPadding = true
     })
     self.textElement = ui.elements.Text({
         text = self.text,

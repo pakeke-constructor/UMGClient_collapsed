@@ -61,45 +61,75 @@ local function getScreenView()
     return 0,0,lg.getDimensions()
 end
 
-local HostButtonScene = LUI.Element()
-
-function HostButtonScene:init()
-    self.discordButton = Button({
-        image = love.graphics.newImage("lootplot/assets/ui/modified_discord_logo.png")
-    })
-    self.wishlistButton = PixelButton({
-        color = "green",
-        text = "Wishlist!",
-        onClick = function()
-            print("Wishlist on steam link goes here")
-        end
-    })
-    self.settingButton = Button({
-        image = love.graphics.newImage("lootplot/assets/ui/modified_settings.png")
-    })
-
-    self:addChild(self.discordButton)
-    self:addChild(self.wishlistButton)
-    self:addChild(self.settingButton)
-end
-
-function HostButtonScene:onRender(x, y, w, h)
-    local region = Region(x, y, w, h)
-    local footer = select(2, region:splitVertical(8, 1))
-    local fx, fy = footer:get()
-
-    do
-        local wishlistButton = Region(0, 0, 70, 18):scaleToFit(footer)
-        self.wishlistButton:render(fx + 10, fy - 10, select(3, wishlistButton:get()))
-    end
-end
 
 function Host:init()
     self.physicsTransform = love.math.newTransform()
     self.doNotFree = false
     self.settingState = SettingState()
-    self.hostButtonScene = HostButtonScene()
-    self.hostButtonScene:makeRoot()
+
+    -- LUI always consumes our inputs while we only want it
+    -- to be consumed if the children really consume it.
+    -- So make everything a root element for now.
+    self.discordButton = Button({
+        image = love.graphics.newImage("lootplot/assets/ui/modified_discord_logo.png"),
+        onClick = function()
+            love.system.openURL(constants.DISCORD_LINK)
+        end
+    })
+    self.wishlistButton = PixelButton({
+        color = "green",
+        text = "Wishlist!",
+        onClick = function()
+            print("Wishlist link goes here")
+        end
+    })
+    self.settingButton = Button({
+        image = love.graphics.newImage("lootplot/assets/ui/settings.png"),
+        onClick = function()
+            return self:_gotoSettings()
+        end
+    })
+    self.discordButton:makeRoot()
+    self.wishlistButton:makeRoot()
+    self.settingButton:makeRoot()
+end
+
+function Host:_performLUIButtonsPress(...)
+    return
+        self.discordButton:mousepressed(...) or
+        self.wishlistButton:mousepressed(...) or
+        self.settingButton:mousepressed(...)
+end
+
+function Host:_performLUIButtonsRelease(...)
+    self.discordButton:mousereleased(...)
+    self.wishlistButton:mousereleased(...)
+    self.settingButton:mousereleased(...)
+end
+
+-- Since we're making all the button a root element, we have to render them ourselves.
+function Host:_performLUIRender(x, y, w, h)
+    local region = Region(x, y, w, h)
+    local footer = select(2, region:splitVertical(8, 1))
+    local fx, fy, fw, fh = footer:get()
+
+    -- Uh this is ugly. We have to compute the position ourself.
+    -- Unfortunately Kirigami doesn't offer a way to position element based on
+    -- other position of an existing elements.
+    local wishlistButton = Region(0, 0, 70, 18):scaleToFit(footer)
+    self.wishlistButton:render(fx + 10, fy - 10, select(3, wishlistButton:get()))
+
+    do
+        local discordButton = Region(0, 0, 26, 26):scaleToFit(footer)
+        local wh = select(4, wishlistButton:get())
+        self.discordButton:render(fx + 10, fy - wh - 15, select(3, discordButton:get()))
+    end
+
+    do
+        local settingsButton = Region(0, 0, 26, 26):scaleToFit(footer)
+        local sw, sh = select(3, settingsButton:get())
+        self.settingButton:render(fx + fw - sw - 10, fy - 10, sw, sh)
+    end
 end
 
 function Host:_gotoSettings()
@@ -162,19 +192,23 @@ Host:on("draw", function(self)
         love.graphics.pop()
     end
 
-    self.hostButtonScene:render(0, 0, love.graphics.getDimensions())
+    self:_performLUIRender(0, 0, love.graphics.getDimensions())
 end)
 
 Host:on("resize", function(self, w, h)
     self:_updatePhysicsTransform()
 end)
 
-Host:on("mousereleased", function(self, x, y, b)
-    if b == 1 then
-        self.physicsWorld:click(self.physicsTransform:inverseTransformPoint(x, y))
-    elseif b == 2 then
-        self:_gotoSettings()
+Host:on("mousepressed", function(self, x, y, b)
+    if not self:_performLUIButtonsPress(x, y, b) then
+        if b == 1 then
+            self.physicsWorld:click(self.physicsTransform:inverseTransformPoint(x, y))
+        end
     end
+end)
+
+Host:on("mousereleased", function(self, x, y, b)
+    self:_performLUIButtonsRelease(x, y, b)
 end)
 
 Host:on("keypressed", function(self, x, y, b)

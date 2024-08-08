@@ -5,6 +5,7 @@ local Image = LUI.Element()
 
 function Image:init(args)
     self.image = args.image
+    self.noPadding = not not args.noPadding
 end
 
 
@@ -14,7 +15,7 @@ function Image:onRender(x,y,w,h)
     local region = Region(x,y,w,h)
     local imgRegion = Region(0,0,iw,ih)
 
-    local padded = region:pad(0.05)
+    local padded = self.noPadding and region or region:pad(0.05)
     local scale = imgRegion:getScaleToFit(padded)
     -- useful idiom when we want to scale image/text ^^^^
 
