@@ -56,7 +56,7 @@ local function startHost(self)
         onlineMode = "offline",
     })
     local hosterSetupState = HosterSetup(launchOptions, Progress(self.physicsWorld:getAtlasAndItemQuads()))
-    self:push(TransitionState(hosterSetupState, 1))
+    self:push(TransitionState(hosterSetupState, 1, true))
 end
 
 
