@@ -219,9 +219,8 @@ end
 
 
 function State:getSecondTop()
-    local sze = self.stateStack:size()
-    local i = sze - 1
-    return self.stateStack[sze]
+    local i = self.stateStack:size() - 1
+    return self.stateStack[i]
 end
 
 --[[

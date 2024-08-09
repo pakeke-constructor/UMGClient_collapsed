@@ -56,7 +56,7 @@ function IngameSetup:onEnter()
     local function onSuccess()
         log.trace("Setup pipeline succeeded. Pushing IngameState.")
         local state = Ingame(self.ingameSession)
-        self:push(TransitionState(state, 1))
+        self:push(TransitionState(state, 0.15))
     end
 
     local function onFail()
