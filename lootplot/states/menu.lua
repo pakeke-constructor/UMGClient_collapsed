@@ -147,7 +147,7 @@ function Host:_updatePhysicsTransform()
     self.physicsTransform:scale(s, s)
 end
 
-function Host:_setup()
+function Host:onEnter()
     if not self.physicsWorld then
         self.physicsWorld = PhysicsWorldScreen(PHYSICS_WORLD_WIDTH, PHYSICS_WORLD_HEIGHT)
         self.physicsWorld:addButton({
@@ -172,15 +172,12 @@ function Host:_setup()
     self.doNotFree = false
 end
 
-function Host:_free()
+function Host:onExit()
     if not self.doNotFree then
         self.physicsWorld = nil
     end
 end
-Host.onEnter = Host._setup
-Host.onExit = Host._free
-Host.onWakeup = Host._setup
-Host.onSuspend = Host._free
+
 
 Host:on("update", function(self, dt)
     if self.physicsWorld then
@@ -218,12 +215,7 @@ Host:on("mousereleased", function(self, x, y, b)
     self:_performLUIButtonsRelease(x, y, b)
 end)
 
-Host:on("keypressed", function(self, x, y, b)
-    if x == "r" then
-        self:_free()
-        self:_setup()
-    end
-end)
+
 
 return Host
 

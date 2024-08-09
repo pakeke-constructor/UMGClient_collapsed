@@ -44,10 +44,8 @@ end
 
 
 local validCallbacks = {
-    onSuspend = true,
     onEnter = true,
-    onExit = true,
-    onWakeup = true
+    onExit = true
 }
 
 local function tryCall(self, methodName)
@@ -75,7 +73,7 @@ function State:push(state)
     ]]
     state.stateStack = self.stateStack
     local current = getTop(self)
-    tryCall(current, "onSuspend") -- suspend current state
+    tryCall(current, "onExit") -- suspend current state
     self.stateStack:add(state)
     tryCall(state, "onEnter") -- enter new state
 end
@@ -95,8 +93,8 @@ function State:pop()
     local top = getTop(self)
     tryCall(top, "onExit") -- exit top state
     self.stateStack:pop()
-    top = getTop(self) -- wakeup lower state
-    tryCall(top, "onWakeup")
+    top = getTop(self)
+    tryCall(top, "onEnter")
 end
 
 
@@ -228,17 +226,12 @@ function State:init()
 end
 
 function State:onEnter()
-    -- Called when the state is pushed (made active)
+    -- Called when the state is made active
+    -- (push or wakeup)
 end
 function State:onExit()
-    -- Called when the state is popped (deactivated)
-end
-
-function State:onSuspend()
-    -- Called when a state is pushed on top of this
-end
-function State:onWakeup()
-    -- Called when the state on top of this one is popped.
+    -- Called when the state is deactivated
+    -- (popped or suspended)
 end
 
 --[[
