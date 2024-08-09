@@ -33,36 +33,35 @@ function PhysicsItem:draw(atlas)
     atlas:draw(self.quad, x, y, angle, 1, 1, self.width / 2, self.height / 2)
 end
 
----@class lootplot.PhysicsButton
-local PhysicsButton = tools.SafeClass()
+---@class lootplot.PhysicsObject
+local PhysicsObject = tools.SafeClass()
 
 ---@param world lootplot.PhysicsWorldScreen
----@param x number
----@param y number
----@param scale number
----@param padding number
----@param quad love.Quad
----@param onclick fun()
-function PhysicsButton:init(world, x, y, quad, scale, padding, text, onclick)
-    self.scale = scale
-    self.padding = padding
-    self.width, self.height = select(3, quad:getViewport())
-    self.quad = quad
-    self.text = text
-    self.body = love.physics.newBody(world:getWorld(), x, y, "dynamic")
+---@param def {x: number, y:number, quad:love.Quad, text?: string, scale?: number, padding?: number, onClick?:fun()}
+function PhysicsObject:init(world, def) --x, y, quad, scale, padding, text, onclick)
+    self.scale = def.scale or 1
+    self.padding = def.padding or 0
+    self.quad = def.quad
+    self.width, self.height = select(3, def.quad:getViewport())
+    self.text = def.text or false
+    self.body = love.physics.newBody(world:getWorld(), def.x, def.y, "dynamic")
     self.shape = love.physics.newRectangleShape(
         self.body,
         self.width * self.scale + self.padding,
         self.height * self.scale + self.padding
     )
-    self.click = onclick
+    self.onClick = def.onClick or false
+end
+
+function PhysicsObject:isButton()
+    return self.onClick
 end
 
 ---@param x number
 ---@param y number
-function PhysicsButton:tryTriggerClick(x, y)
+function PhysicsObject:tryTriggerClick(x, y)
     if self.shape:testPoint(x, y) then
-        self.click()
+        self.onClick()
         return true
     end
 
@@ -79,16 +78,19 @@ local function printWithOutline(text, x, y, r, sx, sy, ox, oy)
     love.graphics.print(text, x, y, r, sx, sy, ox, oy)
 end
 
-function PhysicsButton:draw(atlas)
+function PhysicsObject:draw(atlas)
     local x, y = self.body:getPosition()
     local angle = self.body:getAngle()
-    local font = love.graphics.getFont()
-    local fw = font:getWidth(self.text)
-    local fh = font:getHeight()
-    local fs = math.min(self.width / (fw + 4), self.height / (fh + 4))
 
     atlas:draw(self.quad, x, y, angle, self.scale, self.scale, self.width / 2, self.height / 2)
-    printWithOutline(self.text, x, y, angle, fs * self.scale, fs * self.scale, fw / 2, fh / 2)
+
+    if self.text then
+        local font = love.graphics.getFont()
+        local fw = font:getWidth(self.text)
+        local fh = font:getHeight()
+        local fs = math.min(self.width / (fw + 4), self.height / (fh + 4))
+        printWithOutline(self.text, x, y, angle, fs * self.scale, fs * self.scale, fw / 2, fh / 2)
+    end
 end
 
 ---@class lootplot.PhysicsWorldScreen
@@ -113,18 +115,21 @@ function PhysicsWorldScreen:init(width, height)
     self.atlas, self.quads = loadAtlas()
     self.width, self.height = width, height
     self.world = love.physics.newWorld(0, GRAVITY)
+
     self.items = tools.Array()
-    self.buttons = tools.Array()
+    self.objects = tools.Array()
+
     ---@type table<string, love.Quad>
     self.namedQuads = {}
 
     -- Let's make the x=0 the center
     -- The X is +-8 because the rectangle width is 16 and physics object origin is center
     -- instead of top-left
+    local wallHeight = height * 100
     self.leftBoxBody = love.physics.newBody(self.world, -width/2 - 8, 0, "static")
-    self.leftBoundary = love.physics.newRectangleShape(self.leftBoxBody, 16, height * 2)
+    self.leftBoundary = love.physics.newRectangleShape(self.leftBoxBody, 16, wallHeight * 2)
     self.rightBoxBody = love.physics.newBody(self.world, width/2 + 8, 0, "static")
-    self.leftBoundary = love.physics.newRectangleShape(self.rightBoxBody, 16, height * 2)
+    self.leftBoundary = love.physics.newRectangleShape(self.rightBoxBody, 16, wallHeight * 2)
     self.bottomBoxBody = love.physics.newBody(self.world, 0, height/2 + 8, "static")
     self.bottomBoundary = love.physics.newRectangleShape(self.bottomBoxBody, width * 2, 16)
 
@@ -151,8 +156,8 @@ function PhysicsWorldScreen:draw()
         item:draw(self.atlas)
     end
 
-    for _, button in ipairs(self.buttons) do
-        button:draw(self.atlas)
+    for _, obj in ipairs(self.objects) do
+        obj:draw(self.atlas)
     end
 end
 
@@ -160,33 +165,52 @@ function PhysicsWorldScreen:getDimensions()
     return self.width, self.height
 end
 
-function PhysicsWorldScreen:addButton(def)
+
+---@param def {x: number, y:number, image:string, text?: string, scale?: number, padding?: number, onClick?:fun()}
+function PhysicsWorldScreen:addObject(def)
     if not self.namedQuads[def.image] then
         local image = love.image.newImageData(def.image)
         self.namedQuads[def.image] = self.atlas:add(image)
     end
-
-    return self.buttons:add(PhysicsButton(self, def.x, def.y, self.namedQuads[def.image], def.scale or 1, def.padding or 0, def.text, def.onClick))
+    def.quad = self.namedQuads[def.image]
+    return self.objects:add(PhysicsObject(self, def))
 end
 
+
+function PhysicsWorldScreen:addButton(def)
+    assert(def.onClick, "Button needs onClick")
+    self:addObject(def)
+end
 
 local function length(x, y)
 	return math.sqrt(x * x + y * y)
 end
 
+---@param body love.Body
+---@param x any
+---@param y any
+local function boomBody(body, x, y)
+    local xx,yy = body:getPosition()
+    local dx,dy = xx-x, yy-y
+    local mass = body:getMass()
+    local l = length(dx,dy)
+    local s = (mass*3000)/(l*l)
+    body:applyLinearImpulse(s*dx, s*dy)
+end
+
 function PhysicsWorldScreen:boom(x, y)
     for _, item in ipairs(self.items) do
-        local xx,yy = item:getPosition()
-        if length(x-xx, y-yy) < 50 then
-            item.body:applyLinearImpulse(xx-x, yy-y)
-        end
+        boomBody(item.body, x, y)
+    end
+    for _, obj in ipairs(self.objects) do
+        boomBody(obj.body, x, y)
     end
 end
 
 
 function PhysicsWorldScreen:click(x, y)
-    for _, button in ipairs(self.buttons) do
-        if button:tryTriggerClick(x, y) then
+    for _, obj in ipairs(self.objects) do
+        if obj:isButton() and obj:tryTriggerClick(x, y) then
             return
         end
     end

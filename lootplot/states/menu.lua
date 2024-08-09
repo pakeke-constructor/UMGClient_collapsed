@@ -159,13 +159,11 @@ function Host:onEnter()
                 startHost(self)
             end
         })
-        self.physicsWorld:addButton({
+        self.physicsWorld:addObject({
             x = 0, y = 0,
-            text = "",
             image = "lootplot/assets/LOGO_PIXELATED.png",
             scale = 0.75,
-            padding = -10,
-            onClick = tools.nullFunction
+            padding = -10
         })
         self:_updatePhysicsTransform()
     end
