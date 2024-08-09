@@ -13,7 +13,7 @@ local PhysicsWorldScreen = require(path .. ".physics_background")
 local HosterSetup = require("src.client.state.setup.HosterSetup")
 local SettingState = require("lootplot.states.SettingState")
 
-local Progress = require("lootplot.states.Progress")
+local LoadingVisual = require("lootplot.states.LoadingVisual")
 local TransitionState = require("lootplot.states.TransitionState")
 
 local lg = love.graphics
@@ -55,7 +55,7 @@ local function startHost(self)
         modlist = modlist,
         onlineMode = "offline",
     })
-    local hosterSetupState = HosterSetup(launchOptions, Progress(self.physicsWorld:getAtlasAndItemQuads()))
+    local hosterSetupState = HosterSetup(launchOptions, LoadingVisual(self.physicsWorld:getAtlasAndItemQuads()))
     self:push(TransitionState(hosterSetupState, 0.15, true))
 end
 

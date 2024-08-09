@@ -1,11 +1,11 @@
 local Text = require("src.client.ui.elements.Text")
 
----@class Progress
-local Progress = tools.Class()
+---@class LoadingVisual
+local LoadingVisual = tools.Class()
 
-Progress.COLOR = {love.math.colorFromBytes(199, 157, 109)}
+LoadingVisual.COLOR = {love.math.colorFromBytes(199, 157, 109)}
 
-function Progress:init(itemAtlas, itemQuads)
+function LoadingVisual:init(itemAtlas, itemQuads)
     self.itemAtlas = itemAtlas -- AutoAtlas
     self.itemQuad = itemQuads -- tools.Array
     self.items = {}
@@ -25,7 +25,7 @@ function Progress:init(itemAtlas, itemQuads)
     end
 end
 
-function Progress:_updateItem(dt, item)
+function LoadingVisual:_updateItem(dt, item)
     item.time = item.time + dt
 
     if item.time >= item.duration then
@@ -41,21 +41,21 @@ end
 if false then
     ---@param itemAtlas any
     ---@param itemQuads any
-    ---@return Progress
-    function Progress(itemAtlas, itemQuads) end
+    ---@return LoadingVisual
+    function LoadingVisual(itemAtlas, itemQuads) end
 end
 
 ---@param dt number
-function Progress:update(dt)
+function LoadingVisual:update(dt)
     for _, item in ipairs(self.items) do
         self:_updateItem(dt, item)
     end
 end
 
-function Progress:draw()
+function LoadingVisual:draw()
     local width, height = love.graphics.getDimensions()
     local itemScale = math.min(width, height) / 240
-    love.graphics.setColor(Progress.COLOR)
+    love.graphics.setColor(LoadingVisual.COLOR)
     love.graphics.rectangle("fill", 0, 0, width, height)
 
     local region = Region(0, 0, width, height)
@@ -73,4 +73,4 @@ function Progress:draw()
     self.loadingText:render(textDrawArea:get())
 end
 
-return Progress
+return LoadingVisual

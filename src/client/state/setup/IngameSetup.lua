@@ -20,19 +20,19 @@ local IngameSetup = StateClass()
 
 
 
-function IngameSetup:init(ingameOptions, progress)
+function IngameSetup:init(ingameOptions, loadingVisual)
     assertIngameOptions(ingameOptions)
     local ingameSession = IngameSession(ingameOptions)
     self.ingameSession = ingameSession
     self.isHosting = ingameOptions.isHosting
     self.ingameOptions = ingameOptions
-    self.progress = progress
+    self.loadingVisual = loadingVisual
 end
 
 
 
 IngameSetup:on("draw", function(self)
-    self.progress:draw()
+    self.loadingVisual:draw()
 end)
 
 
@@ -40,7 +40,7 @@ end)
 IngameSetup:on("update", function(self, dt)
     self.ingameSession:update(dt)
     self.ingameSession:tick(dt)
-    self.progress:update(dt)
+    self.loadingVisual:update(dt)
 end)
 
 

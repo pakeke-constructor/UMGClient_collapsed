@@ -1,4 +1,4 @@
-local Progress = require("lootplot.states.Progress")
+local LoadingVisual = require("lootplot.states.LoadingVisual")
 
 local TransitionState = StateClass()
 
@@ -53,7 +53,7 @@ TransitionState:on("draw", function(self)
     local width, height = love.graphics.getDimensions()
     local rectX = width * easing((self.duration - self.fadeOutDuration) / self.duration)
     local rectW = width * easing((self.duration - self.fadeInDuration) / self.duration) - rectX
-    love.graphics.setColor(Progress.COLOR)
+    love.graphics.setColor(LoadingVisual.COLOR)
     love.graphics.rectangle("fill", rectX, 0, rectW, height)
 end)
 

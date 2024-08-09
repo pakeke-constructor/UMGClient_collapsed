@@ -31,12 +31,12 @@ end
 
 
 
-function HosterSetup:init(launchOptions, progress)
+function HosterSetup:init(launchOptions, loadingVisual)
     assert(launchOptions)
     log.trace("Initialized HosterSetup state with LaunchOptions: " .. launchOptions:serialize())
     self.launchOptions = launchOptions
     self.isDone = false
-    self.progress = progress
+    self.loadingVisual = loadingVisual
 
     if hoster.isHosting() then
         fail(self, "Unable to start host: Already hosting!")
@@ -49,13 +49,13 @@ end
 
 
 HosterSetup:on("draw", function(self)
-    self.progress:draw()
+    self.loadingVisual:draw()
 end)
 
 
 
 HosterSetup:on("update", function(self, _dt)
-    self.progress:update(_dt)
+    self.loadingVisual:update(_dt)
 
     if self:isActive() then
         local ipport = channelService.tryGetIPPort()
@@ -79,7 +79,7 @@ HosterSetup:on("update", function(self, _dt)
         }
 
         log.trace("HosterSetup transitioning to IngameSetup, with ingameOptions: ", inspect(ingameOptions))
-        self:transition(IngameSetup(ingameOptions, self.progress))
+        self:transition(IngameSetup(ingameOptions, self.loadingVisual))
     end
 end)
 
