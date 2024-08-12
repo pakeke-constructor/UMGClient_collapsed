@@ -19,6 +19,8 @@ end
 
 local HosterSetup = require("src.client.state.setup.HosterSetup")
 
+local BasicLoadingVisual = require("src.client.state.helper.BasicLoadingVisual")
+
 
 function ClientState:init()
     self.menu = Menu()
@@ -39,7 +41,8 @@ function ClientState:startHost(launchOptions)
     self:popAboveStates()
 
     -- start host:
-    local hosterSetupState = HosterSetup(launchOptions)
+    local loadingVisual = BasicLoadingVisual()
+    local hosterSetupState = HosterSetup(launchOptions, loadingVisual)
     self:push(hosterSetupState)
 end
 

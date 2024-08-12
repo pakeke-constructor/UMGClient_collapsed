@@ -3,7 +3,7 @@
 -- EVERYTHING HERE MUSTTT BE A CONSTANT!!!
 
 return setmetatable({
-    GAME_VERSION = "0.0.0";
+    VERSION = "0.0.0";
 
     -- path to custom boot state
     CUSTOM_BOOT_STATE = "lootplot.states.menu",
