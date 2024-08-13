@@ -44,10 +44,8 @@ end
 
 
 local validCallbacks = {
-    onSuspend = true,
     onEnter = true,
-    onExit = true,
-    onWakeup = true
+    onExit = true
 }
 
 local function tryCall(self, methodName)
@@ -75,7 +73,7 @@ function State:push(state)
     ]]
     state.stateStack = self.stateStack
     local current = getTop(self)
-    tryCall(current, "onSuspend") -- suspend current state
+    tryCall(current, "onExit") -- suspend current state
     self.stateStack:add(state)
     tryCall(state, "onEnter") -- enter new state
 end
@@ -89,14 +87,14 @@ function State:pop()
         and returning control to the state above.
     ]]
     if not self:isActive() then
-        log.error("Attempted to pop state without owning context")
+        error("Attempted to pop state without owning context")
         return
     end
     local top = getTop(self)
     tryCall(top, "onExit") -- exit top state
     self.stateStack:pop()
-    top = getTop(self) -- wakeup lower state
-    tryCall(top, "onWakeup")
+    top = getTop(self)
+    tryCall(top, "onEnter")
 end
 
 
@@ -208,7 +206,22 @@ function State:isActive()
 end
 
 
+function State:replaceBelowWith(new)
+    assert(self:isActive(), "Cannot replace below without owning context")
+    local sze = self.stateStack:size()
+    local i = sze - 1
+    local oldState = self.stateStack[i]
+    assert(oldState, "No state to replace!")
+    tryCall(oldState, "onExit")
+    self.stateStack[i] = new
+    new.stateStack = self.stateStack
+end
 
+
+function State:getSecondTop()
+    local i = self.stateStack:size() - 1
+    return self.stateStack[i]
+end
 
 --[[
 ------------
@@ -219,17 +232,12 @@ function State:init()
 end
 
 function State:onEnter()
-    -- Called when the state is pushed (made active)
+    -- Called when the state is made active
+    -- (push or wakeup)
 end
 function State:onExit()
-    -- Called when the state is popped (deactivated)
-end
-
-function State:onSuspend()
-    -- Called when a state is pushed on top of this
-end
-function State:onWakeup()
-    -- Called when the state on top of this one is popped.
+    -- Called when the state is deactivated
+    -- (popped or suspended)
 end
 
 --[[

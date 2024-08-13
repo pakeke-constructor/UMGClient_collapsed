@@ -37,7 +37,7 @@ end
 
 function Button:onRender(x,y,w,h)
     local r = Region(x,y,w,h)
-    ui.style:rectangle(r:get())
+    -- ui.style:rectangle(r:get())
 
     if self.imageElement then
         self.imageElement:render(x,y,w,h)

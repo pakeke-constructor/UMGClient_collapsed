@@ -27,7 +27,7 @@ local function startHost(self)
         modlist = {"test"},
         onlineMode = "offline",
     })
-    local hosterSetupState = HosterSetup(launchOptions)
+    local hosterSetupState = HosterSetup(launchOptions, loadingVisual)
     self:push(hosterSetupState)
 end
 
