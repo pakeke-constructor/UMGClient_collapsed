@@ -12,13 +12,14 @@ local function newAtlas(w, h, maxSprites)
     maxSprites = maxSprites or 15000
     w = w or 2048
     h = h or 2048
-    local image = lg.newImage(love.image.newImageData(w,h))
+    local image = lg.newTexture(w, h, {dpiscale = 1})--lg.newImage(love.image.newImageData(w,h))
 
     return setmetatable({
         width = w, height = h,
         binpack = binpack(w, h),
         image = image,
         path = "",
+        imageData = {}
     }, Atlas_mt)
 end
 
@@ -105,6 +106,11 @@ function Atlas:add(imageData)
 
     assert(imageData:type("ImageData"))
     return addToAtlas(self, imageData)
+end
+
+
+function Atlas:getTexture()
+    return self.image
 end
 
 

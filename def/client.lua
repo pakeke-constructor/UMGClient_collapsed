@@ -74,4 +74,7 @@ client.atlas = {}
 function client.atlas:draw(quad, x,y, r, sx,sy, ox,oy, kx,ky)
 end
 
+---@return love.Texture
+function client.atlas:getTexture() end
+
 return client
