@@ -83,7 +83,8 @@ return function(lobj)
     local make_require = require(path .. ".require")
     G.require = make_require(lobj, G.loadstring, {
         love = G.love,
-        utf8 = G.table.deepCopy(require("utf8"))
+        utf8 = G.table.deepCopy(require("utf8")),
+        bit = G.table.deepCopy(require("bit"))
     })
 
     G._G = lobj.env
