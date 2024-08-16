@@ -27,7 +27,8 @@ return function(lobj)
         timer = require(path .. ".timer.timer")(lobj),
         data = require(path .. ".data.data")(lobj);
         filesystem = require(path .. ".filesystem.filesystem")(lobj),
-        math = G.math
+        math = G.math,
+        getVersion = love.getVersion
     }
 
     G.json = json
@@ -80,7 +81,11 @@ return function(lobj)
     G.loadstring = require(path .. ".loadstring")(lobj)
 
     local make_require = require(path .. ".require")
-    G.require = make_require(lobj, G.loadstring)
+    G.require = make_require(lobj, G.loadstring, {
+        love = G.love,
+        utf8 = G.table.deepCopy(require("utf8")),
+        bit = G.table.deepCopy(require("bit"))
+    })
 
     G._G = lobj.env
 

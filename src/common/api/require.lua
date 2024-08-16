@@ -18,7 +18,9 @@ local function load_file(path, lobj, cache, load_string)
         env is the _G env
         cache is the require cache
     ]]
-    path = path:gsub("/", ".")
+    if path:find("/", 1, true) or path:find("\\", 1, true) then
+        error("forward slashes is not allowed, use dots as separator")
+    end
     local pathkey = path:lower() -- lowercase the path so we don't get weird key issues
 
     if not cache[LOADED_BOOLEAN_CACHE_KEY] then
@@ -64,7 +66,7 @@ local function load_file(path, lobj, cache, load_string)
     end
 
     setfenv(chunk, env)
-    local result = chunk()
+    local result = chunk(pathkey)
     cache[pathkey] = result
     isLoaded[pathkey] = true
 
@@ -78,7 +80,7 @@ end
 local make_require_tc = tc.assert("table", "function")
 local requireTc = tc.assert(tc.string)
 
-local function make_require(lobj, load_string)
+local function make_require(lobj, load_string, preloaded)
     make_require_tc(lobj, load_string)
     --[[
         generates the require function that is used by the modder.
@@ -98,6 +100,10 @@ local function make_require(lobj, load_string)
 
     local function require(pth)
         requireTc(pth)
+        if preloaded[pth] then
+            return preloaded[pth]
+        end
+
         -- This is the require function used by modders.
         if pth:sub(1,7) == illegal_start then
             error(err, 2)
