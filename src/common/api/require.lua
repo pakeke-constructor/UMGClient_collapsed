@@ -18,7 +18,10 @@ local function load_file(path, lobj, cache, load_string)
         env is the _G env
         cache is the require cache
     ]]
-    path = path:gsub("/", ".")
+    if path:find("/", 1, true) or path:find("\\", 1, true) then
+        error("forward slashes is not allowed, use dots as separator")
+    end
+
     local pathkey = path:lower() -- lowercase the path so we don't get weird key issues
 
     if not cache[LOADED_BOOLEAN_CACHE_KEY] then
@@ -37,14 +40,14 @@ local function load_file(path, lobj, cache, load_string)
     local isLoaded = cache[LOADED_BOOLEAN_CACHE_KEY]
     local seenCache = cache[LOADED_BOOLEAN_CACHE_KEY]
 
-    if isLoaded[pathkey] then
-        return cache[pathkey]
+    if isLoaded[path] then
+        return cache[path]
     end
 
-    if seenCache[pathkey] then
+    if seenCache[path] then
         error("Circular require loop: " .. tostring(path))
     end
-    seenCache[pathkey] = true
+    seenCache[path] = true
     
     local env = lobj.env
     local modname = lobj.modname
@@ -64,9 +67,9 @@ local function load_file(path, lobj, cache, load_string)
     end
 
     setfenv(chunk, env)
-    local result = chunk()
-    cache[pathkey] = result
-    isLoaded[pathkey] = true
+    local result = chunk(path)
+    cache[path] = result
+    isLoaded[path] = true
 
     return result
 end
