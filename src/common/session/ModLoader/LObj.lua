@@ -286,7 +286,7 @@ local function loadLuaFiles(self, path)
     loadTree(self, path, function(pth, exten)
         if isExecutable(exten) then
             pth = tools.remove_extension(pth)
-            modRequire(pth)
+            modRequire((pth:gsub("/", ".")))
         end
     end)
 end
