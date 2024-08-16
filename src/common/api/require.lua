@@ -21,7 +21,6 @@ local function load_file(path, lobj, cache, load_string)
     if path:find("/", 1, true) or path:find("\\", 1, true) then
         error("forward slashes is not allowed, use dots as separator")
     end
-
     local pathkey = path:lower() -- lowercase the path so we don't get weird key issues
 
     if not cache[LOADED_BOOLEAN_CACHE_KEY] then
@@ -40,14 +39,14 @@ local function load_file(path, lobj, cache, load_string)
     local isLoaded = cache[LOADED_BOOLEAN_CACHE_KEY]
     local seenCache = cache[LOADED_BOOLEAN_CACHE_KEY]
 
-    if isLoaded[path] then
-        return cache[path]
+    if isLoaded[pathkey] then
+        return cache[pathkey]
     end
 
-    if seenCache[path] then
+    if seenCache[pathkey] then
         error("Circular require loop: " .. tostring(path))
     end
-    seenCache[path] = true
+    seenCache[pathkey] = true
     
     local env = lobj.env
     local modname = lobj.modname
@@ -67,9 +66,9 @@ local function load_file(path, lobj, cache, load_string)
     end
 
     setfenv(chunk, env)
-    local result = chunk(path)
-    cache[path] = result
-    isLoaded[path] = true
+    local result = chunk(pathkey)
+    cache[pathkey] = result
+    isLoaded[pathkey] = true
 
     return result
 end
