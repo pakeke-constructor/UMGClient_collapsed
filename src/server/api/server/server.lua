@@ -140,6 +140,11 @@ function server.shutdown()
 end
 
 
+function server.getLaunchOptions()
+    return table.copy(serverInitOptions.launchOptions:getBootOptions(), true)
+end
+
+
 server.entities = lobj.modLoader.entities
 
 return server

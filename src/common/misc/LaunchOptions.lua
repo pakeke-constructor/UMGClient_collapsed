@@ -41,6 +41,7 @@ function LaunchOptions:init(args)
         }
     ]]
     tools.assertKeys(args, KEYS)
+    self.bootArgs = table.copy(args, true)
     tools.injectKeys(self, args)
 
     if not constants.ONLINE_MODES[self.onlineMode] then 
@@ -88,9 +89,6 @@ function LaunchOptions:serialize()
     return data
 end
 
-
-
-
 function LaunchOptions.deserialize(data)
     local ok, tabl = pcall(json.decode, data)
     local self
@@ -105,6 +103,12 @@ function LaunchOptions.deserialize(data)
     end
     local er = tabl
     return nil, er
+end
+
+
+
+function LaunchOptions:getBootOptions()
+    return self.bootArgs
 end
 
 

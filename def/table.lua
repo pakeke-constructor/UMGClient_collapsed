@@ -18,9 +18,8 @@ end
 ---@param t T[]
 ---@param r {random:fun(self:any,min:integer,max:integer):integer}?
 ---@return T
-function table.pick_random(t, r)
+function table.random(t, r)
 end
-table.random = table.pick_random
 
 --copy a table
 --	deep_or_into is either:

@@ -63,4 +63,7 @@ end
 function server.shutdown()
 end
 
+function server.getLaunchOptions()
+end
+
 return server
