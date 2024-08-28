@@ -63,6 +63,7 @@ end
 function server.shutdown()
 end
 
+---@return table<string, any>
 function server.getLaunchOptions()
 end
 
