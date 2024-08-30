@@ -1,6 +1,19 @@
 name: build_umg
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      app_id:
+        description: 'Steam AppID'     
+        required: false
+        type: number
+      build_desc:
+        description: 'Version description. eg: v0.0.0'  
+        required: false
+      release_branch: 
+        description: 'Steam release branch'
+        required: false
+        default: 'prerelease'
 
 
 jobs:
@@ -106,17 +119,49 @@ jobs:
       run: 7z a -mx9 ../../../umg.zip *
     - name: Fuse (Windows)
       run: cat main/build/love/win64/love.exe umg.zip > windows/umg.exe
-    - name: Prepare to Zip Binaries (Windows Fusing)
-      run: |
-        set -e
-        mkdir -p umg_build_windows
-        mv windows umg_build_windows/umg
-    - name: Zip Binaries
-      working-directory: umg_build_windows
-      run: 7z a -mx9 ../umg-win64.zip umg
     - name: Artifact Windows Binaries
       uses: actions/upload-artifact@v4
       with:
         name: umg-windows
-        path: umg-win64.zip
+        path: umg-build-windows
         if-no-files-found: error
+  deploy:
+    needs: build
+    if: inputs.app_id != '' && inputs.build_desc != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test Secrets Validity
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF}}
+        shell: python
+        run: |
+          import os
+
+          if not (os.environ["STEAM_USERNAME"] and os.environ["STEAM_CONFIG_VDF"]):
+            raise Exception("Secrets are improperly set up!")
+      - name: Download Artifact (Windows)
+        uses: actions/download-artifact@v4
+        with:
+          name: umg-windows
+          path: build/win64
+      - name: Download Artifact (Linux)
+        uses: actions/download-artifact@v4
+        with:
+          name: umg-linux
+          path: build/linux64
+      - name: Deploy to Steam
+        uses: game-ci/steam-deploy@v3
+        with:
+          username: ${{ secrets.STEAM_USERNAME }}
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF}}
+
+          appId: ${{ inputs.app_id }}
+          # Todo ^^^ this might fail, since app_id is a string, and it expects number
+
+          buildDescription: ${{ inputs.build_desc }}
+          rootPath: build
+          depot1Path: build/win64
+          # depot1InstallScriptPath: StandaloneWindows64/install_script.vdf
+          depot2Path: build/linux64
+          releaseBranch: ${{ inputs.release_branch }}
