@@ -32,7 +32,7 @@ jobs:
 
           buildDescription: ${{ inputs.build_desc }}
           rootPath: build
-          depot1Path: StandaloneWindows64
-          depot1InstallScriptPath: StandaloneWindows64/install_script.vdf
-          depot2Path: StandaloneLinux64
+          depot1Path: build/win64
+          # depot1InstallScriptPath: StandaloneWindows64/install_script.vdf
+          depot2Path: build/linux64
           releaseBranch: ${{ inputs.release_branch }}
