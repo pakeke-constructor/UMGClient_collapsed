@@ -138,15 +138,12 @@ function EntityManager:incorporateEntity(ent)
     if self.createEntityCallback then
         self.createEntityCallback(ent)
     end
+    self.idManager:assignId(ent)
     self.existanceBuffer:addBuffered(ent)
 
     return ent
 end
 
-
-
-function EntityManager:assignId(ent)
-end
 
 
 function EntityManager:incorporateEntityInstantly(ent)
