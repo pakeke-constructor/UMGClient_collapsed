@@ -78,8 +78,10 @@ jobs:
     - name: Cleanup (Linux Fusing)
       working-directory: squashfs-root/share/umg
       run: |
+        shopt -s globstar
         rm -rf .git .darklua.json ARCHITECTURE build *.toml *.dll config.ld r.bat steam_api64.lib .git*
         rm -rf builtin_mods/.git
+        rm -rf **/*.md
     - name: Update AppRun
       working-directory: squashfs-root
       run: |
