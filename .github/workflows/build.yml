@@ -173,7 +173,7 @@ jobs:
 
           buildDescription: ${{ inputs.build_desc }}
           rootPath: build
-          depot1Path: build/win64
+          depot1Path: win64
           # depot1InstallScriptPath: StandaloneWindows64/install_script.vdf
-          depot2Path: build/linux64
+          depot2Path: linux64
           releaseBranch: ${{ inputs.release_branch }}
