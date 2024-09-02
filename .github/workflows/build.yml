@@ -149,7 +149,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: umg-linux
-          path: build/linux64
+          path: umg-linux
+      - name: Extract AppImage for Steam
+        working-directory: umg-linux
+        run: |
+          set -e
+          chmod +x umg.AppImage
+          ./umg.AppImage --appimage-extract
+          mv squashfs-root ../build/linux64
+      - name: Overwrite steam_appid.txt
+        run: |
+          set -e
+          echo ${{ inputs.app_id }} > build/linux64/share/umg/steam_appid.txt
+          echo ${{ inputs.app_id }} > build/win64/steam_appid.txt
       - name: Deploy to Steam
         uses: game-ci/steam-deploy@v3
         with:
