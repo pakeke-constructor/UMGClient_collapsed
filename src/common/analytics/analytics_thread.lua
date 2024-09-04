@@ -231,6 +231,13 @@ function AnalyticsHandler.flush()
 end
 
 
+
+local function pullData(chan)
+    return chan:demand(0.05)
+end
+
+
+
 local currentTime = love.timer.getTime()
 
 -- Main loop
@@ -241,7 +248,7 @@ while true do
     currentTime = newTime
 
     ---@type AnalyticsThreadMessage?
-    local message = analyticsStatusChannel:demand(0.05)
+    local message = analyticsStatusChannel:performAtomic(pullData)
 
     if message then
         if message.name == "quit" then

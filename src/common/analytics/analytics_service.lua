@@ -91,33 +91,22 @@ end
 
 
 
-local SEND_KEYS = {
-    clientside = true,
-    host = true,
-    mod = true,
-    modlist = true,
-    data = true
-}
+---@param clientside boolean
+---@param name string
+---@param content string
+function analyticsService.add(clientside, name, content)
+    if analyticsChannel then
+        analyticsChannel:push({
+            name = "add",
+            dataname = name,
+            contents = content
+        })
+    end
+end
 
 function analyticsService.forceFlush()
     if analyticsChannel then
         analyticsChannel:push({name = "flush"})
-    end
-end
-
----@param data {clientside:boolean,host:boolean,mod:string,modlist:string[],data:table<string,string>}
-function analyticsService.send(data)
-    tools.assertKeys(data, SEND_KEYS)
-
-    if analyticsChannel then
-        analyticsChannel:push({
-            name = "send",
-            clientside = data.clientside,
-            host = data.host,
-            mod = data.mod,
-            modlist = data.modlist,
-            data = data.data
-        })
     end
 end
 
@@ -144,8 +133,11 @@ end
 --[[
 Analytics service API usage:
 1. When hosting or joining a game, call analyticsService.configure(steam_id)
-2. Call analyticsService.send({...}) to send analytics data.
-3. In love.quit (or the equivalent if erroring), call analyticsService.quit() to ensure threads are cleared.
+2. In client, call analyticsService.setupClient(hoster, modname, modlist)
+3. In server, call analyticsService.setupServer(modname, modlist)
+4. Call analyticsService.add(...) to insert data
+5. Analytics thread will flush if necessary. To force flush, call analyticsService.forceFlush()
+6. In love.quit (or the equivalent if erroring), call analyticsService.quit() to ensure threads are cleared.
 ]]
 
 
