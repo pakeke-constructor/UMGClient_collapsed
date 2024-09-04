@@ -1,13 +1,24 @@
+require("love.timer")
+
 local https = require("https")
 local constants = require("src.common.constants")
 local json = require("libs.nm_json.json")
 
 local analyticsStatusChannel = love.thread.getChannel("analytics:channel")
+local analyticsModlistChannel = love.thread.getChannel("analytics:modlist")
+
+
+
+local function getModinfo()
+    return assert(analyticsModlistChannel:performAtomic(function()
+        return analyticsModlistChannel:peek()
+    end))
+end
 
 
 
 ---@class AnalyticsThreadMessage
----@field public name "send"|"configure"|"quit"
+---@field public name "configure"|"add"|"flush"|"quit"
 
 ---@class AnalyticsThreadConfigure: AnalyticsThreadMessage
 ---@field public steam_id string
@@ -20,6 +31,12 @@ local analyticsStatusChannel = love.thread.getChannel("analytics:channel")
 ---@field public modlist string[]
 ---@field public data table<string, string>
 
+---@class AnalyticsThreadAdd: AnalyticsThreadMessage
+---@field public clientside boolean
+---@field public dataname string
+---@field public contents string
+
+-- Contains list of message handlers.
 local AnalyticsHandler = {}
 
 -- This will contain token needed for X-Session-Token
@@ -30,14 +47,51 @@ local analyticsBroken = false
 -- Retry count
 local analyticsRetryCount = 0
 local MAX_RETRY_COUNT = 3
-
+-- Counter when to flush
+local analyticsFlushTime = -math.huge
+-- Time to flush
+local ANALYTICS_FLUSH_TIME = 15
+-- Contains last "configure" message, for reconfig if previous one fails.
 local lastConfigureMessage = nil
 
 
+local messageBuffer = {
+    ---@type AnalyticsThreadAdd[]
+    client = {},
+    ---@type AnalyticsThreadAdd[]
+    server = {}
+}
+
+---@param buffer AnalyticsThreadAdd[]
+local function convertBufferToSendDataRequest(buffer)
+    local result = {
+        clientside = false,
+        host = false,
+        mod = "???",
+        modlist = {},
+        data = {},
+    }
+
+    for _, data in ipairs(buffer) do
+        result.data[#result.data+1] = {
+            name = data.dataname,
+            content = data.contents
+        }
+    end
+
+    return result
+end
+
 
 ---@param message AnalyticsThreadConfigure
-function AnalyticsHandler.configure(message)
+---@param keepRetry boolean?
+function AnalyticsHandler.configure(message, keepRetry)
+    analyticsBroken = false
     lastConfigureMessage = message
+
+    if not keepRetry then
+        analyticsRetryCount = 0
+    end
 
     local statusCode, body = https.request(constants.BASE_ANALYTICS_SERVER_PATH.."/auth", {
         data = json.encode({
@@ -69,10 +123,30 @@ function AnalyticsHandler.configure(message)
     return false
 end
 
----@param message AnalyticsThreadSend
-function AnalyticsHandler.send(message)
+---@param message AnalyticsThreadAdd
+function AnalyticsHandler.add(message)
     if analyticsBroken then
         -- Yea don't bother
+        return
+    end
+
+    local t = message.clientside and messageBuffer.client or messageBuffer.server
+    t[#t+1] = message
+
+    if analyticsFlushTime < 0 then
+        analyticsFlushTime = 0
+    end
+end
+
+function AnalyticsHandler.flush()
+    if analyticsBroken then
+        -- Yea don't bother
+        return
+    end
+
+    if (#messageBuffer.client + #messageBuffer.server) == 0 then
+        -- Nothing to send
+        analyticsFlushTime = -math.huge
         return
     end
 
@@ -91,36 +165,83 @@ function AnalyticsHandler.send(message)
                 analyticsRetryCount = analyticsRetryCount + 1
             end
 
-            if analyticsRetryCount >= MAX_RETRY_COUNT then
+            if analyticsRetryCount > MAX_RETRY_COUNT then
                 -- Stop trying.
                 analyticsBroken = true
             end
 
-            return -- This message will be lost sadly
+            return
         end
     end
 
-    https.request(constants.BASE_ANALYTICS_SERVER_PATH.."/send", {
-        data = json.encode({
-            clientside = message.clientside,
-            host = message.host,
-            mod = message.mod,
-            modlist = message.modlist,
-            data = message.data
-        }),
-        headers = {
-            ["Content-Type"] = "application/json",
-            ["X-Session-Token"] = analyticsToken
-        }
+    local request = {}
+    local modinfo = getModinfo()
+
+    if #messageBuffer.client > 0 then
+        local clientSendRequest = convertBufferToSendDataRequest(messageBuffer.client)
+        clientSendRequest.clientside = true
+        clientSendRequest.host = modinfo.client.isHost
+        clientSendRequest.mod = modinfo.client.name
+        clientSendRequest.modlist = modinfo.client.modlist
+        request[#request+1] = clientSendRequest
+    end
+
+    if #messageBuffer.server > 0 then
+        local serverSendRequest = convertBufferToSendDataRequest(messageBuffer.server)
+        serverSendRequest.mod = modinfo.server.name
+        serverSendRequest.modlist = modinfo.server.modlist
+        request[#request+1] = serverSendRequest
+    end
+
+    local headers = {
+        ["Content-Type"] = "application/json",
+        ["X-Session-Token"] = analyticsToken
+    }
+    local dataToSend = json.encode(request)
+    -- dataToSend = love.data.compress("string", "gzip", dataToSend, 9)
+    -- headers["Content-Encoding"] = "gzip"
+
+    local code = https.request(constants.BASE_ANALYTICS_SERVER_PATH.."/send", {
+        data = dataToSend,
+        headers = headers
     })
-    -- TODO: Check status code
+
+    if code == 200 then
+        -- OK
+        analyticsFlushTime = -math.huge
+        analyticsRetryCount = 0
+        -- flush buffers
+        messageBuffer.client = {}
+        messageBuffer.server = {}
+    else
+        -- Fail
+        analyticsFlushTime = 0
+
+        if code and code ~= 0 then
+            -- Broken
+            analyticsBroken = true
+        else
+            -- Maybe broken?
+            analyticsRetryCount = analyticsRetryCount + 1
+            if analyticsRetryCount > MAX_RETRY_COUNT then
+                analyticsBroken = true
+            end
+        end
+    end
 end
 
 
+local currentTime = love.timer.getTime()
 
+-- Main loop
 while true do
+    -- compute dt
+    local newTime = love.timer.getTime()
+    local dt = newTime - currentTime
+    currentTime = newTime
+
     ---@type AnalyticsThreadMessage?
-    local message = analyticsStatusChannel:demand(1)
+    local message = analyticsStatusChannel:demand(0.05)
 
     if message then
         if message.name == "quit" then
@@ -130,5 +251,11 @@ while true do
         end
     end
 
+    analyticsFlushTime = analyticsFlushTime + dt
+    if analyticsFlushTime >= ANALYTICS_FLUSH_TIME then
+        AnalyticsHandler.flush()
+    end
+
+    collectgarbage()
     collectgarbage()
 end
