@@ -213,6 +213,13 @@ Host:on("mousereleased", function(self, x, y, b)
     self:_performLUIButtonsRelease(x, y, b)
 end)
 
+Host:on("keypressed", function(self, key, scancode)
+    if scancode == "escape" then
+        love.event.quit()
+    end
+end)
+
+
 
 
 return Host
