@@ -56,15 +56,14 @@ function analyticsService.configure(steamid)
 end
 
 ---@param isHost boolean
----@param playableModname string
 ---@param modlist string[]
-function analyticsService.setupClient(isHost, playableModname, modlist)
+function analyticsService.setupClient(isHost, modlist)
     if analyticsChannel then
         analyticsModlistChannel:performAtomic(function()
             local modlistInfo = analyticsModlistChannel:pop()
 
             modlistInfo.client = {
-                name = playableModname,
+                name = "???",
                 isHost = isHost,
                 modlist = modlist
             }
@@ -73,15 +72,14 @@ function analyticsService.setupClient(isHost, playableModname, modlist)
     end
 end
 
----@param playableModname string
 ---@param modlist string[]
-function analyticsService.setupServer(playableModname, modlist)
+function analyticsService.setupServer(modlist)
     if analyticsChannel then
         analyticsModlistChannel:performAtomic(function()
             local modlistInfo = analyticsModlistChannel:pop()
 
             modlistInfo.server = {
-                name = playableModname,
+                name = "???",
                 modlist = modlist
             }
             analyticsModlistChannel:push(modlistInfo)
