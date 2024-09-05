@@ -191,6 +191,13 @@ end
 function umg.log.fatal(...)
 end
 
+umg.analytics = {}
+
+---@param name string
+---@param contents table<string,any>|any[]
+function umg.analytics.collect(name, contents)
+end
+
 ---@class EntityClass
 ---@field public id integer
 local EntityClass = {}
