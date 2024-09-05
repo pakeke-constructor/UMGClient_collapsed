@@ -214,6 +214,7 @@ function ModLoader:loadMods(modlist_)
     log.trace("================================")
     log.trace(("%d mods loaded in %.3f seconds"):format(#modlist, timeTaken))
     log.trace("================================")
+    return modlist
 end
 
 

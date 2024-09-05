@@ -6,6 +6,9 @@ local newBuses = require(path .. ".umg.buses")
 
 local newDirObj = require(path .. ".umg.directoryObjects")
 
+local analyticsService = require("src.common.analytics.analytics_service")
+local json = require("libs.nm_json.json")
+
 
 
 local function namespaceByContext(lobj, str)
@@ -210,6 +213,17 @@ end
 
 
 
+local function addAnalytics(umg, lobj)
+    umg.analytics = {}
+
+    function umg.analytics.collect(name, contents)
+        assertNamespaced(lobj, name)
+        analyticsService.add(not not CLIENT_SIDE, name, json.encode(contents))
+    end
+end
+
+
+
 local function make_umg(lobj)
     local umg = {}
 
@@ -222,6 +236,8 @@ local function make_umg(lobj)
     addGetWorldTime(umg, lobj)
 
     addLoaderFuncs(umg, lobj)
+
+    addAnalytics(umg, lobj)
 
     local buses = newBuses(lobj)
     umg.defineEvent = buses.defineEvent

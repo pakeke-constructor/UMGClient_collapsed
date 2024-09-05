@@ -24,6 +24,7 @@ Load world
 
 
 local hoster = require("src.client.hoster")
+local analyticsService = require("src.common.analytics.analytics_service")
 
 
 local SetupPipeline = tools.SafeClass()
@@ -39,7 +40,7 @@ end
 
 local function loadMods(self)
     local modlist = self.ingameOptions.modlist
-    self.ingameSession:loadMods(modlist)
+    return self.ingameSession:loadMods(modlist)
 end
 
 
@@ -83,8 +84,10 @@ local function setupListeners(self)
         setListener(self, self.mainListener)
         -- set to the main listener, so the mods can do their thing.
         -- In the future, use an AsyncTask for this
-        loadMods(self)
+        local modlist = loadMods(self)
         setListener(self, self.setupListener)
+
+        analyticsService.setupClient(self.isHosting, modlist)
 
         -- Now, request world:
         log.trace("Requesting world...")
