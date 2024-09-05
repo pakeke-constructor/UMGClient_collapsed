@@ -1,4 +1,5 @@
 require("love.timer")
+require("love.system")
 
 local https = require("https")
 local constants = require("src.common.constants")
@@ -7,6 +8,8 @@ local json = require("libs.nm_json.json")
 local analyticsStatusChannel = love.thread.getChannel("analytics:channel")
 local analyticsModlistChannel = love.thread.getChannel("analytics:modlist")
 local analyticsChannel = analyticsStatusChannel:peek()
+
+local userOS = love.system.getOS()
 
 
 
@@ -68,7 +71,6 @@ local function convertBufferToSendDataRequest(buffer)
     local result = {
         clientside = false,
         host = false,
-        mod = "???",
         modlist = {},
         data = {},
     }
@@ -99,7 +101,7 @@ function AnalyticsHandler.configure(message, keepRetry)
             steam_id = message.steam_id,
             random_value = message.random_value,
             -- TODO
-            os = "Unknown",
+            os = userOS,
             os_version = "TODO"
         }),
         headers = {
@@ -189,14 +191,12 @@ function AnalyticsHandler.flush()
         local clientSendRequest = convertBufferToSendDataRequest(messageBuffer.client)
         clientSendRequest.clientside = true
         clientSendRequest.host = modinfo.client.isHost
-        clientSendRequest.mod = modinfo.client.name
         clientSendRequest.modlist = modinfo.client.modlist
         request[#request+1] = clientSendRequest
     end
 
     if #modinfo.server.modlist > 0 and #messageBuffer.server > 0 then
         local serverSendRequest = convertBufferToSendDataRequest(messageBuffer.server)
-        serverSendRequest.mod = modinfo.server.name
         serverSendRequest.modlist = modinfo.server.modlist
         request[#request+1] = serverSendRequest
     end

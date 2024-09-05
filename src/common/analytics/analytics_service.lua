@@ -20,12 +20,10 @@ if #constants.BASE_ANALYTICS_SERVER_PATH > 0 then
         if analyticsModlistChannel:getCount() == 0 then
             analyticsModlistChannel:push({
                 client = {
-                    name = "???",
                     isHost = false,
                     modlist = {}
                 },
                 server = {
-                    name = "???",
                     modlist = {}
                 }
             })
@@ -66,7 +64,6 @@ function analyticsService.setupClient(isHost, modlist)
             local modlistInfo = analyticsModlistChannel:pop()
 
             modlistInfo.client = {
-                name = "???",
                 isHost = isHost,
                 modlist = modlist
             }
@@ -83,7 +80,6 @@ function analyticsService.setupServer(modlist)
             local modlistInfo = analyticsModlistChannel:pop()
 
             modlistInfo.server = {
-                name = "???",
                 modlist = modlist
             }
             analyticsModlistChannel:push(modlistInfo)
