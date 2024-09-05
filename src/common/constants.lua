@@ -89,7 +89,6 @@ return setmetatable({
         "@wheelmoved", "@mousepressed", "@mousereleased", "@mousemoved",
         "@entityInit", "@newEntityType",
         "@debugComponentAccess", "@debugComponentChange",
-        "@collectAnalytics",
     },
 
     KNOWN_UMG_QUESTIONS = {

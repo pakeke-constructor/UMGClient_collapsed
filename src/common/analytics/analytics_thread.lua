@@ -54,7 +54,7 @@ local MAX_RETRY_COUNT = 3
 -- Counter when to flush
 local analyticsFlushTime = -math.huge
 -- Time to flush
-local ANALYTICS_FLUSH_TIME = 15
+local ANALYTICS_FLUSH_TIME = 3
 -- Contains last "configure" message, for reconfig if previous one fails.
 local lastConfigureMessage = nil
 
