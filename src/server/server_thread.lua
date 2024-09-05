@@ -71,13 +71,24 @@ rawset(_G, "serverSession", ServerSession({
 
 local modlist = launchOptions.modlist
 table.stable_sort(modlist)
-serverSession:loadMods(modlist)
+local resolvedModlist = serverSession:loadMods(modlist)
+
+local analyticsService = require("src.common.analytics.analytics_service")
+analyticsService.setupServer(resolvedModlist)
 
 local eventBus = serverSession.umgSession.eventBus
 
 
 
+local function errhand(msg)
+    local json = require("libs.nm_json.json")
+    local tb = debug.traceback(msg)
+    analyticsService.add(false, "@crash", json.encode({message = tb}))
+    return tb
+end
 
+-- Begin xpcall
+local serverResult, serverErrorMessage = xpcall(function()
 
 
 log.trace("Calling @load")
@@ -136,4 +147,8 @@ while not serverSession:isClosed() do
     serverSession:flush()
 end
 
-
+-- end of xpcall
+end, errhand)
+if not serverResult then
+    error(serverErrorMessage)
+end

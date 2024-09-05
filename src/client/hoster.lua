@@ -32,6 +32,7 @@ local HostContext = tools.SafeClass()
 function HostContext:init()
     self.thread = false
     self.launchOptions = false
+    self.serverCrash = false
 end
 
 
@@ -129,6 +130,9 @@ end
 function hoster.threaderror(_, errorstr)
     channelService.executePrints()
     channelService.executeLogs()
+    if ctx then
+        ctx.serverCrash = true
+    end
     error("Server error:\n" .. errorstr)
 end
 
@@ -144,7 +148,12 @@ end
 
 
 function hoster.isHosting()
-    return ctx
+    return not not ctx
+end
+
+
+function hoster.isServerCrashed()
+    return not not (ctx and ctx.serverCrash)
 end
 
 

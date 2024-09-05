@@ -16,6 +16,8 @@ local SettingState = require("lootplot.states.SettingState")
 local LoadingVisual = require("lootplot.states.LoadingVisual")
 local TransitionState = require("lootplot.states.TransitionState")
 
+local analyticsService = require("src.common.analytics.analytics_service")
+
 local lg = love.graphics
 
 
@@ -56,6 +58,16 @@ local function startHost(self)
         onlineMode = "offline",
     })
     local hosterSetupState = HosterSetup(launchOptions, LoadingVisual(self.physicsWorld:getAtlasAndItemQuads()))
+
+    -- Setup analytics
+    -- TODO: GDPR
+    local steamid = "0"
+    if luasteam.CONNECTED then
+        steamid = tostring(luasteam.user.getSteamID())
+    end
+
+    analyticsService.configure(steamid)
+
     self:push(TransitionState(hosterSetupState, 0.15, true))
 end
 
