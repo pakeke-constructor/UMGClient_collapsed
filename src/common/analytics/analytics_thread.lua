@@ -6,6 +6,7 @@ local json = require("libs.nm_json.json")
 
 local analyticsStatusChannel = love.thread.getChannel("analytics:channel")
 local analyticsModlistChannel = love.thread.getChannel("analytics:modlist")
+local analyticsChannel = analyticsStatusChannel:peek()
 
 
 
@@ -130,6 +131,13 @@ function AnalyticsHandler.add(message)
         return
     end
 
+    local modinfo = getModinfo()
+    local modinfodata = modinfo[message.clientside and "client" or "server"]
+    if #modinfodata.modlist == 0 then
+        -- Modlist not configured
+        return
+    end
+
     local t = message.clientside and messageBuffer.client or messageBuffer.server
     t[#t+1] = message
 
@@ -177,7 +185,7 @@ function AnalyticsHandler.flush()
     local request = {}
     local modinfo = getModinfo()
 
-    if #messageBuffer.client > 0 then
+    if #modinfo.client.modlist > 0 and #messageBuffer.client > 0 then
         local clientSendRequest = convertBufferToSendDataRequest(messageBuffer.client)
         clientSendRequest.clientside = true
         clientSendRequest.host = modinfo.client.isHost
@@ -186,7 +194,7 @@ function AnalyticsHandler.flush()
         request[#request+1] = clientSendRequest
     end
 
-    if #messageBuffer.server > 0 then
+    if #modinfo.server.modlist > 0 and #messageBuffer.server > 0 then
         local serverSendRequest = convertBufferToSendDataRequest(messageBuffer.server)
         serverSendRequest.mod = modinfo.server.name
         serverSendRequest.modlist = modinfo.server.modlist
@@ -248,7 +256,7 @@ while true do
     currentTime = newTime
 
     ---@type AnalyticsThreadMessage?
-    local message = analyticsStatusChannel:performAtomic(pullData)
+    local message = analyticsChannel:performAtomic(pullData)
 
     if message then
         if message.name == "quit" then

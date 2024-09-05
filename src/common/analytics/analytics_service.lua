@@ -47,10 +47,12 @@ function analyticsService.configure(steamid)
             randomValue[#randomValue+1] = string.format("%02x", love.math.random(0, 255))
         end
 
+        local randomValueHex = table.concat(randomValue)
+        log.info("Configuring analytics service with steamID = "..steamid.." and randomValue = "..randomValueHex)
         analyticsChannel:push({
             name = "configure",
             steam_id = steamid,
-            random_value = table.concat(randomValue)
+            random_value = randomValueHex
         })
     end
 end
@@ -58,6 +60,7 @@ end
 ---@param isHost boolean
 ---@param modlist string[]
 function analyticsService.setupClient(isHost, modlist)
+    assert(modlist)
     if analyticsChannel then
         analyticsModlistChannel:performAtomic(function()
             local modlistInfo = analyticsModlistChannel:pop()
@@ -74,6 +77,7 @@ end
 
 ---@param modlist string[]
 function analyticsService.setupServer(modlist)
+    assert(modlist)
     if analyticsChannel then
         analyticsModlistChannel:performAtomic(function()
             local modlistInfo = analyticsModlistChannel:pop()
