@@ -19,7 +19,7 @@ local TransitionState = require("lootplot.states.TransitionState")
 local lg = love.graphics
 
 
-local Host = StateClass()
+local MenuState = StateClass()
 
 love.filesystem.setIdentity("lootplot")
 
@@ -65,7 +65,7 @@ local function getScreenView()
 end
 
 
-function Host:init()
+function MenuState:init()
     self.physicsTransform = love.math.newTransform()
     self.physicsScale = 1
     self.doNotFree = false
@@ -98,21 +98,21 @@ function Host:init()
     self.settingButton:makeRoot()
 end
 
-function Host:_performLUIButtonsPress(...)
+function MenuState:_performLUIButtonsPress(...)
     return
         self.discordButton:mousepressed(...) or
         self.wishlistButton:mousepressed(...) or
         self.settingButton:mousepressed(...)
 end
 
-function Host:_performLUIButtonsRelease(...)
+function MenuState:_performLUIButtonsRelease(...)
     self.discordButton:mousereleased(...)
     self.wishlistButton:mousereleased(...)
     self.settingButton:mousereleased(...)
 end
 
 -- Since we're making all the button a root element, we have to render them ourselves.
-function Host:_performLUIRender(x, y, w, h)
+function MenuState:_performLUIRender(x, y, w, h)
     local region = Region(x, y, w, h)
 
     -- Uh this is ugly. We have to compute the position ourself.
@@ -129,12 +129,12 @@ function Host:_performLUIRender(x, y, w, h)
     self.settingButton:render(x + w - settingDim - 10, y + h - settingDim - 10, settingDim, settingDim)
 end
 
-function Host:_gotoSettings()
+function MenuState:_gotoSettings()
     self.doNotFree = true
     self:push(self.settingState)
 end
 
-function Host:_updatePhysicsTransform()
+function MenuState:_updatePhysicsTransform()
     local x, y, w, h = getScreenView()
     -- Physics world center is (0, 0)
     -- But also we want to scale it to match the screen itself
@@ -147,7 +147,7 @@ function Host:_updatePhysicsTransform()
     self.physicsTransform:scale(s, s)
 end
 
-function Host:onEnter()
+function MenuState:onEnter()
     if not self.physicsWorld then
         self.physicsWorld = PhysicsWorldScreen(PHYSICS_WORLD_WIDTH, PHYSICS_WORLD_HEIGHT)
         self.physicsWorld:addButton({
@@ -170,20 +170,20 @@ function Host:onEnter()
     self.doNotFree = false
 end
 
-function Host:onExit()
+function MenuState:onExit()
     if not self.doNotFree then
         self.physicsWorld = nil
     end
 end
 
 
-Host:on("update", function(self, dt)
+MenuState:on("update", function(self, dt)
     if self.physicsWorld then
         self.physicsWorld:update(dt)
     end
 end)
 
-Host:on("draw", function(self)
+MenuState:on("draw", function(self)
     love.graphics.clear(love.math.colorFromBytes(151, 246, 247))
 
     -- Draw physics
@@ -197,11 +197,11 @@ Host:on("draw", function(self)
     self:_performLUIRender(0, 0, love.graphics.getDimensions())
 end)
 
-Host:on("resize", function(self, w, h)
+MenuState:on("resize", function(self, w, h)
     self:_updatePhysicsTransform()
 end)
 
-Host:on("mousepressed", function(self, x, y, b)
+MenuState:on("mousepressed", function(self, x, y, b)
     if not self:_performLUIButtonsPress(x, y, b) then
         if b == 1 then
             self.physicsWorld:click(self.physicsTransform:inverseTransformPoint(x, y))
@@ -209,11 +209,11 @@ Host:on("mousepressed", function(self, x, y, b)
     end
 end)
 
-Host:on("mousereleased", function(self, x, y, b)
+MenuState:on("mousereleased", function(self, x, y, b)
     self:_performLUIButtonsRelease(x, y, b)
 end)
 
-Host:on("keypressed", function(self, key, scancode)
+MenuState:on("keypressed", function(self, key, scancode)
     if scancode == "escape" then
         love.event.quit()
     end
@@ -222,5 +222,5 @@ end)
 
 
 
-return Host
+return MenuState
 
