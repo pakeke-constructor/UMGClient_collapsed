@@ -157,7 +157,9 @@ return setmetatable({
     },
 
     INTERNAL_PATH = "internal_DONT_TOUCH/", -- the directory path for interally used files
-    TEMP_PATH = "temporary/" -- temporary files
+    TEMP_PATH = "temporary/", -- temporary files
+
+    BASE_ANALYTICS_SERVER_PATH = "http://localhost:8000" -- without trailing slash. empty string = disabled
 },
 
 

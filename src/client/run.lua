@@ -20,6 +20,7 @@ local constants = require("src.common.constants")
 local utf8 = require("utf8")
 
 local hoster = require("src.client.hoster")
+local analyticsService = require("src.common.analytics.analytics_service")
 
 
 local function dbgcall(f, ...)
@@ -35,6 +36,7 @@ function love.quit()
     dbgcall(function()
         hoster.close()
     end)
+    analyticsService.quit()
 end
 
 
@@ -184,9 +186,9 @@ local function handle_error(msg)
     -- dump the error messages, do some preparation,
     -- and switch to the errorloop
     error_occured = true
-	love.graphics.setNewFont(14)
+	love.graphics.setFont(love.graphics.newFont(14))
 
-    local trace = debug.traceback()
+    local trace = debug.traceback(msg)
     errmsg = parse_error_msg(msg, trace)
 
     print(errmsg)
@@ -194,6 +196,11 @@ local function handle_error(msg)
     if love.audio then
         love.audio.stop()
     end
+
+    if not hoster.isServerCrashed() then
+        analyticsService.add(true, "@crash", json.encode({message = trace}))
+    end
+    analyticsService.forceFlush()
 
     loop = errorloop
 end
