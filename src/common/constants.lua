@@ -7,6 +7,7 @@ return setmetatable({
 
     -- path to custom boot state
     CUSTOM_BOOT_STATE = "lootplot.states.menu",
+    FILESYSTEM_IDENTITY = "lootplot", --"umg",
 
     DISCORD_LINK = "https://discord.gg/Pd4nwmy2HJ";
 

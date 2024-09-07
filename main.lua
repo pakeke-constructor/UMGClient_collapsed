@@ -1,8 +1,6 @@
 
 love.graphics.setDefaultFilter("nearest", "nearest")
 
-love.filesystem.setIdentity("umg")
-
 
 setmetatable(_G, {__index = function(_,k)
     error("Undefined variable: "..tostring(k), 2)
@@ -10,6 +8,12 @@ end;
 __newindex = function(_,k,_)
     error("Non local created: " .. tostring(k), 2)
 end})
+
+
+local constants = require("src.common.constants")
+love.filesystem.setIdentity(constants.FILESYSTEM_IDENTITY)
+
+
 
 
 

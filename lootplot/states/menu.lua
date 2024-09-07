@@ -23,7 +23,6 @@ local lg = love.graphics
 
 local MenuState = StateClass()
 
-love.filesystem.setIdentity("lootplot")
 
 
 
@@ -32,6 +31,7 @@ local PHYSICS_WORLD_WIDTH, PHYSICS_WORLD_HEIGHT = 360, 180
 
 
 local function getModsInSaveDirectory()
+    assert(love.filesystem.getIdentity() == "lootplot")
     local result = {}
 
     for _, mod in ipairs(love.filesystem.getDirectoryItems("mods")) do
