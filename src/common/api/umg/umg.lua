@@ -106,10 +106,6 @@ local function addEntityFunctions(umg, lobj)
     local defineEntityTypeTc = tc.assert(tc.string, tc.table)
     function umg.defineEntityType(etypeName, etypeTable)
         defineEntityTypeTc(etypeName, etypeTable)
-        if not lobj:isNamespaced(etypeName) then
-            -- adds a namespace to `str` if it doesn't have one.
-            etypeName = namespaceByContext(lobj, etypeName)
-        end
         assertNamespaced(lobj, etypeName)
         assertIsLoading(lobj)
         return modLoader:bufferDefineEntityType(etypeName, etypeTable)

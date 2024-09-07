@@ -82,7 +82,7 @@ function LObj:isNamespaced(str)
     end
 
     local currModname = false
-    local loadCtx = self.modLoader:getLoadingContext() 
+    local loadCtx = self.modLoader:getLoadingContext()
     if loadCtx then
         currModname = loadCtx.modname
     end
