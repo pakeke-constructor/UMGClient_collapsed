@@ -70,7 +70,6 @@ function FSysObj:getInfo(path, filtertype)
     else
         ret = nativefs.getInfo(self.append_path .. path, filtertype)
     end
-    log.debug("FSysObj:getInfo", path, filtertype, ret)
     return ret
 end
 
