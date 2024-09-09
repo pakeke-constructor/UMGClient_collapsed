@@ -102,7 +102,7 @@ end
 
 ---@param volume integer
 local function clampVolume(volume)
-    return math.min(math.max(volume, 0), 100)
+    return math.min(math.max(math.floor(volume + 0.5), 0), 100)
 end
 
 function userService.getMasterVolume()

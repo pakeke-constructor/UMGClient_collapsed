@@ -18,45 +18,64 @@ end
 local SettingScene = LUI.Element()
 
 local function formatSliderLabel(elem, prefix, newvalue)
-    elem:setText(string.format("%s: %3d", prefix, newvalue * 100))
+    elem:setText(string.format("%s: %3d", prefix, newvalue))
 end
 
 function SettingScene:init(args)
+    assert(args.onClose)
+
+    self.oldSettings = {
+        sfx = userService.getSFXVolume(),
+        bgm = userService.getBGMVolume(),
+    }
+    if userService.isAnalyticsConsentAsked() then
+        self.oldSettings.analytics = userService.isUserConsentedForAnalytics()
+    end
+
+
     self.title = Text("Settings")
     self.sfxSliderLabel = Text(" ")
     self.sfxSlider = Slider({
         min = 0,
         max = 100,
-        value = variables.ingame_sfx_volume * 100,
+        value = self.oldSettings.sfx,
         onValueChanged = function(_, value)
-            value = math.floor(value + 0.5) -- floating imprecision
-            variables.ingame_sfx_volume = value / 100
-            formatSliderLabel(self.sfxSliderLabel, "SFX Volume", value / 100)
+            userService.setSFXVolume(value)
+            formatSliderLabel(self.sfxSliderLabel, "SFX Volume", userService.getSFXVolume())
         end
     })
     self.bgmSliderLabel = Text(" ")
     self.bgmSlider = Slider({
         min = 0,
         max = 100,
-        value = variables.ingame_music_volume * 100,
+        value = self.oldSettings.bgm,
         onValueChanged = function(_, value)
-            value = math.floor(value + 0.5)
-            variables.ingame_music_volume = value / 100
-            formatSliderLabel(self.bgmSliderLabel, "BGM Volume", value / 100)
+            userService.setBGMVolume(value)
+            formatSliderLabel(self.bgmSliderLabel, "BGM Volume", userService.getBGMVolume())
         end
     })
     self.closeButton = PixelButton({
         color = "green",
-        text = "Close",
-        onClick = assert(args.onClose),
+        text = "Apply",
+        onClick = function()
+            userService.saveSettings()
+            return args.onClose()
+        end,
     })
     self.closeButtonAlt = Button({
         image = love.graphics.newImage("lootplot/assets/ui/red_square_1.png"),
-        onClick = assert(args.onClose),
+        onClick = function()
+            userService.setSFXVolume(self.oldSettings.sfx)
+            userService.setBGMVolume(self.oldSettings.bgm)
+            if self.oldSettings.analytics ~= nil then
+                userService.setAnalyticsConsent(self.oldSettings.analytics)
+            end
+            return args.onClose()
+        end,
     })
 
-    formatSliderLabel(self.sfxSliderLabel, "SFX Volume", variables.ingame_sfx_volume)
-    formatSliderLabel(self.bgmSliderLabel, "BGM Volume", variables.ingame_music_volume)
+    formatSliderLabel(self.sfxSliderLabel, "SFX Volume", userService.getSFXVolume())
+    formatSliderLabel(self.bgmSliderLabel, "BGM Volume", userService.getBGMVolume())
 
     self:addChild(self.title)
     self:addChild(self.sfxSliderLabel)
