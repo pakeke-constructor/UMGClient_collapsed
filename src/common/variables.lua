@@ -13,15 +13,6 @@ return {
     ticks_per_second = 30; -- aim for this TPS for server
 
     ingame_paused = false; -- whether the ingame client is paused
-    
-    ingame_sfx_volume = 0.5;
-    ingame_music_volume = 0.0;
-
-    ingame_master_volume = 0.5;
-
-    menu_sfx_volume = 0.5, -- TODO: Add a UI option to change these values.
-    menu_music_volume = 0.5, 
-
     is_world_persistent = false, -- whether the world is persistent or not.
     -- Only used on serverside currently.
 
