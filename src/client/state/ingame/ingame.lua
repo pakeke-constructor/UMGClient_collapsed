@@ -46,6 +46,7 @@ Ingame:on("update", function(self, dt)
     self.ingameSession:update(dt)
 
     if self.ingameSession:shouldQuit() then
+        self.umgSession.eventBus:call("@quit")
         self:pop()
     end
 end)
