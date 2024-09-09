@@ -54,15 +54,15 @@ end
 
 
 function client.getMasterVolume()
-    return variables.ingame_master_volume
+    return userService.getMasterVolume() / 100
 end
 
 function client.getSFXVolume()
-    return variables.ingame_sfx_volume
+    return userService.getSFXVolume() / 100
 end
 
 function client.getMusicVolume()
-    return variables.ingame_music_volume
+    return userService.getBGMVolume() / 100
 end
 
 
