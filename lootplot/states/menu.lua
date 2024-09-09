@@ -61,13 +61,14 @@ local function startHost(self)
     local hosterSetupState = HosterSetup(launchOptions, LoadingVisual(self.physicsWorld:getAtlasAndItemQuads()))
 
     -- Setup analytics
-    -- TODO: GDPR
     local steamid = "0"
     if luasteam.CONNECTED then
         steamid = tostring(luasteam.user.getSteamID())
     end
 
-    analyticsService.configure(steamid)
+    if userService.isUserConsentedForAnalytics() then
+        analyticsService.configure(steamid)
+    end
 
     self:push(TransitionState(hosterSetupState, 0.15, true))
 end
