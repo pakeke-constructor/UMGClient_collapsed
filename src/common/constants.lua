@@ -61,7 +61,7 @@ return setmetatable({
         TODO: Combine all these debug options into one.
     ]]
     DEBUG = true; -- Do we want debug msgs?
-    AGGRESSIVE_DEBUG = true, -- aggressive debugging?
+    AGGRESSIVE_DEBUG = false, -- aggressive debugging?
     --[[
         TODO: AGGRESSIVE_DEBUG is broken!!!
         We should probably fix e2e tests before running AGGRESSIVE_DEBUG mode.
