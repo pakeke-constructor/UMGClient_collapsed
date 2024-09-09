@@ -11,6 +11,7 @@ local LaunchOptions = require("src.common.misc.LaunchOptions")
 local PhysicsWorldScreen = require(path .. ".physics_background")
 
 local HosterSetup = require("src.client.state.setup.HosterSetup")
+local AnalyticsPopupState = require("lootplot.states.AnalyticsPopupState")
 local SettingState = require("lootplot.states.SettingState")
 
 local LoadingVisual = require("lootplot.states.LoadingVisual")
@@ -82,6 +83,7 @@ function MenuState:init()
     self.physicsScale = 1
     self.doNotFree = false
     self.settingState = SettingState()
+    self.analyticsConsentState = AnalyticsPopupState()
 
     -- LUI always consumes our inputs while we only want it
     -- to be consumed if the children really consume it.
@@ -146,6 +148,11 @@ function MenuState:_gotoSettings()
     self:push(self.settingState)
 end
 
+function MenuState:_showConsent()
+    self.doNotFree = true
+    self:push(self.analyticsConsentState)
+end
+
 function MenuState:_updatePhysicsTransform()
     local x, y, w, h = getScreenView()
     -- Physics world center is (0, 0)
@@ -180,6 +187,10 @@ function MenuState:onEnter()
         self:_updatePhysicsTransform()
     end
     self.doNotFree = false
+
+    if not userService.isAnalyticsConsentAsked() then
+        self:_showConsent()
+    end
 end
 
 function MenuState:onExit()
