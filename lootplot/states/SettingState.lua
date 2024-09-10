@@ -1,9 +1,12 @@
 local AutoAtlas = require("libs.AutoAtlas.AutoAtlas")
 
+local analyticsService = require("src.common.analytics.analytics_service")
+
 local Button = require("src.client.ui.elements.Button")
 local PixelButton = require("lootplot.elements.PixelButton")
 local Slider = require("src.client.ui.elements.Slider")
 local Text = require("src.client.ui.elements.Text")
+local AnalyticsPopupState = require("lootplot.states.AnalyticsPopupState")
 
 local SettingState = StateClass()
 
@@ -22,7 +25,7 @@ local function formatSliderLabel(elem, prefix, newvalue)
 end
 
 function SettingScene:init(args)
-    assert(args.onClose)
+    assert(args.onClose and args.state)
 
     self.oldSettings = {
         sfx = userService.getSFXVolume(),
@@ -34,6 +37,7 @@ function SettingScene:init(args)
 
 
     self.title = Text("Settings")
+
     self.sfxSliderLabel = Text(" ")
     self.sfxSlider = Slider({
         min = 0,
@@ -54,6 +58,15 @@ function SettingScene:init(args)
             formatSliderLabel(self.bgmSliderLabel, "BGM Volume", userService.getBGMVolume())
         end
     })
+
+    self.analyticsButton = PixelButton({
+        color = "blue",
+        text = "Analytics",
+        onClick = function()
+            args.state:push(AnalyticsPopupState(false))
+        end
+    })
+
     self.closeButton = PixelButton({
         color = "green",
         text = "Apply",
@@ -82,6 +95,7 @@ function SettingScene:init(args)
     self:addChild(self.sfxSlider)
     self:addChild(self.bgmSliderLabel)
     self:addChild(self.bgmSlider)
+    self:addChild(self.analyticsButton)
     self:addChild(self.closeButton)
     self:addChild(self.closeButtonAlt)
 end
@@ -105,7 +119,7 @@ function SettingScene:onRender(x, y, w, h)
     love.graphics.rectangle("fill", settingWindowRegionBase:get())
 
     local windowRegion = settingWindowRegionBase:pad(0.04)
-    local titleBase, contentUnpad, closeButtonBase = windowRegion:splitVertical(3, 8, 2)
+    local titleBase, contentUnpad, buttonBase = windowRegion:splitVertical(3, 8, 4)
 
     local titleArea = titleBase:splitVertical(1, 1)
     do
@@ -126,12 +140,18 @@ function SettingScene:onRender(x, y, w, h)
     self.bgmSliderLabel:render(bgmLabel:get())
     self.bgmSlider:render(bgm:get())
 
+    local analyticsButtonBase, _, closeButtonBase = buttonBase:splitVertical(4, 0.2, 5)
+
+    local analyticsButton = Region(0, 0, 70, 18):scaleToFit(analyticsButtonBase):center(analyticsButtonBase):pad(0.05)
+    self.analyticsButton:render(analyticsButton:get())
+
     local closeButton = Region(0, 0, 70, 18):scaleToFit(closeButtonBase):center(closeButtonBase):pad(0.05)
     self.closeButton:render(closeButton:get())
 end
 
 function SettingState:init()
     self.scene = SettingScene({
+        state = self,
         onClose = function()
             return self:pop()
         end
