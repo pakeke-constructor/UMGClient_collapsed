@@ -15,7 +15,7 @@ this analytics.
 
 local AnalyticsPopupScene = LUI.Element()
 
-function AnalyticsPopupScene:init(state)
+function AnalyticsPopupScene:init(state, save)
     local desc = DESCRIPTION:gsub("\r\n", "\n")
 
     self.title = Text("Analytics Consent")
@@ -25,7 +25,9 @@ function AnalyticsPopupScene:init(state)
         text = "Allow",
         onClick = function()
             userService.setAnalyticsConsent(true)
-            userService.saveSettings()
+            if save then
+                userService.saveSettings()
+            end
             return state:pop()
         end,
     })
@@ -34,13 +36,24 @@ function AnalyticsPopupScene:init(state)
         text = "Deny",
         onClick = function()
             userService.setAnalyticsConsent(false)
-            userService.saveSettings()
+            if save then
+                userService.saveSettings()
+            end
             return state:pop()
         end,
     })
 
+    local status
+    if userService.isAnalyticsConsentAsked() then
+        status = userService.isUserConsentedForAnalytics() and "Enabled" or "Disabled"
+    else
+        status = "Undecided"
+    end
+    self.analyticsStatus = Text("Analytics status: "..status)
+
     self:addChild(self.title)
     self:addChild(self.content)
+    self:addChild(self.analyticsStatus)
     self:addChild(self.acceptButton)
     self:addChild(self.rejectButton)
 end
@@ -58,7 +71,7 @@ function AnalyticsPopupScene:onRender(x, y, w, h)
     love.graphics.rectangle("fill", settingWindowRegionBase:get())
 
     local windowRegion = settingWindowRegionBase:pad(0.04)
-    local titleBase, contentUnpad, buttonBase = windowRegion:splitVertical(3, 8, 2)
+    local titleBase, contentUnpad, status, buttonBase = windowRegion:splitVertical(3, 6, 1, 2)
 
     local title = titleBase:pad(0.01)
     love.graphics.setColor(1, 1, 1)
@@ -66,6 +79,8 @@ function AnalyticsPopupScene:onRender(x, y, w, h)
 
     local content = contentUnpad:pad(0.04)
     self.content:render(content:get())
+
+    self.analyticsStatus:render(status:get())
 
     local allow, _, deny = select(2, buttonBase:pad(0.05):splitHorizontal(1, 4, 1, 4, 1))
     self.acceptButton:render(allow:get())
@@ -76,8 +91,8 @@ end
 
 local AnalyticsPopupState = StateClass()
 
-function AnalyticsPopupState:init()
-    self.scene = AnalyticsPopupScene(self)
+function AnalyticsPopupState:init(save)
+    self.scene = AnalyticsPopupScene(self, save)
     self.scene:makeRoot()
 end
 
