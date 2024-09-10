@@ -231,13 +231,8 @@ local function dispatchConnect(self)
 end
 
 local function dispatchDisconnect(self)
-    --[[
-        TODO: Do something! Check the old code.
-    ]]
-    if self.hasConnected then
-        -- This means we lose connection to server (e.g. timeout/network error)
-        self.callbacks.onDisconnect("Probably timeout?")
-    end
+    -- This means we lose connection to server (e.g. timeout/network error)
+    self:forceDisconnect("Probably timeout?")
 end
 
 local dispatch = {
@@ -291,10 +286,12 @@ end
 
 
 function ClientConnection:forceDisconnect(reason)
+    if (self.hasConnected or self.isTryingToConnect) then
+        self.callbacks.onDisconnect(reason)
+    end
     self.hasConnected = false
     self.isTryingToConnect = false
     self.tryingToDisconnect = false
-    self.callbacks.onDisconnect(reason)
 end
 
 
