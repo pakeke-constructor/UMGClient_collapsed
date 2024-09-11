@@ -111,14 +111,9 @@ end
 
 function analyticsService.quit()
     if analyticsThread then
-        -- Clean buffers
-        while analyticsChannel:getCount() > 0 do
-            analyticsChannel:pop()
-        end
-
         analyticsService.forceFlush()
-
         analyticsChannel:push({name = "quit"})
+
         analyticsStatusChannel:pop()
         log.info("Waiting for analytics thread to terminate")
         analyticsThread:wait()
