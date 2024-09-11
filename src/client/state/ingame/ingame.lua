@@ -95,7 +95,12 @@ end
 
 
 local serv_mem = nil
+local graphics_state = {}
+local renderinfo = nil
 local function draw_nerd_stats()
+    if not renderinfo then
+        renderinfo = table.concat({love.graphics.getRendererInfo()}, " ")
+    end
     local mem = channelService.getMemoryUsage()
 
     local client_mem = math.floor(collectgarbage("count") / 100) / 10
@@ -103,15 +108,18 @@ local function draw_nerd_stats()
         serv_mem = math.floor(mem / 100) / 10
     end
     love.graphics.push()
-
+    local stats = love.graphics.getStats(graphics_state)
     love.graphics.setColor(0.1,0.1,0.1, 0.6)
     love.graphics.rectangle("fill", 0,0, 240, 62)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print(renderinfo, 2, 2)
     love.graphics.setColor(0.2, 0.8, 0.2)
-    love.graphics.print("clnt (MB):" .. client_mem, 2, 2)        
+    love.graphics.print("clnt (MB):" .. client_mem, 2, 12)
     love.graphics.setColor(0.8,0.2,0.2,1)
-    love.graphics.print("serv (MB):" .. tostring(serv_mem), 2, 20)
+    love.graphics.print("serv (MB):" .. tostring(serv_mem), 2, 22)
     love.graphics.setColor(0.6,0.6,0.8)
-    love.graphics.print("clnt fps: " .. tostring(love.timer.getFPS()), 2, 38)
+    love.graphics.print("clnt fps: " .. tostring(love.timer.getFPS()), 2, 32)
+    love.graphics.print("drawcall: "..stats.drawcalls.." ("..stats.drawcallsbatched.." b)", 2, 42)
     love.graphics.pop()
 end
 
