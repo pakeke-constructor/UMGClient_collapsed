@@ -1,0 +1,26 @@
+
+1 VERSIONINFO
+FILEVERSION 0,0,0,0
+PRODUCTVERSION 0,0,0,0
+FILEOS 0x40004
+FILETYPE 0x1
+{
+BLOCK "StringFileInfo"
+{
+	BLOCK "040904B0"
+	{
+		VALUE "FileDescription", "UMG 0.0.0"
+		VALUE "FileVersion", "0.0.0"
+		VALUE "CompanyName", "CodeTheory Ltd."
+		VALUE "LegalCopyright", "Copyright \xA9 2021-2023 CodeTheory Ltd."
+		VALUE "ProductName", "UMG"
+		VALUE "ProductVersion", "0.0.0"
+		VALUE "OriginalFilename", "love.exe"
+	}
+}
+
+BLOCK "VarFileInfo"
+{
+	VALUE "Translation", 0x0409 0x04E4  
+}
+}
