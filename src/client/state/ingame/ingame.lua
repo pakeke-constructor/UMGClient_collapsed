@@ -150,6 +150,10 @@ end)
 
 
 Ingame:on("keyreleased", function(self, a,b,c,d,e,f)
+    if b == "return" and love.keyboard.isScancodeDown("lalt", "ralt") then
+        love.window.setFullscreen(not love.window.getFullscreen())
+    end
+
     self.eventBus:call("@keyreleased", a,b,c,d,e,f)
 end)
 

@@ -242,7 +242,11 @@ MenuState:on("keypressed", function(self, key, scancode)
     end
 end)
 
-
+MenuState:on("keyreleased", function(sekf, key, scancode)
+    if scancode == "return" and love.keyboard.isScancodeDown("lalt", "ralt") then
+        love.window.setFullscreen(not love.window.getFullscreen())
+    end
+end)
 
 
 return MenuState
