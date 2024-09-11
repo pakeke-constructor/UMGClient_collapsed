@@ -110,7 +110,7 @@ local function draw_nerd_stats()
     love.graphics.print("clnt (MB):" .. client_mem, 2, 2)        
     love.graphics.setColor(0.8,0.2,0.2,1)
     love.graphics.print("serv (MB):" .. tostring(serv_mem), 2, 20)
-    love.graphics.setColor(0.2,0.2,0.8)
+    love.graphics.setColor(0.6,0.6,0.8)
     love.graphics.print("clnt fps: " .. tostring(love.timer.getFPS()), 2, 38)
     love.graphics.pop()
 end
@@ -134,6 +134,8 @@ end
 Ingame:on("keypressed", function(self, key,scancode,c,d,e,f)
     if scancode == "escape" then
         togglePause(self)
+    elseif scancode == "f3" then
+        variables.show_ingame_nerd_stats = not variables.show_ingame_nerd_stats
     end
     self.eventBus:call("@keypressed",key,scancode,c,d,e,f)        
 end)
