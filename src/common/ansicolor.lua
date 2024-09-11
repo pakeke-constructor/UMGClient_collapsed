@@ -2,7 +2,7 @@ local los = love.system.getOS()
 local usecolor = true
 if los == "Windows" then
     usecolor = not not os.getenv("WT_PROFILE_ID")
-elseif los ~= "Android" and los ~= "iOS" then
+elseif los == "Android" or los == "iOS" then
     -- Assume false
     usecolor = false
 else
