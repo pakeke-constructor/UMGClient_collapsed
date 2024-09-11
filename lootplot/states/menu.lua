@@ -84,7 +84,6 @@ function MenuState:init()
     self.physicsScale = 1
     self.doNotFree = false
     self.settingState = SettingState()
-    self.analyticsConsentState = AnalyticsPopupState()
 
     -- LUI always consumes our inputs while we only want it
     -- to be consumed if the children really consume it.
@@ -151,7 +150,7 @@ end
 
 function MenuState:_showConsent()
     self.doNotFree = true
-    self:push(self.analyticsConsentState)
+    self:push(AnalyticsPopupState(true))
 end
 
 function MenuState:_updatePhysicsTransform()
