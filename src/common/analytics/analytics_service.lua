@@ -96,6 +96,7 @@ function analyticsService.add(clientside, name, content)
     if analyticsChannel then
         analyticsChannel:push({
             name = "add",
+            clientside = clientside,
             dataname = name,
             contents = content
         })
@@ -110,14 +111,12 @@ end
 
 function analyticsService.quit()
     if analyticsThread then
-        analyticsChannel:performAtomic(function()
-            -- Clean buffers
-            while analyticsChannel:getCount() > 0 do
-                analyticsChannel:pop()
-            end
+        -- Clean buffers
+        while analyticsChannel:getCount() > 0 do
+            analyticsChannel:pop()
+        end
 
-            analyticsService.forceFlush()
-        end)
+        analyticsService.forceFlush()
 
         analyticsChannel:push({name = "quit"})
         analyticsStatusChannel:pop()

@@ -28,13 +28,6 @@ end
 ---@field public steam_id string
 ---@field public random_value string
 
----@class AnalyticsThreadSend: AnalyticsThreadMessage
----@field public clientside boolean
----@field public host boolean
----@field public mod string
----@field public modlist string[]
----@field public data table<string, string>
-
 ---@class AnalyticsThreadAdd: AnalyticsThreadMessage
 ---@field public clientside boolean
 ---@field public dataname string
@@ -240,12 +233,6 @@ end
 
 
 
-local function pullData(chan)
-    return chan:demand(0.05)
-end
-
-
-
 local currentTime = love.timer.getTime()
 
 -- Main loop
@@ -256,7 +243,7 @@ while true do
     currentTime = newTime
 
     ---@type AnalyticsThreadMessage?
-    local message = analyticsChannel:performAtomic(pullData)
+    local message = analyticsChannel:demand(0.05)
 
     if message then
         if message.name == "quit" then
