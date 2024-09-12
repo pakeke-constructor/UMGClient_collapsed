@@ -6,6 +6,7 @@ local Button = require("src.client.ui.elements.Button")
 local PixelButton = require("lootplot.elements.PixelButton")
 local Slider = require("src.client.ui.elements.Slider")
 local Text = require("src.client.ui.elements.Text")
+local Toggle = require("src.client.ui.elements.Toggle")
 local AnalyticsPopupState = require("lootplot.states.AnalyticsPopupState")
 
 local SettingState = StateClass()
@@ -30,6 +31,7 @@ function SettingScene:init(args)
     self.oldSettings = {
         sfx = userService.getSFXVolume(),
         bgm = userService.getBGMVolume(),
+        fullscreen = love.window.getFullscreen()
     }
     if userService.isAnalyticsConsentAsked() then
         self.oldSettings.analytics = userService.isUserConsentedForAnalytics()
@@ -59,6 +61,12 @@ function SettingScene:init(args)
         end
     })
 
+    self.fullscreenToggle = Toggle({
+        label = "Fullscreen",
+        value = self.oldSettings.fullscreen,
+        onValueChanged = love.window.setFullscreen
+    })
+
     self.analyticsButton = PixelButton({
         color = "blue",
         text = "Analytics",
@@ -83,6 +91,7 @@ function SettingScene:init(args)
             if self.oldSettings.analytics ~= nil then
                 userService.setAnalyticsConsent(self.oldSettings.analytics)
             end
+            love.window.setFullscreen(self.oldSettings.fullscreen)
             return args.onClose()
         end,
     })
@@ -95,6 +104,7 @@ function SettingScene:init(args)
     self:addChild(self.sfxSlider)
     self:addChild(self.bgmSliderLabel)
     self:addChild(self.bgmSlider)
+    self:addChild(self.fullscreenToggle)
     self:addChild(self.analyticsButton)
     self:addChild(self.closeButton)
     self:addChild(self.closeButtonAlt)
@@ -134,11 +144,12 @@ function SettingScene:onRender(x, y, w, h)
     self.title:render(title:get())
 
     local content = contentUnpad:pad(0.04)
-    local sfxLabel, sfx, _, bgmLabel, bgm = content:splitVertical(2, 3, 1, 2, 3)
+    local sfxLabel, sfx, _, bgmLabel, bgm, _, fullscreen = content:splitVertical(2, 3, 1, 2, 3, 1, 4)
     self.sfxSliderLabel:render(sfxLabel:get()) -- line 66
     self.sfxSlider:render(sfx:get())
     self.bgmSliderLabel:render(bgmLabel:get())
     self.bgmSlider:render(bgm:get())
+    self.fullscreenToggle:render(fullscreen:get())
 
     local analyticsButtonBase, _, closeButtonBase = buttonBase:splitVertical(4, 0.2, 5)
 
