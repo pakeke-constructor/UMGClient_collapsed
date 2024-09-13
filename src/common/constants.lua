@@ -67,7 +67,7 @@ return setmetatable({
         We should probably fix e2e tests before running AGGRESSIVE_DEBUG mode.
     ]]
 
-    DEFAULT_CONSOLE_LOG_LEVEL = "trace",
+    DEFAULT_CONSOLE_LOG_LEVEL = "info",
     CONSOLE_LOG_LEVEL_ENVVAR = "UMG_CONSOLE_LOG_LEVEL",
     DEFAULT_FILE_LOG_LEVEL = "none",
     FILE_LOG_LEVEL_ENVVAR = "UMG_FILE_LOG_LEVEL",
