@@ -275,6 +275,43 @@ function Region:getScaleToFit(width, height)
 end
 
 
+--- Shrinks a region, reducing its width XOR height 
+--- such that it fits a given ratio
+---@param ratioW number
+---@param ratioH number
+function Region:shrinkToAspectRatio(ratioW, ratioH)
+    local selfR = self.w / self.h
+    local passR = ratioW / ratioH
+
+    if selfR > passR then
+        -- width too big, height too small
+        return self:set(nil, nil, self.h/passR, nil)
+    elseif passR > selfR then
+        -- height too big, width too small
+        return self:set(nil, nil, nil, self.w/passR)
+    end
+    return self
+end
+
+
+--- Grows a region, increasing its width XOR height 
+--- such that it fits a given ratio
+---@param ratioW number
+---@param ratioH number
+function Region:growToAspectRatio(ratioW, ratioH)
+    local selfR = self.w / self.h
+    local passR = ratioW / ratioH
+
+    if selfR > passR then
+        -- width too big, height too small
+        return self:set(nil, nil, nil, self.w/passR)
+    elseif passR > selfR then
+        -- height too big, width too small
+        return self:set(nil, nil, self.h/passR, nil)
+    end
+    return self
+end
+
 
 function Region:scaleToFit(width, height)
     local scale = self:getScaleToFit(width, height)
@@ -425,6 +462,29 @@ end
 
 
 
+function Region:attachToTopOf(r2)
+    local top = r2.y
+    local top_minus_h = top - self.h
+    return self:set(nil, top_minus_h, nil, nil)
+end
+
+function Region:attachToBottomOf(r2)
+    local bottom = r2.y + r2.h
+    return self:set(nil, bottom, nil, nil)
+end
+
+
+function Region:attachToLeftOf(r2)
+    local left = r2.x
+    local left_minus_w = left - self.w
+    return self:set(left_minus_w, nil, nil, nil)
+end
+
+
+function Region:attachToRightOf(r2)
+    local right = r2.x + r2.w
+    return self:set(right, nil, nil, nil)
+end
 
 
 
