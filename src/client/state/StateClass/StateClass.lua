@@ -1,8 +1,8 @@
 
 ---@class State
 ---@field package stateStack State[]
----@field package localListeners table<string,fun(self:State,...:any)>
----@field package listeners table<string,fun(self:State,...:any)>
+---@field package localListeners table<string,function>
+---@field package listeners table<string,function>
 local State = {}
 
 
@@ -133,7 +133,7 @@ end
 
 
 ---@param event string
----@param func fun(self:State,...:any)
+---@param func function
 function State:on(event, func)
     if self.localListeners then
         assert(not self.localListeners[event], "Overwriting listener")
