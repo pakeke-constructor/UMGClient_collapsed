@@ -1,16 +1,16 @@
 
 local path = tools.path(...)
 
-local QuestionBus = require(path..".buses.QuestionBus.QuestionBus")
-local EventBus = require(path..".buses.EventBus.EventBus")
+local QuestionBus = require("src.common.session.buses.QuestionBus.QuestionBus")
+local EventBus = require("src.common.session.buses.EventBus.EventBus")
 
 local CyWorld = require("src.common.session.cy.cy").World
 
 
-local Packer = require(path .. ".Packer.Packer")
+local Packer = require("src.common.session.Packer.Packer")
 
 
-
+---@class UMGSession
 local UMGSession = tools.SafeClass()
 
 
@@ -30,6 +30,10 @@ function UMGSession:init()
     })
 end
 
+if false then
+    ---@return UMGSession
+    function UMGSession() end ---@diagnostic disable-line: cast-local-type, missing-return
+end
 
 
 function UMGSession:serializeWorld()

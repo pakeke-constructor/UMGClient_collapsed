@@ -139,6 +139,13 @@ function PhysicsWorldScreen:init(width, height)
     end
 end
 
+if false then
+    ---@param width number
+    ---@param height number
+    ---@return lootplot.PhysicsWorldScreen
+    function PhysicsWorldScreen(width, height) end ---@diagnostic disable-line: cast-local-type, missing-return
+end
+
 function PhysicsWorldScreen:getAtlasAndItemQuads()
     return self.atlas, self.quads
 end

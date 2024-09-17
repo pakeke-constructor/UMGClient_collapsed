@@ -5,6 +5,7 @@ local path = tools.path(...)
 
 
 -- game takes arguments:   (server_enet_object)
+---@class ClientState: State
 local ClientState = StateClass()
 
 
@@ -14,7 +15,7 @@ if constants.CUSTOM_BOOT_STATE then
     Menu = require(constants.CUSTOM_BOOT_STATE)
 else
     -- Default UMG boot:
-    Menu = require(path..".menu.menu")
+    Menu = require("src.client.state.menu.menu")
 end
 
 local HosterSetup = require("src.client.state.setup.HosterSetup")
@@ -27,6 +28,10 @@ function ClientState:init()
     self:push(self.menu)
 end
 
+if false then
+    ---@return ClientState
+    function ClientState() end ---@diagnostic disable-line: cast-local-type, missing-return
+end
 
 
 function ClientState:joinGame()
@@ -36,7 +41,7 @@ end
 
 
 
-
+---@param launchOptions table
 function ClientState:startHost(launchOptions)
     self:popAboveStates()
 

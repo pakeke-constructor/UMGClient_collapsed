@@ -54,12 +54,12 @@ love.graphics.setFont(font)
 
 
 -- remap love events
-local ClientState = require(path..".state.client_state")
+local ClientState = require("src.client.state.client_state")
 local clientState = ClientState()
 
 
 function love.update(dt)
-    hoster.update(dt)
+    hoster.update()
     clientState:broadcast("update", dt)
 end
 

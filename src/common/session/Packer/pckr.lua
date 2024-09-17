@@ -86,7 +86,7 @@ local UNIQUE_ARRAY_END = {}
 local COUNT = {"reference_counter"}
 
 
-
+---@class PckrState
 local PckrState = {}
 local PckrState_mt = {__index = PckrState}
 
@@ -101,11 +101,19 @@ local function assertCallbacks(cbs)
 end
 
 
+---@param options {canSerializeEntity:function,getEntityId:function,deserializeEntity:function,shouldSerializeEntityById:function}
+---@return PckrState
 local function newPckrState(options)
     --[[
         creates a new pckr state.
     ]]
     local self = setmetatable({}, PckrState_mt)
+    self:init(options)
+    return self
+end
+
+---@param options {canSerializeEntity:function,getEntityId:function,deserializeEntity:function,shouldSerializeEntityById:function}
+function PckrState:init(options)
         -- resource registration:
     self.alias_to_resource = {}
     self.resource_to_alias = {}
@@ -133,8 +141,6 @@ local function newPckrState(options)
     -- options:
     assert(options.shouldSerializeIdOfEntity ~= nil)
     self.shouldSerializeIdOfEntity = options.shouldSerializeIdOfEntity
-    
-    return self
 end
 
 
@@ -188,6 +194,8 @@ end
 
 
 
+---@param etype_name string
+---@param etype table
 function PckrState:registerEntityType(etype_name, etype)
     assert(type(etype_name) == "string")
     assert(type(etype) == "table")
