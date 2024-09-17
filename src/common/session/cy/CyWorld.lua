@@ -1,12 +1,10 @@
 
-
+---@class CyWorld
 local CyWorld = tools.SafeClass()
 
 
-local path = (...):gsub("%.CyWorld", "")
-
-local newEntityManager = require(path..".entities.EntityManager")
-local newGroupManager = require(path..".groups.GroupManager")
+local newEntityManager = require("src.common.session.cy.entities.EntityManager")
+local newGroupManager = require("src.common.session.cy.groups.GroupManager")
 
 
 
@@ -24,6 +22,11 @@ function CyWorld:init(deps)
     self.groupManager = groupManager
 end
 
+if false then
+    ---@param deps {eventBus:EventBus}
+    ---@return CyWorld
+    function CyWorld(deps) end ---@diagnostic disable-line: cast-local-type, missing-return
+end
 
 
 function CyWorld:clear()

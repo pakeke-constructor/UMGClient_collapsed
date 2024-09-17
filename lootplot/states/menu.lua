@@ -8,7 +8,7 @@ local PixelButton = require("lootplot.elements.PixelButton")
 
 local LaunchOptions = require("src.common.misc.LaunchOptions")
 
-local PhysicsWorldScreen = require(path .. ".physics_background")
+local PhysicsWorldScreen = require("lootplot.states.physics_background")
 
 local HosterSetup = require("src.client.state.setup.HosterSetup")
 local AnalyticsPopupState = require("lootplot.states.AnalyticsPopupState")
@@ -21,7 +21,7 @@ local analyticsService = require("src.common.analytics.analytics_service")
 
 local lg = love.graphics
 
-
+---@class MenuState: State
 local MenuState = StateClass()
 
 
@@ -127,11 +127,10 @@ end
 
 -- Since we're making all the button a root element, we have to render them ourselves.
 function MenuState:_performLUIRender(x, y, w, h)
-    local region = Region(x, y, w, h)
-
     -- Uh this is ugly. We have to compute the position ourself.
     -- Unfortunately Kirigami doesn't offer a way to position element based on
     -- other position of an existing elements.
+    -- TODO: Kirigami has been updated. Rectify this.
     local ww, wh = 70 * self.physicsScale, 18 * self.physicsScale
     local wy =  h - wh - 10
     self.wishlistButton:render(x + 10, wy, ww, wh)
@@ -200,6 +199,7 @@ function MenuState:onExit()
 end
 
 
+---@param dt number
 MenuState:on("update", function(self, dt)
     if self.physicsWorld then
         self.physicsWorld:update(dt)
@@ -236,12 +236,16 @@ MenuState:on("mousereleased", function(self, x, y, b)
     self:_performLUIButtonsRelease(x, y, b)
 end)
 
+---@param key love.KeyConstant
+---@param scancode love.Scancode
 MenuState:on("keypressed", function(self, key, scancode)
     if scancode == "escape" then
         love.event.quit()
     end
 end)
 
+---@param key love.KeyConstant
+---@param scancode love.Scancode
 MenuState:on("keyreleased", function(sekf, key, scancode)
     if scancode == "return" and love.keyboard.isScancodeDown("lalt", "ralt") then
         love.window.setFullscreen(not love.window.getFullscreen())

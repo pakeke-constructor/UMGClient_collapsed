@@ -109,6 +109,7 @@ end
 
 local function crash_restart()
     -- Called when we want to quick restart on crash
+    -- TODO: We should use `love.event.quit("restart", value)` + `love.restart` variable.
     dbgcall(hoster.dump_crash_reboot_config)
     love.event.quit("restart")
 end

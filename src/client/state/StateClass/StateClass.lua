@@ -1,5 +1,8 @@
 
-
+---@class State
+---@field package stateStack State[]
+---@field package localListeners table<string,function>
+---@field package listeners table<string,function>
 local State = {}
 
 
@@ -32,7 +35,7 @@ local function newState(stateCls, ...)
     return self
 end
 
-
+---@param self State
 local function getTop(self)
     --[[
         gets the active state.
@@ -61,12 +64,12 @@ local function tryCall(self, methodName)
 end
 
 
-
+---@return State
 function State:getRoot()
     return self.stateStack[1]
 end
 
-
+---@param state State
 function State:push(state)
     --[[
         pushes a new state onto the stack
@@ -116,6 +119,7 @@ end
 
 
 local transitionTc = tc.assert("table", "table")
+---@param state State
 function State:transition(state)
     transitionTc(self, state)
     --[[
@@ -128,8 +132,12 @@ function State:transition(state)
 end
 
 
-
+---@generic T: State
+---@param self T
+---@param event string
+---@param func fun(self:T,...:any)
 function State:on(event, func)
+    ---@cast self State
     if self.localListeners then
         assert(not self.localListeners[event], "Overwriting listener")
         self.localListeners[event] = func
@@ -143,6 +151,9 @@ end
 --[[
     broadcasts an event directly to a state.
 ]]
+---@param self State
+---@param event string
+---@param ... any
 local function call(self, event, ...)
     local func = self.localListeners[event]
     if func then
@@ -155,6 +166,8 @@ local function call(self, event, ...)
 end
 
 
+---@param event string
+---@param ... any
 function State:broadcast(event, ...)
     --[[
         broadcasts an event to the active state
@@ -165,7 +178,7 @@ function State:broadcast(event, ...)
 end
 
 
-
+---@param self State
 local function findIndex(self)
     --[[
         finds the index of `self` within the state stack
@@ -178,6 +191,8 @@ local function findIndex(self)
     end
 end
 
+---@param event string
+---@param ... any
 function State:broadcastBelow(event, ...)
     --[[
         broadcasts an event to the state that is BENEATH self.
@@ -192,6 +207,8 @@ function State:broadcastBelow(event, ...)
 end
 
 
+---@param event string
+---@param ... any
 function State:broadcastToAll(event, ...)
     for _, state in ipairs(self.stateStack) do
         call(state, event, ...)
@@ -206,6 +223,7 @@ function State:isActive()
 end
 
 
+---@param new State
 function State:replaceBelowWith(new)
     assert(self:isActive(), "Cannot replace below without owning context")
     local sze = self.stateStack:size()
@@ -218,6 +236,7 @@ function State:replaceBelowWith(new)
 end
 
 
+---@return State? (return nil if current state is root)
 function State:getSecondTop()
     local i = self.stateStack:size() - 1
     return self.stateStack[i]
@@ -250,7 +269,7 @@ end
 
 
 
-
+---@return State
 local function newStateClass()
     local StateCls = setmetatable({}, {
         __call = newState

@@ -30,19 +30,17 @@ with pckr_volatile or pckr_stable directly.
 ]]
 
 
-local path = tools.path(...)
-
 
 if constants.DEBUG then
-    require(path .. ".pckr_tests")
+    require("src.common.session.Packer.pckr_tests")
 end
 
 
 
-local PckrState = require(path..".pckr")
+local PckrState = require("src.common.session.Packer.pckr")
 
 
-
+---@class Packer
 local Packer = tools.SafeClass()
 
 
@@ -60,8 +58,10 @@ end
 
 
 
-
-local function setupPckr(self, options)
+---@param s Packer
+local function setupPckr(s, options)
+    ---@class Packer
+    local self = s
     --[[
         sets up pckr contexts, for EITHER client-side OR server-side.
     ]]
@@ -140,7 +140,7 @@ end
 
 
 
-
+---@param self Packer
 local function setupPckrServer(self)
     local function shouldSerializeEntityById(ent)
         return self.knownEntities[ent]
@@ -182,7 +182,7 @@ local function copyComponents(srcEnt, targEnt)
     end
 end
 
-
+---@param self Packer
 local function setupPckrClient(self)
     local cyWorld = self.cyWorld
     local function deserializeEntity(ent)
@@ -240,8 +240,15 @@ function Packer:init(deps)
     end
 end
 
+if false then
+    ---@param deps {cyWorld:CyWorld}
+    ---@return Packer
+    function Packer(deps) end ---@diagnostic disable-line: cast-local-type, missing-return
+end
 
 
+---@param etype_name string
+---@param etype table
 function Packer:registerEntityType(etype_name, etype)
     --[[
         registers an entity type;
