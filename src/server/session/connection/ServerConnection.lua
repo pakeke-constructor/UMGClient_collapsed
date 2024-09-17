@@ -1,12 +1,11 @@
 
 
-local path = tools.path(...)
-
-local ClientHandler = require(path .. ".ClientHandler")
+local ClientHandler = require("src.common.connection.ClientHandler")
 
 
 local BaseConnection = require("src.common.connection.Connection")
 
+---@class ServerConnection
 local ServerConnection = tools.Class(BaseConnection)
 
 
@@ -140,6 +139,7 @@ local function makeWriterPair(self)
 end
 
 
+---@param args {isOnline:boolean,eventBus:EventBus}
 function ServerConnection:init(args)
     tools.assertKeys(args, {"isOnline", "eventBus"})
     tools.inlineMethods(self)
@@ -174,6 +174,11 @@ function ServerConnection:init(args)
     self.bufferedDisconnections = tools.Set()
 end
 
+if false then
+    ---@param args {isOnline:boolean,eventBus:EventBus}
+    ---@return ServerConnection
+    function ServerConnection(args) end ---@diagnostic disable-line: cast-local-type, missing-return
+end
 
 
 
@@ -208,6 +213,14 @@ end
 
 local NULL_OPT = {}
 
+---@param options table|nil
+---@param packetName string
+---@param a any
+---@param b any
+---@param c any
+---@param d any
+---@param e any
+---@param f any
 function ServerConnection:broadcast(options, packetName, a,b,c,d,e,f)
     options = options or NULL_OPT
     if packetName == "items:setInventorySlot" then
@@ -221,6 +234,14 @@ function ServerConnection:broadcast(options, packetName, a,b,c,d,e,f)
     writePacket(self, writer, packetName, a,b,c,d,e,f)
 end
 
+---@param options table|nil
+---@param packetName string
+---@param a any
+---@param b any
+---@param c any
+---@param d any
+---@param e any
+---@param f any
 function ServerConnection:unicast(clientId, options, packetName, a,b,c,d,e,f)
     options = options or NULL_OPT
     assert(type(options) == "table", "?")
@@ -235,17 +256,19 @@ end
 
 
 
-
-
+---@param self ServerConnection
+---@param clientId string
 local function broadcastClientJoin(self, clientId)
     local info = self.clientToInfo[clientId]
     local data = json.encode(info)
-    self:broadcast(false, "@client_join", clientId, data)
+    self:broadcast(nil, "@client_join", clientId, data)
 end
 
 
+---@param self ServerConnection
+---@param clientId string
 local function broadcastClientLeave(self, clientId)
-    self:broadcast(false, "@client_leave", clientId)
+    self:broadcast(nil, "@client_leave", clientId)
 end
 
 
@@ -253,18 +276,20 @@ end
 
 
 
-
+---@param self ServerConnection
 local function flushAndBroadcast(self, writer, isUnreliable)
     local data = writer:flush()
     broadcast(self, data, isUnreliable)
 end
 
 
+---@param self ServerConnection
 local function flushAndUnicast(self, clientId, writer, isUnreliable)
     local data = writer:flush()
     unicast(self, clientId, data, isUnreliable)
 end
 
+---@param self ServerConnection
 local function flushClientWriters(self, clientId)
     local writerPair = self.clientIdToWriterPair[clientId]
     if not writerPair then
@@ -279,13 +304,16 @@ local function flushClientWriters(self, clientId)
     flushAndUnicast(self, clientId, unreliableWriter, true)
 end
 
+---@param self ServerConnection
+---@param clientId string
 local function disconnectClientReal(self, clientId)
     local peer = self.clientHandler:getIdentifier(clientId)
     peer:disconnect_later()
 end
 
+---@param dt number
 function ServerConnection:tick(dt)
-    self:broadcast(false, "@tick", dt)
+    self:broadcast(nil, "@tick", dt)
     self:flushPackets()
 end
 
@@ -322,6 +350,8 @@ end
 
 local defineResponderTc = tc.assert("string", "table")
 
+---@param packetName string
+---@param options {responsesPerSecond:number,response:fun(self:any,clientId:string,...:any)}
 function ServerConnection:defineResponder(packetName, options)
     defineResponderTc(packetName, options)
     --[[
@@ -358,11 +388,12 @@ end
 
 
 
-
+---@param self ServerConnection
 local function dispatchConnect(self, ev)
     self.isReady = true
 end
 
+---@param self ServerConnection
 local function dispatchDisconnect(self, ev)
     local clientId = self.clientHandler:getClientId(ev.peer)
 
@@ -374,6 +405,7 @@ local function dispatchDisconnect(self, ev)
 end
 
 
+---@param self ServerConnection
 local function acceptClient(self, identifier)
     local clientId = self.clientHandler:getClientId(identifier)
     local clientInitJson = {
@@ -390,6 +422,7 @@ end
 
 
 
+---@param self ServerConnection
 local function dispatchReceive(self, ev)
     local identifier = ev.peer
     local data = ev.data
@@ -430,7 +463,7 @@ local dispatch = {
 }
 
 
-
+---@param dt number
 function ServerConnection:update(dt)
     for ev in pollLocalPackets(self) do
         dispatch[ev.type](self, ev)
@@ -441,16 +474,19 @@ function ServerConnection:update(dt)
     end
 end
 
+---@param self ServerConnection
+---@param clientId string
 local function unicastServerDisconnect(self, clientId)
     -- TODO: Allow specifying reason
     return self:unicast(clientId, nil, "@server_disconnect", "Disconnected normally by server")
 end
 
 
+---@param packetName string
 function ServerConnection:broadcastNewPacketId(packetName)
     local packetId = self.boxer:getPacketId(packetName)
     assert(packetId,"?")
-    self:broadcast(false, "@define_packet_id", packetId, packetName)
+    self:broadcast(nil, "@define_packet_id", packetId, packetName)
 end
 
 ---TODO: Pass reason string or number, whatever lighter.
@@ -461,6 +497,7 @@ end
 ---    banlistManager:addToBans(clientId)
 ---end
 ---```
+---@param clientId string
 function ServerConnection:disconnectClient(clientId)
     unicastServerDisconnect(self, clientId)
     broadcastClientLeave(self, clientId)

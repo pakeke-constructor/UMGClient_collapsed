@@ -1,5 +1,5 @@
 
-
+---@param serverSession ServerSession
 local function setup(serverSession)
     local serverConnection = serverSession.serverConnection
     local umgSession = serverSession.umgSession

@@ -1,19 +1,20 @@
 
 
-local path = tools.path(...)
-local setup = require(path .. ".setup")
+local setup = require("src.server.session.setup")
 
 local ServerConnection = require("src.server.session.connection.ServerConnection")
 
-local EntitySyncer = require(path .. ".EntitySyncer")
+local EntitySyncer = require("src.server.session.EntitySyncer")
 
-local WorldLoader = require(path .. ".WorldLoader.WorldLoader")
+local WorldLoader = require("src.server.session.WorldLoader.WorldLoader")
 
 
+---@class ServerSession
 local ServerSession = tools.SafeClass()
 
 
 
+---@param args {launchOptions:table}
 function ServerSession:init(args)
     tools.assertKeys(args, {"launchOptions"})
     self.umgSession = UMGSession()
@@ -41,8 +42,14 @@ function ServerSession:init(args)
         serverSession = self
     })
     self.closed = false
-    
+
     setup(self)
+end
+
+if false then
+    ---@param args {launchOptions:table}
+    ---@return ServerSession
+    function ServerSession(args) end ---@diagnostic disable-line: cast-local-type, missing-return
 end
 
 
@@ -62,6 +69,7 @@ end
 
 
 
+---@param modlist string[]
 function ServerSession:loadMods(modlist)
     local modLoader = ModLoader({
         session = self,
@@ -102,6 +110,7 @@ function ServerSession:loadWorld()
 end
 
 
+---@param dt number
 function ServerSession:update(dt)
     self.umgSession:update(dt)
     self.serverConnection:update(dt)
