@@ -199,7 +199,6 @@ function MenuState:onExit()
 end
 
 
----@param self MenuState
 ---@param dt number
 MenuState:on("update", function(self, dt)
     if self.physicsWorld then
@@ -207,7 +206,6 @@ MenuState:on("update", function(self, dt)
     end
 end)
 
----@param self MenuState
 MenuState:on("draw", function(self)
     love.graphics.clear(love.math.colorFromBytes(151, 246, 247))
 
@@ -222,12 +220,10 @@ MenuState:on("draw", function(self)
     self:_performLUIRender(0, 0, love.graphics.getDimensions())
 end)
 
----@param self MenuState
 MenuState:on("resize", function(self, w, h)
     self:_updatePhysicsTransform()
 end)
 
----@param self MenuState
 MenuState:on("mousepressed", function(self, x, y, b)
     if not self:_performLUIButtonsPress(x, y, b) then
         if b == 1 then
@@ -236,19 +232,20 @@ MenuState:on("mousepressed", function(self, x, y, b)
     end
 end)
 
----@param self MenuState
 MenuState:on("mousereleased", function(self, x, y, b)
     self:_performLUIButtonsRelease(x, y, b)
 end)
 
----@param self MenuState
+---@param key love.KeyConstant
+---@param scancode love.Scancode
 MenuState:on("keypressed", function(self, key, scancode)
     if scancode == "escape" then
         love.event.quit()
     end
 end)
 
----@param self MenuState
+---@param key love.KeyConstant
+---@param scancode love.Scancode
 MenuState:on("keyreleased", function(sekf, key, scancode)
     if scancode == "return" and love.keyboard.isScancodeDown("lalt", "ralt") then
         love.window.setFullscreen(not love.window.getFullscreen())

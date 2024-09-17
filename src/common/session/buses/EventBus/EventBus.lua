@@ -1,5 +1,5 @@
 
-
+---@class EventBus
 local EventBus = tools.SafeClass()
 
 local hash_mt = {
@@ -18,12 +18,19 @@ function EventBus:init()
     self.events = {}
 end
 
+if false then
+    ---@return EventBus
+    function EventBus() end ---@diagnostic disable-line: cast-local-type, missing-return
+end
 
 
 local function compare(a, b)
     return a.order < b.order
 end
 
+---@param self EventBus
+---@param name string
+---@param responselist {func:function,order:integer}
 local function update_event_function_list(self, name, responselist)
     local funcs = {}
     table.sort(responselist, compare)
@@ -34,7 +41,15 @@ local function update_event_function_list(self, name, responselist)
     self.events[name] = funcs
 end
 
+---@param name string
+---@param func function
+---@diagnostic disable-next-line: duplicate-set-field
+function EventBus:on(name, func) end
 
+---@param name string
+---@param order_or_func integer
+---@param func_or_nil function
+---@diagnostic disable-next-line: duplicate-set-field
 function EventBus:on(name, order_or_func, func_or_nil)
     local order, func
     if type(order_or_func) == "number" then
@@ -67,6 +82,8 @@ end
 
 
 local EMPTY = {}
+---@param name string
+---@param ... any
 function EventBus:call(name, ...)
     local arr = self.events[name] or EMPTY
     for i=1, #arr do

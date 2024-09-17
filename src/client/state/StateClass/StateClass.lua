@@ -132,9 +132,12 @@ function State:transition(state)
 end
 
 
+---@generic T: State
+---@param self T
 ---@param event string
----@param func function
+---@param func fun(self:T,...:any)
 function State:on(event, func)
+    ---@cast self State
     if self.localListeners then
         assert(not self.localListeners[event], "Overwriting listener")
         self.localListeners[event] = func
