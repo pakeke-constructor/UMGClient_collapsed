@@ -172,7 +172,7 @@ end
 
 function ugch.get_ugc_config(global_path)
     --[[
-        gets the ugc_config.json value, given a global path.
+        gets the umg_ugc.json value, given a global path.
         (This is the value of the json object inside of the json file)
     ]]
     local ugc_config, err = try_read_json(global_path .. SEP .. constants.UGC_CONFIG_FILE)
@@ -299,8 +299,8 @@ end
 
 function ugch.get_existing_ugc_config(global_directory)
     --[[
-        gets existing ugc_config.json values.
-        Returns nil if the directory doesn't have a ugc_config.json file,
+        gets existing umg_ugc.json values.
+        Returns nil if the directory doesn't have a umg_ugc.json file,
         or if the data is not able to be deserialized.
     ]]
     local fpath = global_directory .. SEP .. constants.UGC_CONFIG_FILE

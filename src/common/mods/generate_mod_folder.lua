@@ -145,7 +145,7 @@ function generate_mod_folder.generate_folder(options)
 
     generate_mod_folder.renew_typings(options)
 
-    -- Add mod_config.json
+    -- Add umg_mod.json
     local mod_config = {}
     mod_config.uses = options.uses
     if options.is_basemod then mod_config.type = constants.MOD_TYPES.base end

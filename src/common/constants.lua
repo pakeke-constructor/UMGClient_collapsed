@@ -118,7 +118,7 @@ return setmetatable({
     -- mod path for mods built INTO UMGClient
     BUILTIN_MOD_PATH = "builtin_mods/",
 
-    MOD_CONFIG_FILE = "mod_config.json",
+    MOD_CONFIG_FILE = "umg_mod.json",
 
     MOD_REQUIRE_CHUNK_PREFIX = "[mods] ", -- when error is thrown, prefix with this
 
@@ -134,7 +134,7 @@ return setmetatable({
         "preview.gif", "preview.png", "preview.jpg"
     },
 
-    UGC_CONFIG_FILE = "/ugc_config.json", -- stored in the root directory of world/mods
+    UGC_CONFIG_FILE = "/umg_ugc.json", -- stored in the root directory of world/mods
     
     UGC_DISPLAY_FILE = "/display.json", -- stored within the folder of mods and worlds
 

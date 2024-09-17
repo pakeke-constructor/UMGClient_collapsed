@@ -27,15 +27,15 @@ However, we also store mods in our own directory.
 
 mod_folder/
     ... mod data
-    ugc_config.json
-    mod_config.json
+    umg_ugc.json
+    umg_mod.json
 
 
 
 
-## Central config file: ugc_config.json
+## Central config file: umg_ugc.json
 
-`ugc_config.json`:
+`umg_ugc.json`:
 ```json
 {
     "name": "light_mod",
@@ -48,7 +48,7 @@ mod_folder/
 
 
 When we drag a directory into `publish` file dropper,
-the publisher will first check for a `ugc_config.json`, and populate
+the publisher will first check for a `umg_ugc.json`, and populate
 the UI with those values first.
 
 
@@ -64,7 +64,7 @@ Terminology:
 UMG-client automatically copies UGCs from steam_dir to local_dir
 on start-up.
 
-If the `version` value in `ugc_config.json` in the steam directory
+If the `version` value in `umg_ugc.json` in the steam directory
 is greater than the `version`, then a copy-over will happen.
 
 

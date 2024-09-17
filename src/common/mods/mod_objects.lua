@@ -11,7 +11,7 @@ returns a list of mod objects:
     mod_identifier = "34894545",
     description = "...",
     storage_type = constants.MOD_STORAGE_TYPES[...]
-    config = config, -- from mod_config.json
+    config = config, -- from umg_mod.json
 }
 
 ]]
@@ -99,7 +99,7 @@ function mod_objects.get_mod_objects()
             mod_identifier = "34894545",
             description = "...",
             type = constants.MOD_STORAGE_TYPES[...]
-            config = config, -- from mod_config.json
+            config = config, -- from umg_mod.json
         }
     ]]
     local total_mods = tools.Array()

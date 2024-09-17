@@ -27,7 +27,7 @@ local mods = {}
 
 
 function mods.get_shallow_dependencies(mod_iden)
-    -- resolves mod dependencies using `mod_config.json`
+    -- resolves mod dependencies using `umg_mod.json`
     assert(mods.mod_is_ready(mod_iden))
 
     local config = mods.get_mod_config(mod_iden)

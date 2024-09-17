@@ -34,7 +34,7 @@ end
 
 local function write_ugc_config(options)
     --[[
-        write a ugc_config.json file to the directory.
+        write a umg_ugc.json file to the directory.
     ]]
     -- avoid circular require loop
     ugch = ugch or require(pth .. ".ugch")
@@ -42,7 +42,7 @@ local function write_ugc_config(options)
     local global_path = options.global_directory .. SEP .. constants.UGC_CONFIG_FILE
 
     local ugc_config_json = {
-        -- ugc_config.json
+        -- umg_ugc.json
         name = options.name,
         description = options.description,
         type = options.type,
@@ -51,7 +51,7 @@ local function write_ugc_config(options)
 
     assert(ugch.is_config_valid(ugc_config_json))
     local data = json.encode(ugc_config_json)
-    log.trace("No ugc_config.json found! Writing ugc_config.json : ", data)
+    log.trace("No umg_ugc.json found! Writing umg_ugc.json : ", data)
     nativefs.write(global_path, data)
 end
 
