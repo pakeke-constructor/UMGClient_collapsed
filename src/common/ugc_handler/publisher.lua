@@ -1,9 +1,5 @@
 
-local nativefs = require("libs.nm_nativefs.nativefs")
-
-local ugch
-
-local pth = tools.path(...)
+local ugch = nil
 
 
 local SEP = constants.FILE_SEP
@@ -16,14 +12,24 @@ local publish_in_progress = false
 
 local PREVIEW_FILES = constants.IMAGE_PREVIEW_FILES
 
+local function fileExists(path)
+    local f = io.open(path, "rb")
+    if f then
+        f:close()
+        return true
+    end
+
+    return false
+end
+
 
 local function set_item_preview(handle, options)
-    if options.global_preview_file and nativefs.getInfo(options.global_preview_file) then
+    if options.global_preview_file and fileExists(options.global_preview_file) then
         luasteam.UGC.setItemPreview(handle, options.global_preview_file)
     else
         for _, fname in ipairs(PREVIEW_FILES) do
             local preview_path = options.global_directory .. SEP .. fname
-            if nativefs.getInfo(preview_path) then
+            if fileExists(preview_path) then
                 luasteam.UGC.setItemPreview(handle, preview_path)
             end
         end
@@ -37,7 +43,7 @@ local function write_ugc_config(options)
         write a umg_ugc.json file to the directory.
     ]]
     -- avoid circular require loop
-    ugch = ugch or require(pth .. ".ugch")
+    ugch = ugch or require("src.common.ugc_handler.ugch")
 
     local global_path = options.global_directory .. SEP .. constants.UGC_CONFIG_FILE
 
@@ -52,7 +58,15 @@ local function write_ugc_config(options)
     assert(ugch.is_config_valid(ugc_config_json))
     local data = json.encode(ugc_config_json)
     log.trace("No umg_ugc.json found! Writing umg_ugc.json : ", data)
-    nativefs.write(global_path, data)
+
+    local f, msg = io.open(global_path, "wb")
+    if not f then
+        log.error("Cannot write umg_ugc.json: "..msg)
+        return
+    end
+
+    f:write(data)
+    f:close()
 end
 
 

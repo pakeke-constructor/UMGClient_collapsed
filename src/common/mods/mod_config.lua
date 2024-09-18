@@ -7,8 +7,6 @@ local rpath = tools.path(...)
 
 local mod_identifiers = require(rpath .. ".mod_identifiers")
 
-local nativefs = require("libs.nm_nativefs.nativefs")
-
 
 
 
@@ -84,8 +82,19 @@ end
 
 function mod_config.get_mod_config_from_path(pth, is_local)
     local json_pth = pth .. SEP .. constants.MOD_CONFIG_FILE
-    local fs = is_local and love.filesystem or nativefs
-    local succ, config = pcall(json.decode, (fs.read(json_pth)))
+    local contents = nil
+
+    if is_local then
+        contents = love.filesystem.read(json_pth)
+    else
+        local f = io.open(json_pth, "rb")
+        if f then
+            contents = f:read("*a")
+            f:close()
+        end
+    end
+
+    local succ, config = pcall(json.decode, contents)
     if succ then
         check_mod_type(config, pth)
         update_uses(config)

@@ -1,41 +1,47 @@
-
-
+---@class DirObj
 local DirObj = {}
 local DirObj_mt = {__index=DirObj}
 
 
 local SEP = constants.FILE_SEP
-local function newDirObj(fsysObj, append_path)
+
+---@param originalFsysobj FSysObj
+---@param append_path string
+local function newDirObj(originalFsysobj, append_path)
+    ---@class DirObj
     local self = setmetatable({}, DirObj_mt)
+    local fsysObj = originalFsysobj:cloneWithSubpath(append_path)
+
+    ---@param fname string
+    ---@param filtertype love.FileType
+    ---@return {type:love.FileType,size:integer,modtime:integer,readonly: boolean}?
     function self:getInfo(fname, filtertype)
-        return fsysObj:getInfo(self.pth .. SEP .. fname, filtertype)
+        return fsysObj:getInfo(fname, filtertype)
     end
 
+    ---@param fname string
+    ---@param func fun(path:string,filename:string,ext:string)
     function self:foreachFile(fname, func)
-        -- HACK: We don't want to expose `self.pth` to the mod callback, but the fsysObj:foreachFile requires it and
-        -- pass it to the callback. So filter self.pth out before passing it back to mod.
-        return fsysObj:foreachFile(self.pth .. SEP .. fname, function(path, filename, ext)
-            if path:sub(-1) == "/" then
-                path = path:sub(1, -2)
-            end
-
-            return func(path:sub(#self.pth + 1), filename, ext)
-        end)
+        return fsysObj:foreachFile(fname, func)
     end
 
+    ---@param dir string
     function self:getDirectoryItems(dir)
-        return fsysObj:getDirectoryItems(self.pth .. SEP .. dir)
+        return fsysObj:getDirectoryItems(dir)
     end
 
+    ---@param fname string
+    ---@return string?,string?
     function self:read(fname)
-        return fsysObj:read(self.pth .. SEP .. fname)
+        ---@diagnostic disable-next-line: return-type-mismatch
+        return fsysObj:read(fname, "string")
     end
 
+    ---@param fname string
     function self:newFileData(fname)
-        return fsysObj:newFileData(self.pth .. SEP .. fname)
+        return fsysObj:newFileData(fname)
     end
 
-    self.pth = append_path
     return self
 end
 

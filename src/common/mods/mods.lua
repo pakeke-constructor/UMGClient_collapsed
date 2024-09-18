@@ -12,8 +12,6 @@ local mod_objects = require(rpath .. ".mod_objects")
 
 local ugch = require("src.common.ugc_handler.ugch")
 
-local nativefs = require("libs.nm_nativefs.nativefs")
-
 
 local SEP = constants.FILE_SEP
 
@@ -133,7 +131,10 @@ local function new_fdata(path, is_local)
     if is_local then
         return love.filesystem.newFileData(path)
     else
-        return nativefs.newFileData(path)
+        local f = assert(io.open(path, "rb"))
+        local fdata = love.filesystem.newFileData(f:read("*a"), path)
+        f:close()
+        return fdata
     end
 end
 
