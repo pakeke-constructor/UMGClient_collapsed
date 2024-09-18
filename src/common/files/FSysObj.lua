@@ -64,8 +64,8 @@ local read_tc = tc.assert("string", "string?", "number?")
 ---@param container_type love.ContainerType
 ---@param size integer?
 ---@return (string|love.FileData)?,integer|string
----@overload fun(fname:string,container_type:"string",size:integer?):string
----@overload fun(fname:string,container_type:"data",size:integer?):love.FileData
+---@overload fun(self:FSysObj,fname:string,container_type:"string",size:integer?):string
+---@overload fun(self:FSysObj,fname:string,container_type:"data",size:integer?):love.FileData
 function FSysObj:read(fname, container_type, size)
     -- Reads a filename in a mod directory.
     -- (This is guaranteed to be safe to call)
