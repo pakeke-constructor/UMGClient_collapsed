@@ -123,8 +123,6 @@ function generate_mod_folder.generate_folder(options)
     assert(options.is_basemod ~= nil)
     assert(options.use_typescript ~= nil)
 
-    files.clear_temp_folder()
-
     local dest_path = LOCAL_MODPATH .. options.modname .. "/"
 
     if love.filesystem.getInfo(dest_path) then
