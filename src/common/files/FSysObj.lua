@@ -9,23 +9,36 @@ local nativefs = require("libs.nm_nativefs.nativefs")
     OR if we want to load files from an outside directory.
 ]]
 
-
+---@class FSysObj
 local FSysObj = tools.SafeClass()
 
 
 local SEP = constants.FILE_SEP
 
 
+---@param path string
+---@param is_local_path boolean
 function FSysObj:init(path, is_local_path)
     self.path = path
     self.is_local_path = is_local_path
     self.append_path = path .. SEP
 end
 
+if false then
+    ---@param path string
+    ---@param is_local_path boolean
+    ---@return FSysObj
+    function FSysObj(path, is_local_path) end ---@diagnostic disable-line: cast-local-type, missing-return
+end
+
 
 
 
 local read_tc = tc.assert("string", "string?", "number?")
+---@param fname string
+---@param container_type love.ContainerType
+---@param size integer?
+---@return (string|love.FileData)?,integer|string
 function FSysObj:read(fname, container_type, size)
     -- Reads a filename in a mod directory.
     -- (This is guaranteed to be safe to call)
@@ -40,6 +53,7 @@ end
 
 
 
+---@param path string
 function FSysObj:getDirectoryItems(path)
     if self.is_local_path then
         return love.filesystem.getDirectoryItems(self.append_path .. path)
@@ -50,6 +64,10 @@ end
 
 
 
+---@param contents string|love.Data
+---@param filename string
+---@overload fun(self:FSysObj,filename:string):love.FileData
+---@return love.FileData
 function FSysObj:newFileData(contents, filename)
     if contents and filename then
         return love.filesystem.newFileData(contents, filename)
@@ -63,6 +81,9 @@ function FSysObj:newFileData(contents, filename)
 end
 
 
+---@param path string
+---@param filtertype love.FileType?
+---@return {type:love.FileType,size:integer,modtime:integer,readonly:boolean}?
 function FSysObj:getInfo(path, filtertype)
     local ret
     if self.is_local_path then
@@ -74,6 +95,8 @@ function FSysObj:getInfo(path, filtertype)
 end
 
 
+---@param pth string
+---@param func fun(path:string,name:string,exten:string)
 function FSysObj:foreachFile(pth, func)
     local directory = self:getDirectoryItems(pth)
 
@@ -84,6 +107,7 @@ function FSysObj:foreachFile(pth, func)
         if file:sub(1,1) ~= "_" then
             local full_path = pth..SEP..file
             local info = self:getInfo(full_path)
+            ---@cast info -nil
 
             if info.type == "directory" then
                 self:foreachFile(full_path, func)

@@ -21,7 +21,7 @@ local mods = require("src.common.mods.mods")
 
 
 
-
+---@class ModLoader
 local ModLoader = tools.SafeClass()
 
 
@@ -103,6 +103,11 @@ function ModLoader:init(args)
     self.env_mt = {__index = self.globals} -- metatables for mod envs
 end
 
+if false then
+    ---@param args {session:table}
+    ---@return ModLoader
+    function ModLoader(args) end ---@diagnostic disable-line: cast-local-type, missing-return
+end
 
 
 
