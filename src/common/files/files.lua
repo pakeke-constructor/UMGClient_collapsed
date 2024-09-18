@@ -1,12 +1,9 @@
 
-
-local nativefs = require("libs.nm_nativefs.nativefs")
-
 --[[
 
 this file automatically generates two types of utility functions:
 
-`global_` functions, that use nativefs, and have access to the whole filesystem
+`global_` functions, that use nativefs, and have access to the whole filesystem (removed)
 and `local_` functions, that just use love's default save directory.
 
 Global functions (whole filesystem) are prefixed with `global_`
@@ -257,13 +254,9 @@ end
 
 
 
-local GLOBAL_PREFIX = "global_"
 local LOCAL_PREFIX = "local_"
 
 for name, func in pairs(file_funcs) do
-    files[GLOBAL_PREFIX .. name] = function(...)
-        return func(nativefs, ...)        
-    end
     files[LOCAL_PREFIX .. name] = function(...)
         return func(love.filesystem, ...)
     end
