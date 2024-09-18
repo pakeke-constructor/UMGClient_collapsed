@@ -2,8 +2,6 @@
 local path = tools.path(...)
 
 
-local nativefs = require("libs.nm_nativefs.nativefs")
-
 local new_ugc_info = require("src.common.ugc_handler.ugc_info")
 local publish = require(path .. ".publisher")
 local versioning = require(path .. ".versioning")
@@ -134,10 +132,14 @@ end
 
 
 local function try_read_json(global_pth)
-    if not nativefs.getInfo(global_pth) then
-        return
+    local f, msg = io.open(global_pth, "rb")
+    if not f then
+        return nil, msg
     end
-    local data = nativefs.read(global_pth)
+
+    local data = f:read("*a")
+    f:close()
+
     local ok, ret = pcall(json.decode,data)
     if ok then
         return ret
@@ -304,11 +306,15 @@ function ugch.get_existing_ugc_config(global_directory)
         or if the data is not able to be deserialized.
     ]]
     local fpath = global_directory .. SEP .. constants.UGC_CONFIG_FILE
-    local data = nativefs.read(fpath)
-    if not data then
+    local f, msg = io.open(fpath, "rb")
+    if not f then
         log.error("Couldn't read config!")
+        log.error(global_directory..": "..msg)
         return nil
     end
+    local data = f:read("*a")
+    f:close()
+
     local ok, tabl = pcall(json.decode, data)
     if ok then
         return tabl
