@@ -10,7 +10,7 @@ local SEP = constants.FILE_SEP
 local function newDirObj(originalFsysobj, append_path)
     ---@class DirObj
     local self = setmetatable({}, DirObj_mt)
-    local fsysObj = originalFsysobj:clone(append_path)
+    local fsysObj = originalFsysobj:cloneWithSubpath(append_path)
 
     ---@param fname string
     ---@param filtertype love.FileType

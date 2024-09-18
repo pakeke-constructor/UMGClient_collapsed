@@ -36,7 +36,7 @@ if false then
 end
 
 ---@param subpath string?
-function FSysObj:clone(subpath)
+function FSysObj:cloneWithSubpath(subpath)
     subpath = subpath or ""
     return FSysObj(self.append_path..subpath)
 end
