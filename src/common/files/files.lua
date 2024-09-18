@@ -19,7 +19,7 @@ Local functions (local filesystem) are prefixed with `local_`
 local files = {}
 
 
-files.FSysObj = require(tools.path(...) .. ".FSysObj")
+files.FSysObj = require("src.common.files.FSysObj")
 
 
 local file_funcs = {}

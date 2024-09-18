@@ -21,7 +21,7 @@ Specifically, ModLoader will create multiple LObj's internally!
 
 local files = require("src.common.files.files")
 
-
+---@class LObj
 local LObj = tools.SafeClass()
 
 
@@ -30,6 +30,8 @@ local LObj = tools.SafeClass()
 
 local new_lobj_tc = tc.assert("table", "table")
 
+---@param modLoader ModLoader
+---@param options {modname:string,path:string,is_local_path:boolean}
 function LObj:init(modLoader, options)
     --[[
         options: {
@@ -51,16 +53,24 @@ function LObj:init(modLoader, options)
     self.is_local_path = options.is_local_path
 
     -- `env` is the global environment (_G) of this mod.
+    ---@type _G
     self.env = setmetatable({}, modLoader.env_mt)
 
     -- used for interacting with files within the mod
     self.fsysObj = files.FSysObj(options.path, options.is_local_path)
 end
 
+if false then
+    ---@param modLoader ModLoader
+    ---@param options {modname:string,path:string,is_local_path:boolean}
+    ---@return LObj
+    function LObj(modLoader, options) end ---@diagnostic disable-line: cast-local-type, missing-return
+end
 
 
 
 
+---@param str string
 function LObj:isNamespaced(str)
     --[[
         returns true if `str` starts with "<modname>:"
@@ -133,6 +143,11 @@ local STATIC_SOUND_SIZE = 40000 -- 40_000 bytes is a good size for small sounds.
         and then load N sounds such that X amount of memory is used up.
 ]]
 
+---@generic T
+---@param self LObj
+---@param hsh table<string,T>
+---@param name string
+---@param obj T
 local function put(self, hsh, name, obj)
     local modname = self.modname
     local nsName = tools.toNamespaced(modname, name)
@@ -145,10 +160,11 @@ local function put(self, hsh, name, obj)
 end
 
 
+---@param self LObj
+---@param path string
 local function load_src(self, path)
     local src_type = "stream"
     local env = self.env
-
     local info = env.love.filesystem.getInfo(path)
     if not info then
         log.error("couldnt find src")
@@ -174,6 +190,8 @@ Make sure all the mod images fit within the atlas.
 ]]
 
 
+---@param self LObj
+---@param path string
 local function load_quad(self, path)
     --[[
         A quad can be accessed by
@@ -215,6 +233,9 @@ local extension_to_loader = {
 }
 
 
+---@param self LObj
+---@param path string
+---@param extension string
 local function loadAssetFile(self, path, extension)
     if extension_to_loader[extension] then
         return extension_to_loader[extension](self, path)
@@ -223,6 +244,9 @@ end
 
 
 
+---@param self LObj
+---@param path string
+---@param func fun(filepath:string,extension:string)
 local function iterDirectory(self, path, func)
     local directory = self.fsysObj:getDirectoryItems(path)
     -- selene: allow(incorrect_standard_library_use)
@@ -238,6 +262,9 @@ local function iterDirectory(self, path, func)
 end
 
 
+---@param self LObj
+---@param path string
+---@param func fun(filepath:string,extension:string)
 local function loadTree(self, path, func)
     --[[
         Recursively enters `path` directory, calling
@@ -247,6 +274,7 @@ local function loadTree(self, path, func)
     iterDirectory(self, path, function(fname, extension)
         local filepath = path .. SEP .. fname
         local info = self.fsysObj:getInfo(filepath)
+        ---@cast info -nil
 
         if info.type == "directory" then
             loadTree(self, filepath, func)
@@ -260,6 +288,8 @@ end
 
 
 
+---@param self LObj
+---@param path string
 local function loadAssets(self, path)
     if not CLIENT_SIDE then
         -- dont load assets on server.
@@ -280,6 +310,8 @@ end
 
 
 
+---@param self LObj
+---@param path string
 local function loadLuaFiles(self, path)
     -- Loads ALL lua files in a directory, including nested.
     local modRequire = self.env.require
@@ -291,6 +323,8 @@ local function loadLuaFiles(self, path)
     end)
 end
 
+---@param self LObj
+---@param path string
 local function loadLuaFilesFlat(self, path)
     -- loads lua files in a directory, 
     -- WITHOUT nested traversal.
@@ -306,6 +340,7 @@ end
 
 
 
+---@param lobj LObj
 local function makeEnv(lobj)
     if CLIENT_SIDE then
         return require("src.client.api._G")(lobj)
