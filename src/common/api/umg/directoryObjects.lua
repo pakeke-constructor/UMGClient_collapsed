@@ -22,8 +22,6 @@ local function newDirObj(originalFsysobj, append_path)
     ---@param fname string
     ---@param func fun(path:string,filename:string,ext:string)
     function self:foreachFile(fname, func)
-        -- HACK: We don't want to expose `self.pth` to the mod callback, but the fsysObj:foreachFile requires it and
-        -- pass it to the callback. So filter self.pth out before passing it back to mod.
         return fsysObj:foreachFile(fname, func)
     end
 
@@ -35,6 +33,7 @@ local function newDirObj(originalFsysobj, append_path)
     ---@param fname string
     ---@return string?,string?
     function self:read(fname)
+        ---@diagnostic disable-next-line: return-type-mismatch
         return fsysObj:read(fname, "string")
     end
 
