@@ -1,6 +1,6 @@
 
 
-local ClientHandler = require("src.common.connection.ClientHandler")
+local ClientHandler = require("src.server.session.connection.ClientHandler")
 
 
 local BaseConnection = require("src.common.connection.Connection")
