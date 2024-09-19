@@ -41,12 +41,14 @@ end
 ---@param subpath string?
 ---@param readwrite boolean?
 function FSysObj:cloneWithSubpath(subpath, readwrite)
-    subpath = subpath or ""
-    local rw = self.rw
-    if self.rw then
-        rw = not not readwrite
+    readwrite = not not readwrite
+
+    if readwrite and not self.rw then
+        error("attempt to create read-write object on read-only object")
     end
-    return FSysObj(self.append_path..subpath, true, rw)
+
+    subpath = subpath or ""
+    return FSysObj(self.append_path..subpath, true, readwrite)
 end
 
 ---@return boolean
