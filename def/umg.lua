@@ -98,7 +98,6 @@ end
 ---@alias UMGCallback string
 ---| "@tick"
 ---| "@load" 
----| "@createWorld"
 ---| "@playerJoin" 
 ---| "@playerLeave"
 ---| "@quit"

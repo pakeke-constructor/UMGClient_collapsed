@@ -97,17 +97,6 @@ eventBus:call("@load")
 
 
 
-if launchOptions:isWorldPersistent() then
-    -- then we either load or create a new world, depending on what mods are loaded
-    serverSession:loadWorld()
-else
-    -- else, our world is non-persistent. So just emit a createWorld event.
-    log.trace("Creating anonymous world")
-    eventBus:call("@createWorld")
-end
-
-
-
 -- yay! booted.
 print(("="):rep(50))
 print(("-"):rep(50))
