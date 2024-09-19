@@ -264,10 +264,19 @@ local function make_umg(lobj)
         rawset(modLoader.globals, variable_name, value)
     end
 
-    function umg.getModFilesystem(pth)
-        return newDirObj(lobj.fsysObj, pth)
+    function umg.getModFilesystem()
+        return newDirObj(lobj.fsysObj)
     end
-    umg.newDirectoryObject = umg.getModFilesystem -- backward compatibility
+
+    -- backward compatibility
+    function umg.newDirectoryObject(pth)
+        local dirobj = umg.getModFilesystem()
+        if pth and #pth > 0 then
+            dirobj = dirobj:cloneWithSubpath(pth)
+        end
+
+        return dirobj
+    end
 
     umg.log = require("src.common.log")
     return umg
