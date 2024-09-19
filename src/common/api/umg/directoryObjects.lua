@@ -26,11 +26,13 @@ local function newDirObj(originalFsysobj, append_path)
     end
 
     ---@param dir string
+    ---@return string[]
     function self:getDirectoryItems(dir)
         return fsysObj:getDirectoryItems(dir)
     end
 
     ---@param dir string
+    ---@return boolean
     function self:createDirectory(dir)
         return fsysObj:createDirectory(dir)
     end
@@ -66,8 +68,18 @@ local function newDirObj(originalFsysobj, append_path)
     end
 
     ---@param fname string
+    ---@return love.FileData?,string?
+    ---@diagnostic disable-next-line: duplicate-set-field
     function self:newFileData(fname)
-        return fsysObj:newFileData(fname)
+    end
+
+    ---@param contents string|love.Data
+    ---@param fname string
+    ---@return love.FileData
+    ---@diagnostic disable-next-line: duplicate-set-field
+    function self:newFileData(contents, fname)
+        ---@diagnostic disable-next-line: return-type-mismatch
+        return fsysObj:newFileData(contents, fname)
     end
 
     ---@param path string

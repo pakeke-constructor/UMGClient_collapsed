@@ -162,7 +162,13 @@ end
 
 ---@param path string
 ---@return umg.DirectoryObject
+---@deprecated @ renamed to umg.getModFilesystem
 function umg.newDirectoryObject(path)
+end
+
+---@param path string
+---@return umg.DirectoryObject
+function umg.getModFilesystem(path)
 end
 
 umg.log = {}
@@ -300,14 +306,14 @@ end
 ---@class umg.DirectoryObject
 local DirectoryObject = {}
 
----@param fname any
----@param filtertype love.FileType?
----@return {type: love.FileType, size: number, modtime: number, readonly: boolean}?
+---@param fname string
+---@param filtertype love.FileType
+---@return {type:love.FileType,size:integer,modtime:integer,readonly: boolean}?
 function DirectoryObject:getInfo(fname, filtertype)
 end
 
 ---@param fname string
----@param func fun(path:string,filename:string,extension:string?)
+---@param func fun(path:string,filename:string,ext:string)
 function DirectoryObject:foreachFile(fname, func)
 end
 
@@ -316,16 +322,59 @@ end
 function DirectoryObject:getDirectoryItems(dir)
 end
 
+---@param dir string
+---@return boolean
+function DirectoryObject:createDirectory(dir)
+end
+
 ---@param fname string
----@return string? contents The file contents (or nil on failure).
----@return number|string size How many bytes have been read (or error message on failure).
+---@return string?,string?
 function DirectoryObject:read(fname)
 end
 
 ---@param fname string
----@return love.FileData? filedata The file contents (or nil on failure).
----@return string? err
+---@param data string|love.Data
+---@param size integer?
+---@return boolean,string?
+function DirectoryObject:write(fname, data, size)
+end
+
+---@param fname string
+---@param data string|love.Data
+---@param size integer?
+---@return boolean,string?
+function DirectoryObject:append(fname, data, size)
+end
+
+---@param fname string
+---@param mode love.FileMode
+---@return (love.File)?,string?
+function DirectoryObject:openFile(fname, mode)
+end
+
+---@param fname string
+---@return love.FileData?,string?
 function DirectoryObject:newFileData(fname)
+end
+
+---@param contents string|love.Data
+---@param fname string
+---@return love.FileData
+function DirectoryObject:newFileData(contents, fname)
+end
+
+---@param path string
+---@return boolean
+function DirectoryObject:exists(path)
+end
+
+---@param path string
+---@return boolean
+function DirectoryObject:remove(path)
+end
+
+---@return boolean
+function DirectoryObject:isWritable()
 end
 
 return umg

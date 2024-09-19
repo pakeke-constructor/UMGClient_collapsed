@@ -1,10 +1,7 @@
 
-local path = "src.common.api"
+local newBuses = require("src.common.api.umg.buses")
 
-
-local newBuses = require(path .. ".umg.buses")
-
-local newDirObj = require(path .. ".umg.directoryObjects")
+local newDirObj = require("src.common.api.umg.directoryObjects")
 
 local analyticsService = require("src.common.analytics.analytics_service")
 local json = require("libs.nm_json.json")
@@ -267,9 +264,10 @@ local function make_umg(lobj)
         rawset(modLoader.globals, variable_name, value)
     end
 
-    function umg.newDirectoryObject(pth)
+    function umg.getModFilesystem(pth)
         return newDirObj(lobj.fsysObj, pth)
     end
+    umg.newDirectoryObject = umg.getModFilesystem -- backward compatibility
 
     umg.log = require("src.common.log")
     return umg
