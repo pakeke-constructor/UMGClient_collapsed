@@ -1,13 +1,13 @@
----@class DirObj
-local DirObj = {}
-local DirObj_mt = {__index=DirObj}
+---@class UMGModFSysObj
+local FilesystemObject = {}
+local FilesystemObject_mt = {__index=FilesystemObject}
 
 
 ---@param originalFsysobj FSysObj
 ---@param append_path string?
-local function newDirObj(originalFsysobj, append_path)
-    ---@class DirObj
-    local self = setmetatable({}, DirObj_mt)
+local function newModFSysObj(originalFsysobj, append_path)
+    ---@class UMGModFSysObj
+    local self = setmetatable({}, FilesystemObject_mt)
     local fsysObj = originalFsysobj:cloneWithSubpath(append_path)
 
     ---@param fname string
@@ -99,14 +99,14 @@ local function newDirObj(originalFsysobj, append_path)
 
     ---@param subpath string?
     ---@param readwrite boolean?
-    ---@return DirObj
+    ---@return UMGModFSysObj
     function self:cloneWithSubpath(subpath, readwrite)
         local newFsysObj = fsysObj:cloneWithSubpath(subpath, readwrite)
-        return newDirObj(newFsysObj)
+        return newModFSysObj(newFsysObj)
     end
 
     return self
 end
 
 
-return newDirObj
+return newModFSysObj

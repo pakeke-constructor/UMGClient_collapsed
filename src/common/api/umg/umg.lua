@@ -1,7 +1,7 @@
 
 local newBuses = require("src.common.api.umg.buses")
 
-local newDirObj = require("src.common.api.umg.directoryObjects")
+local newModFSysObj = require("src.common.api.umg.filesystemObjects")
 
 local analyticsService = require("src.common.analytics.analytics_service")
 local json = require("libs.nm_json.json")
@@ -265,7 +265,7 @@ local function make_umg(lobj)
     end
 
     function umg.getModFilesystem()
-        return newDirObj(lobj.fsysObj)
+        return newModFSysObj(lobj.fsysObj)
     end
 
     -- backward compatibility

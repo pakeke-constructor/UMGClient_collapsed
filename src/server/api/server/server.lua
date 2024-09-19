@@ -7,7 +7,7 @@ Server side only API
 
 
 local saveService = require("src.common.save.save_service")
-local newDirObj = require("src.common.api.umg.directoryObjects")
+local newModFSysObj = require("src.common.api.umg.filesystemObjects")
 
 
 ---@param lobj LObj
@@ -135,7 +135,7 @@ function server.getSaveFilesystem()
     local fsysobj = saveObj:getFSysObjFor(lobj.modname)
 
     if not rootDirObj then
-        rootDirObj = newDirObj(fsysobj)
+        rootDirObj = newModFSysObj(fsysobj)
     end
 
     return rootDirObj
