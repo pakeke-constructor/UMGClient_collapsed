@@ -29,11 +29,7 @@ function Ingame:init(ingameSession)
     variables.ingame_paused = false
 
     -- -- these fields are only set if we are hosting:
-    -- settings_ui.is_world_persistent = options.is_world_persistent
     -- settings_ui.is_hosting = is_hosting
-
-    -- -- don't allow for saving worlds if there's no world name
-    -- settings_ui.can_save_world = options.can_save_world and options.worldname
 end
 
 function Ingame:onEnter(ingameSession)

@@ -21,12 +21,6 @@ local LaunchOptions = tools.Class()
 local ONLINE_MODES = constants.ONLINE_MODES
 
 
-local function assertWorldname(worldname)
-    -- remove all non-alphanumeric characters
-    assert(worldname:match("[%w_]+") == worldname, "worldname not ok: " .. tostring(worldname))
-end
-
-
 local KEYS = {"modlist", "onlineMode"}
 
 function LaunchOptions:init(args)
@@ -36,7 +30,6 @@ function LaunchOptions:init(args)
             modlist = {...}
 
             -- Everything else is situational / optional fields:
-            worldname = "my_world",
             raw_port = 8945,
         }
     ]]
@@ -51,25 +44,13 @@ function LaunchOptions:init(args)
     end
 
     self.modstruct = mods.ModStruct(self.modlist)
-    self.isPersistent = mods.is_world_persistent(self.modstruct) or false
-
-    if self.isPersistent then
-        assertWorldname(rawget(self,"worldname"))
-    end
 end
 
 
 
 
 function LaunchOptions:isWorldPersistent()
-    if rawget(self, "isPersistent") ~= nil then
-        -- return cached, if we have cached value
-        return self.isPersistent
-    end
-
-    local isPersistent = mods.is_world_persistent(self.modstruct)
-    self.isPersistent = isPersistent
-    return isPersistent
+    return false
 end
 
 

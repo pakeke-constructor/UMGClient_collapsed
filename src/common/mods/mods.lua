@@ -80,30 +80,6 @@ end
 
 
 
-function mods.is_world_persistent(modStruct)
-    --[[
-        Since mods may disagree on whether a world is persistent
-        or not, we should search through all non-nil option values,
-        and take the is_persistent value that is the "highest" dependency.
-    ]]
-    local mod_list = modStruct:get_topo_sorted_dependencies()
-    -- iterate over backwards to take the "highest" dependency
-    for i =#mod_list, 1, -1 do
-        local modname = mod_list[i]
-        local cfg = mods.get_mod_config(modname)
-        local is_persistent = cfg.isWorldPersistent
-        if is_persistent ~= nil then
-            return is_persistent
-        end
-    end
-    return false -- by default, worlds aren't persistent.
-    -- We don't want to bloat user's world folder.
-end
-
-
-
-
-
 --[[
     returns true if a mod is ready to go  (installed + updated),
     false otherwise.
