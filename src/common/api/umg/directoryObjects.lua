@@ -3,8 +3,6 @@ local DirObj = {}
 local DirObj_mt = {__index=DirObj}
 
 
-local SEP = constants.FILE_SEP
-
 ---@param originalFsysobj FSysObj
 ---@param append_path string?
 local function newDirObj(originalFsysobj, append_path)

@@ -161,13 +161,13 @@ function umg.expose(variable_name, value)
 end
 
 ---@param path string
----@return umg.DirectoryObject
+---@return umg.FilesystemObject
 ---@deprecated @ renamed to umg.getModFilesystem
 function umg.newDirectoryObject(path)
 end
 
 ---@param path string
----@return umg.DirectoryObject
+---@return umg.FilesystemObject
 function umg.getModFilesystem(path)
 end
 
@@ -303,84 +303,84 @@ end
 
 ---@alias EntityGroup EntityGroupClass|Entity[]
 
----@class umg.DirectoryObject
-local DirectoryObject = {}
+---@class umg.FilesystemObject
+local FilesystemObject = {}
 
 ---@param fname string
 ---@param filtertype love.FileType
 ---@return {type:love.FileType,size:integer,modtime:integer,readonly: boolean}?
-function DirectoryObject:getInfo(fname, filtertype)
+function FilesystemObject:getInfo(fname, filtertype)
 end
 
 ---@param fname string
 ---@param func fun(path:string,filename:string,ext:string)
-function DirectoryObject:foreachFile(fname, func)
+function FilesystemObject:foreachFile(fname, func)
 end
 
 ---@param dir string
 ---@return string[]
-function DirectoryObject:getDirectoryItems(dir)
+function FilesystemObject:getDirectoryItems(dir)
 end
 
 ---@param dir string
 ---@return boolean
-function DirectoryObject:createDirectory(dir)
+function FilesystemObject:createDirectory(dir)
 end
 
 ---@param fname string
 ---@return string?,string?
-function DirectoryObject:read(fname)
+function FilesystemObject:read(fname)
 end
 
 ---@param fname string
 ---@param data string|love.Data
 ---@param size integer?
 ---@return boolean,string?
-function DirectoryObject:write(fname, data, size)
+function FilesystemObject:write(fname, data, size)
 end
 
 ---@param fname string
 ---@param data string|love.Data
 ---@param size integer?
 ---@return boolean,string?
-function DirectoryObject:append(fname, data, size)
+function FilesystemObject:append(fname, data, size)
 end
 
 ---@param fname string
 ---@param mode love.FileMode
 ---@return (love.File)?,string?
-function DirectoryObject:openFile(fname, mode)
+function FilesystemObject:openFile(fname, mode)
 end
 
 ---@param fname string
 ---@return love.FileData?,string?
-function DirectoryObject:newFileData(fname)
+function FilesystemObject:newFileData(fname)
 end
 
 ---@param contents string|love.Data
 ---@param fname string
 ---@return love.FileData
-function DirectoryObject:newFileData(contents, fname)
+function FilesystemObject:newFileData(contents, fname)
 end
 
 ---@param path string
 ---@return boolean
-function DirectoryObject:exists(path)
+function FilesystemObject:exists(path)
 end
 
 ---@param path string
 ---@return boolean
-function DirectoryObject:remove(path)
+function FilesystemObject:remove(path)
 end
 
 ---@return boolean
-function DirectoryObject:isWritable()
+function FilesystemObject:isWritable()
 end
 
 ---@param subpath string?
 ---@param readwrite boolean?
----@return umg.DirectoryObject
-function DirectoryObject:cloneWithSubpath(subpath, readwrite)
+---@return umg.FilesystemObject
+function FilesystemObject:cloneWithSubpath(subpath, readwrite)
 end
 
 return umg

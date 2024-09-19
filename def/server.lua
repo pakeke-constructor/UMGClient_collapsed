@@ -51,7 +51,7 @@ function server.isWorldPersistent()
 end
 
 ---Returns writable (potentially persistent) filesystem object for the particular mod.
----@return umg.DirectoryObject
+---@return umg.FilesystemObject
 function server.getSaveFilesystem()
 end
 
