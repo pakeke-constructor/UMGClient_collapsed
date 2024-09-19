@@ -8,7 +8,11 @@ local FilesystemObject_mt = {__index=FilesystemObject}
 local function newModFSysObj(originalFsysobj, append_path)
     ---@class UMGModFSysObj
     local self = setmetatable({}, FilesystemObject_mt)
-    local fsysObj = originalFsysobj:cloneWithSubpath(append_path)
+    local fsysObj = originalFsysobj
+
+    if append_path and #append_path > 0 then
+        fsysObj = originalFsysobj:cloneWithSubpath(append_path, originalFsysobj:isWritable())
+    end
 
     ---@param fname string
     ---@param filtertype love.FileType

@@ -8,7 +8,7 @@ local Save = tools.Class()
 ---@param path string
 function Save:init(name, path)
     self.name = name
-    self.fsysObjRoot = FSysObj(path)
+    self.fsysObjRoot = FSysObj(path, true, true)
     ---@type table<string, FSysObj>
     self.fsysobjOfMods = {}
 
@@ -24,6 +24,7 @@ end
 ---@param modname string
 function Save:getFSysObjFor(modname)
     if not self.fsysobjOfMods[modname] then
+        self.fsysObjRoot:createDirectory(modname)
         self.fsysobjOfMods[modname] = self.fsysObjRoot:cloneWithSubpath(modname, true)
     end
 
