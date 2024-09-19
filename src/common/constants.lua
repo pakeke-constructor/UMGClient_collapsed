@@ -107,11 +107,7 @@ return setmetatable({
 
     FILE_SEP = "/", -- use forward slash for file separation
 
-    WORLD_PATH = "worlds/",
-    WORLD_CONFIG_FILE = "/world_config.json",
-    WORLD_MODS_FILE = "mods.json",
     ENTITY_DATA_FILE = "entity_data.pckr", -- stores entity-data
-    WORLD_DATA_FILE = "world_data.json", -- stores meta-info, like world-time
     SAVE_DATA_PATH = "saves/",
 
     -- mod path for %appdata% only for experimental mods (see _modloader.md)

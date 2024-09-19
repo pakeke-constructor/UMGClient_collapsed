@@ -55,12 +55,6 @@ end
 
 
 
-function ServerSession:isWorldPersistent()
-    return self.launchOptions:isWorldPersistent()
-end
-
-
-
 ---@param modlist string[]
 function ServerSession:loadMods(modlist)
     local modLoader = ModLoader({
@@ -89,14 +83,6 @@ local function updateTick(self, dt)
         tick(self, tdt)
         self.timeSinceLastTick = 0
     end
-end
-
-
-
-function ServerSession:saveWorld()
-end
-
-function ServerSession:loadWorld()
 end
 
 

@@ -13,7 +13,6 @@ return {
     ticks_per_second = 30; -- aim for this TPS for server
 
     ingame_paused = false; -- whether the ingame client is paused
-    is_world_persistent = false, -- whether the world is persistent or not.
     -- Only used on serverside currently.
 
     src_udp_port = nil; -- The port that we are currently using.

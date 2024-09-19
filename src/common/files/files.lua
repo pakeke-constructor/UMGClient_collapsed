@@ -216,7 +216,6 @@ function files.ensure_game_folders_exist()
     local paths = {
         constants.INTERNAL_PATH,
         constants.TEMP_PATH,
-        constants.WORLD_PATH,
         constants.LOCAL_MOD_PATH
     }
     for _, path in ipairs(paths) do

@@ -218,10 +218,6 @@ function channelService.shouldCloseServer()
         return peeked
     end
 end
-function channelService.shouldSaveWorld()
-    local peeked = peek("close_server")
-    return peeked == SAVE_AND_CLOSE
-end
 function channelService.closeServer()
     clearAndSend("close_server", CLOSE)
 end

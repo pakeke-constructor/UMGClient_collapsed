@@ -49,13 +49,6 @@ end
 
 
 
-function LaunchOptions:isWorldPersistent()
-    return false
-end
-
-
-
-
 function LaunchOptions:serialize()
     local meta = getmetatable(self)
     setmetatable(self, nil) -- dont serialize metatable
