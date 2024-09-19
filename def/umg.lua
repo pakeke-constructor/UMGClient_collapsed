@@ -383,4 +383,16 @@ end
 function FilesystemObject:cloneWithSubpath(subpath, readwrite)
 end
 
+json = {}
+
+---@param data string
+---@return any
+function json.decode(data)
+end
+
+---@param data any
+---@return string
+function json.encode(data)
+end
+
 return umg
