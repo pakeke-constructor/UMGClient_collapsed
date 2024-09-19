@@ -6,8 +6,6 @@ local ServerConnection = require("src.server.session.connection.ServerConnection
 
 local EntitySyncer = require("src.server.session.EntitySyncer")
 
-local WorldLoader = require("src.server.session.WorldLoader.WorldLoader")
-
 local saveService = require("src.common.save.save_service")
 
 
@@ -33,11 +31,6 @@ function ServerSession:init(args)
         isOnline = isOnline,
     })
 
-    self.worldLoader = WorldLoader({
-        serverSession = self,
-        launchOptions = launchOptions
-    })
-
     self.timeSinceLastTick = 0
 
     self.entitySyncer = EntitySyncer({
@@ -58,15 +51,6 @@ if false then
     ---@param args {launchOptions:table}
     ---@return ServerSession
     function ServerSession(args) end ---@diagnostic disable-line: cast-local-type, missing-return
-end
-
-
-function ServerSession:getWorldTime()
-    --[[
-        we should be calling `worldLoader:getWorldTime()` here,
-        but i want it to be a bit more efficient :)
-    ]]
-    return self.worldLoader.worldTime
 end
 
 
@@ -110,11 +94,9 @@ end
 
 
 function ServerSession:saveWorld()
-    self.worldLoader:save()
 end
 
 function ServerSession:loadWorld()
-    self.worldLoader:load()
 end
 
 
@@ -122,7 +104,6 @@ end
 function ServerSession:update(dt)
     self.umgSession:update(dt)
     self.serverConnection:update(dt)
-    self.worldLoader:update(dt)
     updateTick(self, dt)
 end
 
@@ -138,16 +119,6 @@ function ServerSession:close()
     end
 
     self.umgSession.eventBus:call("@quit")
-
-    if channelService.shouldSaveWorld() then
-        local worldname = self.launchOptions.worldname
-        local mod_struct = self.launchOptions.modstruct
-        if worldname then
-            serverSession:saveWorld(worldname, mod_struct)
-        else
-            log.error("Attempted to save world, but no world name exists!")
-        end
-    end
 
     self:flush()
     self.serverConnection:disconnectEveryone()

@@ -74,53 +74,6 @@ end
 
 
 
-local worldLoader = serverSession.worldLoader
-
--- we can call this here, because its not gonna change.
-local isWorldPersistent = serverSession:isWorldPersistent()
-
-
-function server.save(name, data)
-    if not isWorldPersistent then
-        error("Cannot save data to a non-persistent world! (Check with server.isWorldPersistent())")
-    end
-    if type(name) ~= "string" then
-        error("save(name, data) expects a string as first argument, got: "..type(name), 2)
-    end
-    if not tools.is_valid_filename(name) then
-        error("Invalid save data name: " .. tostring(name), 2)
-    end
-    if type(data) ~= "string" then
-        error("save(name, data) expected string as 2nd argument, got: " .. type(data))
-    end
-    return worldLoader:saveData(name, data)
-end
-
-
-function server.load(name)
-    if not isWorldPersistent then
-        error("Cannot load data from a non-persistent world! (Check with server.isWorldPersistent())")
-    end
-    if type(name) ~= "string" then
-        error("load(name) expects a string as first argument, got: "..type(name), 2)
-    end
-    if not tools.is_valid_filename(name) then
-        error("Invalid save data name: " .. tostring(name), 2)
-    end
-    return worldLoader:readData(name)
-end
-
-
-
---[[
-    checks if a world is persistent or not
-]]
-function server.isWorldPersistent()
-    return isWorldPersistent
-end
-
-
-
 local rootDirObj = nil
 
 function server.getSaveFilesystem()
