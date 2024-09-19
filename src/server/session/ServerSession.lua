@@ -152,6 +152,7 @@ function ServerSession:close()
     self:flush()
     self.serverConnection:disconnectEveryone()
     self.serverConnection:flushPackets()
+    self.save:close()
     self.closed = true
 end
 
