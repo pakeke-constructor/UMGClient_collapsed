@@ -113,6 +113,7 @@ function hoster.close()
     if not ctx then return end
     channelService.closeServer()
     closeServer()
+    hoster.update()
     ctx = false
 end
 
@@ -141,10 +142,8 @@ end
 
 
 function hoster.update()
-    if ctx then
-        channelService.executePrints()
-        channelService.executeLogs()
-    end
+    channelService.executePrints()
+    channelService.executeLogs()
 end
 
 
