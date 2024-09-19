@@ -30,6 +30,9 @@ function FilesystemSave:getFSysObjFor(modname)
     return self.fsysobjOfMods[modname]
 end
 
+function FilesystemSave:close()
+end
+
 ---If save with "name" does not exist, throw error.
 ---@param name string
 ---@return FilesystemSave

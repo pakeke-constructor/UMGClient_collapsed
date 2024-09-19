@@ -6,7 +6,6 @@ Server side only API
 ]]
 
 
-local saveService = require("src.common.save.save_service")
 local newModFSysObj = require("src.common.api.umg.filesystemObjects")
 
 
@@ -122,17 +121,10 @@ end
 
 
 
-local saveObj = nil
-if serverSession.launchOptions.save_name then
-    saveObj = saveService.loadSave(serverSession.launchOptions.save_name)
-else
-    saveObj = saveService.newTempSave()
-end
-
 local rootDirObj = nil
 
 function server.getSaveFilesystem()
-    local fsysobj = saveObj:getFSysObjFor(lobj.modname)
+    local fsysobj = serverSession.save:getFSysObjFor(lobj.modname)
 
     if not rootDirObj then
         rootDirObj = newModFSysObj(fsysobj)

@@ -59,18 +59,24 @@ end
 
 
 function file_funcs.recursively_delete(fs, dir)
+    if dir:sub(-1) == constants.FILE_SEP then
+        dir = dir:sub(1, -2)
+    end
+
     assert(dir:lower() ~= "worlds" and dir:lower() ~= "/worlds")
     assert(dir:lower() ~= "mods" and dir:lower() ~= "/mods")
     assert(fs == love.filesystem, "AINT NO WAY")
-    if fs.getInfo(dir, "directory") then
-        for _, child in pairs(fs.getDirectoryItems(dir)) do
-            file_funcs.recursively_delete(fs, dir .. '/' .. child )
-            fs.remove(dir .. '/' .. child)
+    local info = fs.getInfo(dir)
+    if not info then return end
+
+    if info.type == "directory" then
+        for _, child in ipairs(fs.getDirectoryItems(dir)) do
+            local path = dir .. '/' .. child
+            file_funcs.recursively_delete(fs, path)
         end
-        fs.remove(dir)
-    elseif fs.getInfo(dir) then
-        fs.remove(dir)
     end
+
+    fs.remove(dir)
 end
 
 
