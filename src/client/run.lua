@@ -219,17 +219,22 @@ end
 ]]
 local function mainloop()
     local dt = 0
+    local quit = nil
 
     -- Process events.
     love.event.pump()
     for name, a,b,c,d,e,f in love.event.poll() do
         if name == "quit" then
             if not love.quit or not love.quit() then
-                return a or 0
+                quit = a or 0
             end
         end
 
         safe_call(love.handlers[name], a,b,c,d,e,f)
+    end
+
+    if quit ~= nil then
+        return quit
     end
 
     -- Update dt, as we'll be passing it to update
