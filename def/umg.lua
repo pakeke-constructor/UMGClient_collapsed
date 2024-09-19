@@ -377,4 +377,10 @@ end
 function DirectoryObject:isWritable()
 end
 
+---@param subpath string?
+---@param readwrite boolean?
+---@return umg.DirectoryObject
+function DirectoryObject:cloneWithSubpath(subpath, readwrite)
+end
+
 return umg

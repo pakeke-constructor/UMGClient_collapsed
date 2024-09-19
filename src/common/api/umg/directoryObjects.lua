@@ -6,7 +6,7 @@ local DirObj_mt = {__index=DirObj}
 local SEP = constants.FILE_SEP
 
 ---@param originalFsysobj FSysObj
----@param append_path string
+---@param append_path string?
 local function newDirObj(originalFsysobj, append_path)
     ---@class DirObj
     local self = setmetatable({}, DirObj_mt)
@@ -97,6 +97,14 @@ local function newDirObj(originalFsysobj, append_path)
     ---@return boolean
     function self:isWritable()
         return fsysObj:isWritable()
+    end
+
+    ---@param subpath string?
+    ---@param readwrite boolean?
+    ---@return DirObj
+    function self:cloneWithSubpath(subpath, readwrite)
+        local newFsysObj = fsysObj:cloneWithSubpath(subpath, readwrite)
+        return newDirObj(newFsysObj)
     end
 
     return self

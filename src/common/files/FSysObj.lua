@@ -144,7 +144,7 @@ end
 
 ---@param contents string|love.Data
 ---@param filename string
----@overload fun(self:FSysObj,filename:string):love.FileData
+---@overload fun(self:FSysObj,filename:string):(love.FileData?,string?)
 ---@return love.FileData?,string?
 function FSysObj:newFileData(contents, filename)
     if contents and filename then

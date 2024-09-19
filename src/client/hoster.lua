@@ -56,6 +56,7 @@ function hoster.start(launchOptions)
 
         .online = true/false  whether this server is online or not
         .modlist = {}  array of mods to use
+        .save_name = "save_1" or nil      nil means use temp save.
         .worldname = "my_world" or nil
         .should_load_world = true/false   whether we need to load the world
         .online_mode = ONLINE_MODE
