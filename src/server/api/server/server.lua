@@ -6,6 +6,10 @@ Server side only API
 ]]
 
 
+local newModFSysObj = require("src.common.api.umg.filesystemObjects")
+
+
+---@param lobj LObj
 local function loadServerAPI(lobj)
 --[[
     (This function is not indented for readibility reasons)
@@ -39,7 +43,7 @@ local OPT_UNRELIABLE = {isUnreliable = true}
 
 function server.broadcast(packetName, ...)
     string_check(packetName)
-    serverConnection:broadcast(false, packetName, ...)
+    serverConnection:broadcast(nil, packetName, ...)
 end
 
 function server.lazyBroadcast(packetName, ...)
@@ -53,7 +57,7 @@ local string2_check = tc.assert(tc.str, tc.str)
 
 function server.unicast(clientId, packetName, ...)
     string2_check(clientId, packetName)
-    serverConnection:unicast(clientId, false, packetName, ...)
+    serverConnection:unicast(clientId, nil, packetName, ...)
 end
 
 
@@ -115,6 +119,19 @@ function server.isWorldPersistent()
     return isWorldPersistent
 end
 
+
+
+local rootDirObj = nil
+
+function server.getSaveFilesystem()
+    local fsysobj = serverSession.save:getFSysObjFor(lobj.modname)
+
+    if not rootDirObj then
+        rootDirObj = newModFSysObj(fsysobj)
+    end
+
+    return rootDirObj
+end
 
 
 function server.getHostClient()

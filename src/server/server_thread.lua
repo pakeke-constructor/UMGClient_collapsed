@@ -53,8 +53,6 @@ rawset(_G, "luasteam",  require "src.common.misc.luasteam")
 
 
 
-
-
 local time = love.timer.getTime()
 
 log.trace("Server UMG modules loaded successfully.")

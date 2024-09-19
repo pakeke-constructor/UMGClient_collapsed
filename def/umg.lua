@@ -161,8 +161,14 @@ function umg.expose(variable_name, value)
 end
 
 ---@param path string
----@return umg.DirectoryObject
+---@return umg.FilesystemObject
+---@deprecated @ renamed to umg.getModFilesystem
 function umg.newDirectoryObject(path)
+end
+
+---@param path string
+---@return umg.FilesystemObject
+function umg.getModFilesystem(path)
 end
 
 umg.log = {}
@@ -297,35 +303,84 @@ end
 
 ---@alias EntityGroup EntityGroupClass|Entity[]
 
----@class umg.DirectoryObject
-local DirectoryObject = {}
+---@class umg.FilesystemObject
+local FilesystemObject = {}
 
----@param fname any
----@param filtertype love.FileType?
----@return {type: love.FileType, size: number, modtime: number, readonly: boolean}?
-function DirectoryObject:getInfo(fname, filtertype)
+---@param fname string
+---@param filtertype love.FileType
+---@return {type:love.FileType,size:integer,modtime:integer,readonly: boolean}?
+function FilesystemObject:getInfo(fname, filtertype)
 end
 
 ---@param fname string
----@param func fun(path:string,filename:string,extension:string?)
-function DirectoryObject:foreachFile(fname, func)
+---@param func fun(path:string,filename:string,ext:string)
+function FilesystemObject:foreachFile(fname, func)
 end
 
 ---@param dir string
 ---@return string[]
-function DirectoryObject:getDirectoryItems(dir)
+function FilesystemObject:getDirectoryItems(dir)
+end
+
+---@param dir string
+---@return boolean
+function FilesystemObject:createDirectory(dir)
 end
 
 ---@param fname string
----@return string? contents The file contents (or nil on failure).
----@return number|string size How many bytes have been read (or error message on failure).
-function DirectoryObject:read(fname)
+---@return string?,string?
+function FilesystemObject:read(fname)
 end
 
 ---@param fname string
----@return love.FileData? filedata The file contents (or nil on failure).
----@return string? err
-function DirectoryObject:newFileData(fname)
+---@param data string|love.Data
+---@param size integer?
+---@return boolean,string?
+function FilesystemObject:write(fname, data, size)
+end
+
+---@param fname string
+---@param data string|love.Data
+---@param size integer?
+---@return boolean,string?
+function FilesystemObject:append(fname, data, size)
+end
+
+---@param fname string
+---@param mode love.FileMode
+---@return (love.File)?,string?
+function FilesystemObject:openFile(fname, mode)
+end
+
+---@param fname string
+---@return love.FileData?,string?
+function FilesystemObject:newFileData(fname)
+end
+
+---@param contents string|love.Data
+---@param fname string
+---@return love.FileData
+function FilesystemObject:newFileData(contents, fname)
+end
+
+---@param path string
+---@return boolean
+function FilesystemObject:exists(path)
+end
+
+---@param path string
+---@return boolean
+function FilesystemObject:remove(path)
+end
+
+---@return boolean
+function FilesystemObject:isWritable()
+end
+
+---@param subpath string?
+---@param readwrite boolean?
+---@return umg.FilesystemObject
+function FilesystemObject:cloneWithSubpath(subpath, readwrite)
 end
 
 return umg

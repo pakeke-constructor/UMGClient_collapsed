@@ -8,6 +8,8 @@ local EntitySyncer = require("src.server.session.EntitySyncer")
 
 local WorldLoader = require("src.server.session.WorldLoader.WorldLoader")
 
+local saveService = require("src.common.save.save_service")
+
 
 ---@class ServerSession
 local ServerSession = tools.SafeClass()
@@ -42,6 +44,12 @@ function ServerSession:init(args)
         serverSession = self
     })
     self.closed = false
+
+    if launchOptions.save_name then
+        self.save = saveService.loadSave(launchOptions.save_name)
+    else
+        self.save = saveService.newTempSave()
+    end
 
     setup(self)
 end
@@ -144,6 +152,7 @@ function ServerSession:close()
     self:flush()
     self.serverConnection:disconnectEveryone()
     self.serverConnection:flushPackets()
+    self.save:close()
     self.closed = true
 end
 

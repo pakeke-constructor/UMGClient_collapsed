@@ -16,7 +16,8 @@ local SEP = constants.FILE_SEP
 
 ---@param path string
 ---@param is_local_path boolean?
-function FSysObj:init(path, is_local_path)
+---@param readwrite boolean?
+function FSysObj:init(path, is_local_path, readwrite)
     if is_local_path == false then
         error("attempt to use nativefs: "..path)
     end
@@ -26,29 +27,45 @@ function FSysObj:init(path, is_local_path)
     else
         self.append_path = path .. SEP
     end
+    self.rw = not not readwrite
 end
 
 if false then
     ---@param path string
     ---@param is_local_path boolean?
+    ---@param readwrite boolean?
     ---@return FSysObj
-    function FSysObj(path, is_local_path) end ---@diagnostic disable-line: cast-local-type, missing-return
+    function FSysObj(path, is_local_path, readwrite) end ---@diagnostic disable-line: cast-local-type, missing-return
 end
 
 ---@param subpath string?
-function FSysObj:cloneWithSubpath(subpath)
+---@param readwrite boolean?
+function FSysObj:cloneWithSubpath(subpath, readwrite)
+    readwrite = not not readwrite
+
+    if readwrite and not self.rw then
+        error("attempt to create read-write object on read-only object")
+    end
+
     subpath = subpath or ""
-    return FSysObj(self.append_path..subpath)
+    return FSysObj(self.append_path..subpath, true, readwrite)
+end
+
+---@return boolean
+function FSysObj:isWritable()
+    return self.rw
 end
 
 
 
+---@return string
 function FSysObj:getBasePath()
     return self.append_path
 end
 
 ---Convert path relative to this FSysObj to path relative to love.filesystem.
 ---@param path string
+---@return string
 function FSysObj:translatePath(path)
     if path:sub(1, 1) == SEP then
         path = path:sub(2)
@@ -76,6 +93,39 @@ function FSysObj:read(fname, container_type, size)
     return love.filesystem.read(container_type, self:translatePath(fname), size)
 end
 
+local write_tc = tc.assert("string", "number?")
+---@param fname string
+---@param contents string|love.Data
+---@param size integer?
+---@return boolean,string?
+function FSysObj:write(fname, contents, size)
+    write_tc(fname, size) -- cannot check for contents
+    if not self.rw then
+        return false, "Read-only filesystem"
+    end
+
+    return love.filesystem.write(self:translatePath(fname), contents, size)
+end
+
+function FSysObj:append(fname, contents, size)
+    write_tc(fname, size) -- cannot check for contents
+    if not self.rw then
+        return false, "Read-only filesystem"
+    end
+
+    return love.filesystem.append(self:translatePath(fname), contents, size)
+end
+
+---@param fname string
+---@param mode love.FileMode
+---@return love.File?,string?
+function FSysObj:openFile(fname, mode)
+    if (mode == "w" or mode == "a") and not self.rw then
+        return nil, "Read-only filesystem"
+    end
+
+    return love.filesystem.openFile(self:translatePath(fname), mode)
+end
 
 
 ---@param path string
@@ -84,11 +134,19 @@ function FSysObj:getDirectoryItems(path)
     return love.filesystem.getDirectoryItems(self:translatePath(path))
 end
 
+---@param path string
+function FSysObj:createDirectory(path)
+    if not self.rw then
+        return false
+    end
+
+    return love.filesystem.createDirectory(self:translatePath(path))
+end
 
 
 ---@param contents string|love.Data
 ---@param filename string
----@overload fun(self:FSysObj,filename:string):love.FileData
+---@overload fun(self:FSysObj,filename:string):(love.FileData?,string?)
 ---@return love.FileData?,string?
 function FSysObj:newFileData(contents, filename)
     if contents and filename then
@@ -105,6 +163,13 @@ end
 ---@return {type:love.FileType,size:integer,modtime:integer,readonly:boolean}?
 function FSysObj:getInfo(path, filtertype)
     return love.filesystem.getInfo(self:translatePath(path), filtertype)
+end
+
+---Cheaper alternative to `FSysObj:getInfo()` in certain scenario.
+---@param path string
+---@return boolean
+function FSysObj:exists(path)
+    return love.filesystem.exists(self:translatePath(path))
 end
 
 
@@ -134,5 +199,16 @@ end
 
 
 
-return FSysObj
+---@param path string
+---@return boolean
+function FSysObj:remove(path)
+    if not self.rw then
+        return false
+    end
 
+    return love.filesystem.remove(self:translatePath(path))
+end
+
+
+
+return FSysObj
