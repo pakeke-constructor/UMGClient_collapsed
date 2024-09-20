@@ -165,28 +165,6 @@ end
 
 
 
-local function addGetWorldTime(umg, lobj)
-    local getTime = love.timer.getTime
-    --[[
-        TODO: Make this actually use the world-time!
-
-        There is a method:  ServerSession:getWorldTime()
-        that we should be using.
-
-        The main difficulty is the client-side...
-        The client needs to know about the world-time.
-
-        IDEA:
-        Send the `worldTime` value across, as part of the `@world` packet.
-        Then the client should increment the worldTime value manually.
-    ]]
-    function umg.getWorldTime()
-        return getTime()
-    end
-end
-
-
-
 
 local function addLoaderFuncs(umg, lobj)
     local modLoader = lobj.modLoader
@@ -225,8 +203,6 @@ local function make_umg(lobj)
     addSerializers(umg, lobj)
 
     addNetworkFuncs(umg, lobj)
-
-    addGetWorldTime(umg, lobj)
 
     addLoaderFuncs(umg, lobj)
 

@@ -60,18 +60,6 @@ end
 
 
 
-function UMGSession:saveWorld()
-    -- TODO
-end
-
-function UMGSession:loadWorld()
-    -- TODO
-end
-
-
-
-
-
 function UMGSession:group(...)
     local group = self.cyWorld:group(...)
     

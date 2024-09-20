@@ -32,24 +32,6 @@ end
 function server.lazyUnicast(username, event_name, ...)
 end
 
----saves data to string `name`, (relative to world)
----@param name string
----@param data string
----@deprecated @ replaced by server.getSaveFilesystem()
-function server.save(name, data)
-end
-
----loads data from string `name` (relative to world)
----@param name string
----@return string
----@deprecated @ replaced by server.getSaveFilesystem()
-function server.load(name)
-end
-
----@return boolean
-function server.isWorldPersistent()
-end
-
 ---Returns writable (potentially persistent) filesystem object for the particular mod.
 ---@return umg.FilesystemObject
 function server.getSaveFilesystem()

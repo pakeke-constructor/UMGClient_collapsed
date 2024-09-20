@@ -206,36 +206,6 @@ end
 
 
 
-function files.unique_world_name(worldname)
-    --[[
-        takes a world name and generates a new unique one if there is a collision
-        (or returns the current name if there is no collision)
-    ]]
-    local fs = love.filesystem 
-    local path = constants.WORLD_PATH .. worldname
-    if fs.getInfo(path) then
-        local s,_ = worldname:find("_%d+$")
-        local num = 1
-        local raw_name = worldname
-        if s then
-            local num_str = worldname:sub(s+1)
-            raw_name = worldname:sub(1,s-1)
-            num = tonumber(num_str, 10)
-        end
-        repeat 
-            num = num + 1
-            worldname = raw_name .. "_" .. tostring(num)
-            path = constants.WORLD_PATH .. worldname
-        until not fs.getInfo(path)
-        return worldname
-    else
-        return worldname
-    end
-end
-
-
-
-
 function files.clear_temp_folder()
     files.local_recursively_delete(constants.TEMP_PATH)
 end
@@ -246,7 +216,6 @@ function files.ensure_game_folders_exist()
     local paths = {
         constants.INTERNAL_PATH,
         constants.TEMP_PATH,
-        constants.WORLD_PATH,
         constants.LOCAL_MOD_PATH
     }
     for _, path in ipairs(paths) do

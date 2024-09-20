@@ -64,10 +64,6 @@ end
 function umg.getClientInfo(clientId)
 end
 
----@return number
-function umg.getWorldTime()
-end
-
 ---@param str string
 function umg.isNamespaced(str)
 end
@@ -102,7 +98,6 @@ end
 ---@alias UMGCallback string
 ---| "@tick"
 ---| "@load" 
----| "@createWorld"
 ---| "@playerJoin" 
 ---| "@playerLeave"
 ---| "@quit"
