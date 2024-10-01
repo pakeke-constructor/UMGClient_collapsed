@@ -1,8 +1,4 @@
 
-
-
-local path = tools.path(...)
-
 local Button = require("src.client.ui.elements.Button")
 local PixelButton = require("lootplot.elements.PixelButton")
 
@@ -16,6 +12,7 @@ local SettingState = require("lootplot.states.SettingState")
 
 local LoadingVisual = require("lootplot.states.LoadingVisual")
 local TransitionState = require("lootplot.states.TransitionState")
+local sfx = require("lootplot.sfx")
 
 local analyticsService = require("src.common.analytics.analytics_service")
 
@@ -47,6 +44,7 @@ local function getModsInSaveDirectory()
 end
 
 
+---@param self MenuState
 local function startHost(self)
     --[[
         starts hosting a server with test mod loaded
@@ -91,6 +89,7 @@ function MenuState:init()
     self.discordButton = Button({
         image = love.graphics.newImage("lootplot/assets/ui/modified_discord_logo.png"),
         onClick = function()
+            sfx.click()
             love.system.openURL(constants.DISCORD_LINK)
         end
     })
@@ -98,12 +97,14 @@ function MenuState:init()
         color = "green",
         text = "Wishlist!",
         onClick = function()
+            sfx.click()
             print("Wishlist link goes here")
         end
     })
     self.settingButton = Button({
         image = love.graphics.newImage("lootplot/assets/ui/settings.png"),
         onClick = function()
+            sfx.click()
             return self:_gotoSettings()
         end
     })
@@ -174,6 +175,7 @@ function MenuState:onEnter()
             image = "src/client/ui/images/big_buttons/blue_big.png",
             onClick = function()
                 self.doNotFree = true
+                sfx.click()
                 startHost(self)
             end
         })

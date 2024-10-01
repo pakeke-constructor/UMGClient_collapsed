@@ -161,9 +161,8 @@ end
 function umg.newDirectoryObject(path)
 end
 
----@param path string
 ---@return umg.FilesystemObject
-function umg.getModFilesystem(path)
+function umg.getModFilesystem()
 end
 
 umg.log = {}
