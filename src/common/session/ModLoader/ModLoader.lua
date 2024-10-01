@@ -191,8 +191,6 @@ function ModLoader:bufferDefineEntityType(etypeName, etypeTable)
 end
 
 
--- Give some rest to CPU
-local MODLOAD_SLEEP_TIME = 0.01
 
 function ModLoader:loadMods(modlist_)
     local startTime = love.timer.getTime()
@@ -207,7 +205,6 @@ function ModLoader:loadMods(modlist_)
 
     for i=1, #modlist do
         loadMod(self, modlist[i])
-        love.timer.sleep(MODLOAD_SLEEP_TIME)
     end
     self.currentlyLoadingModname = false
 
