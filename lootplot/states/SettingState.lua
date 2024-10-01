@@ -1,13 +1,10 @@
-local AutoAtlas = require("libs.AutoAtlas.AutoAtlas")
-
-local analyticsService = require("src.common.analytics.analytics_service")
-
 local Button = require("src.client.ui.elements.Button")
 local PixelButton = require("lootplot.elements.PixelButton")
 local Slider = require("src.client.ui.elements.Slider")
 local Text = require("src.client.ui.elements.Text")
 local Toggle = require("src.client.ui.elements.Toggle")
 local AnalyticsPopupState = require("lootplot.states.AnalyticsPopupState")
+local sfx = require("lootplot.sfx")
 
 local SettingState = StateClass()
 
@@ -47,6 +44,7 @@ function SettingScene:init(args)
         value = self.oldSettings.sfx,
         onValueChanged = function(_, value)
             userService.setSFXVolume(value)
+            sfx.setVolume(value / 100)
             formatSliderLabel(self.sfxSliderLabel, "SFX Volume", userService.getSFXVolume())
         end
     })
@@ -71,6 +69,7 @@ function SettingScene:init(args)
         color = "blue",
         text = "Analytics",
         onClick = function()
+            sfx.click()
             args.state:push(AnalyticsPopupState(false))
         end
     })
@@ -80,6 +79,7 @@ function SettingScene:init(args)
         text = "Apply",
         onClick = function()
             userService.saveSettings()
+            sfx.click()
             return args.onClose()
         end,
     })
@@ -88,6 +88,8 @@ function SettingScene:init(args)
         onClick = function()
             userService.setSFXVolume(self.oldSettings.sfx)
             userService.setBGMVolume(self.oldSettings.bgm)
+            sfx.setVolume(self.oldSettings.sfx / 100)
+            sfx.click()
             if self.oldSettings.analytics ~= nil then
                 userService.setAnalyticsConsent(self.oldSettings.analytics)
             end

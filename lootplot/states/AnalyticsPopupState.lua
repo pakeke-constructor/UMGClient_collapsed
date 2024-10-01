@@ -1,6 +1,9 @@
 local PixelButton = require("lootplot.elements.PixelButton")
 local Text = require("src.client.ui.elements.Text")
 
+local sfx = require("lootplot.sfx")
+
+
 -- TODO: Oli please have better wording on this ok.
 local DESCRIPTION = [[
 Our game uses anlytics to
@@ -13,6 +16,7 @@ with your decision regarding
 this analytics.
 ]]
 
+
 local AnalyticsPopupScene = LUI.Element()
 
 function AnalyticsPopupScene:init(state, save)
@@ -24,6 +28,7 @@ function AnalyticsPopupScene:init(state, save)
         color = "green",
         text = "Allow",
         onClick = function()
+            sfx.click()
             userService.setAnalyticsConsent(true)
             if save then
                 userService.saveSettings()
@@ -35,6 +40,7 @@ function AnalyticsPopupScene:init(state, save)
         color = "red",
         text = "Deny",
         onClick = function()
+            sfx.click()
             userService.setAnalyticsConsent(false)
             if save then
                 userService.saveSettings()
