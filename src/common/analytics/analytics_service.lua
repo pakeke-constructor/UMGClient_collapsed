@@ -109,14 +109,17 @@ function analyticsService.forceFlush()
     end
 end
 
-function analyticsService.quit()
+---@param restarting boolean
+function analyticsService.quit(restarting)
     if analyticsThread then
         analyticsService.forceFlush()
         analyticsChannel:push({name = "quit"})
 
         analyticsStatusChannel:pop()
-        log.info("Waiting for analytics thread to terminate")
-        analyticsThread:wait()
+        if restarting then
+            log.info("Waiting for analytics thread to terminate")
+            analyticsThread:wait()
+        end
         analyticsThread = nil
     end
 end
