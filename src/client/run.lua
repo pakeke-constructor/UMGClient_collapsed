@@ -36,7 +36,7 @@ function love.quit()
     dbgcall(function()
         hoster.close()
     end)
-    analyticsService.quit()
+    analyticsService.quit(false)
 end
 
 
@@ -112,6 +112,7 @@ local function crash_restart()
     -- TODO: We should use `love.event.quit("restart", value)` + `love.restart` variable.
     dbgcall(hoster.dump_crash_reboot_config)
     love.event.quit("restart")
+    analyticsService.quit(true)
 end
 
 
