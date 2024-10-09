@@ -195,7 +195,7 @@ end
 function ModLoader:loadMods(modlist_)
     local startTime = love.timer.getTime()
     assert(not self.done, "wot wot?")
-    local modStruct = mods.ModStruct(modlist_)
+    local modStruct = assert(mods.ModStruct(modlist_))
     if #modlist_ < 1 and constants.DEBUG then
         log.warn("empty modlist passed in!")
     end
