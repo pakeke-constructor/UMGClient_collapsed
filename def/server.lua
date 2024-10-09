@@ -3,7 +3,7 @@
 ---Server-side api
 server = {}
 
----@type table<string, fun():Entity>
+---@type table<string, fun(...):Entity>
 server.entities = {}
 
 ---broadcasts an event to clients
@@ -50,6 +50,11 @@ function server.getTickrate()
 end
 
 function server.shutdown()
+end
+
+---@param packetName string
+---@param callback fun(clientId:string,...:any)
+function server.on(packetName, callback)
 end
 
 return server

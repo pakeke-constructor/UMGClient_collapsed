@@ -13,7 +13,7 @@ client.assets = {
     sounds = {},
 }
 
----@type table<string, fun():Entity>
+---@type table<string, fun(...):Entity>
 client.entities = {}
 
 ---sends a message to server_thread
