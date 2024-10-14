@@ -66,11 +66,13 @@ local function setupPckr(s, options)
         sets up pckr contexts, for EITHER client-side OR server-side.
     ]]
     tools.assertKeys(options, {
-        "cyWorld", "deserializeEntity", 
+        "cyWorld",
+        "deserializeEntityVolatile", "deserializeEntityStable",
         "shouldSerializeEntityById"
     })
     local cyWorld = self.cyWorld; assert(cyWorld)
-    local deserializeEntity = options.deserializeEntity
+    local deserializeEntityStable = options.deserializeEntityStable
+    local deserializeEntityVolatile = options.deserializeEntityVolatile
     local shouldSerializeEntityById = options.shouldSerializeEntityById
 
     local canSerializeEntity
@@ -93,7 +95,7 @@ local function setupPckr(s, options)
     self.pckr_stable = PckrState({
         canSerializeEntity = canSerializeEntity,
         getEntityById = noIdDeserialization, -- never deserialize BY id with stable impl.
-        deserializeEntity = deserializeEntity,
+        deserializeEntity = deserializeEntityStable,
         shouldSerializeEntityById = falsey, -- never serialize WITH id with stable impl.
         shouldSerializeIdOfEntity = false
     })
@@ -101,7 +103,7 @@ local function setupPckr(s, options)
     self.pckr_volatile = PckrState({
         canSerializeEntity = canSerializeEntity,
         getEntityById = getEntityById,
-        deserializeEntity = deserializeEntity,
+        deserializeEntity = deserializeEntityVolatile,
         shouldSerializeEntityById = shouldSerializeEntityById,
         shouldSerializeIdOfEntity = true
     })
@@ -150,11 +152,14 @@ local function setupPckrServer(self)
         cyWorld = self.cyWorld,
         shouldSerializeEntityById = shouldSerializeEntityById,
 
-        deserializeEntity = function()
+        deserializeEntityVolatile = function()
             -- If clientside sends us an entity, DON'T incorporate it!
             -- (If we did, hacked clients could spawn random entities!)
             log.error("Clientside attempted to send us an entity?")
             return nil
+        end,
+        deserializeEntityStable = function(ent)
+            self.cyWorld:incorporateEntity(ent)
         end
     })
 end
@@ -213,7 +218,8 @@ local function setupPckrClient(self)
     setupPckr(self, {
         cyWorld = self.cyWorld,
         shouldSerializeEntityById = truthy, -- always serialize by id clientside
-        deserializeEntity = deserializeEntity,
+        deserializeEntityVolatile = deserializeEntity,
+        deserializeEntityStable = deserializeEntity,
     })
 end
 
