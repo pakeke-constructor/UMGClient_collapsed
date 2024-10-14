@@ -159,7 +159,7 @@ local function setupPckrServer(self)
             return nil
         end,
         deserializeEntityStable = function(ent)
-            self.cyWorld:incorporateEntity(ent)
+            return self.cyWorld:incorporateEntity(ent)
         end
     })
 end
