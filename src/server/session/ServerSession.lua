@@ -39,7 +39,11 @@ function ServerSession:init(args)
     self.closed = false
 
     if launchOptions.save_name then
-        self.save = saveService.loadSave(launchOptions.save_name)
+        if saveService.hasSave(launchOptions.save_name) then
+            self.save = saveService.loadSave(launchOptions.save_name)
+        else
+            self.save = saveService.newSave(launchOptions.save_name)
+        end
     else
         self.save = saveService.newTempSave()
     end

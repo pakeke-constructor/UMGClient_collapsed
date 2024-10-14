@@ -26,6 +26,7 @@ local MenuState = StateClass()
 
 
 local PHYSICS_WORLD_WIDTH, PHYSICS_WORLD_HEIGHT = 360, 180
+local PERSISTENT_SAVE_NAME = "save1"
 
 
 local function getModsInSaveDirectory()
@@ -55,6 +56,7 @@ local function startHost(self)
     local launchOptions = LaunchOptions({
         modlist = modlist,
         onlineMode = "offline",
+        save_name = PERSISTENT_SAVE_NAME
     })
     local hosterSetupState = HosterSetup(launchOptions, LoadingVisual(self.physicsWorld:getAtlasAndItemQuads()))
 
