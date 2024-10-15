@@ -80,7 +80,6 @@ function EntityManager:deleteInstantly(ent)
         local g = all_groups[i]
         g:_remove(ent)
     end
-    self.idManager:recycleId(ent)
     ent.___deleted = true
 end
 
