@@ -22,6 +22,7 @@ function EntityManager:init(deps)
     self.addComponentCallback = false
     self.removeComponentCallback = false
     self.createEntityCallback = false
+    self.deleteEntityCallback = false
 
     self.validEntityMetatables = {--[[
         [metatable] -> true
@@ -80,6 +81,9 @@ function EntityManager:deleteInstantly(ent)
         local g = all_groups[i]
         g:_remove(ent)
     end
+    if self.deleteEntityCallback then
+        self.deleteEntityCallback(ent)
+    end
     self.idManager:recycleId(ent)
     ent.___deleted = true
 end
@@ -90,6 +94,9 @@ function EntityManager:deleteBuffered(ent)
         Buffers an entity for deletion.
     ]]
     self.existanceBuffer:removeBuffered(ent)
+    if self.deleteEntityCallback then
+        self.deleteEntityCallback(ent)
+    end
 end
 
 
@@ -376,6 +383,7 @@ function EntityManager:setCallbacks(tabl)
     self.addComponentCallback = tabl.addComponentCallback or self.addComponentCallback
     self.removeComponentCallback = tabl.removeComponentCallback or self.removeComponentCallback
     self.createEntityCallback = tabl.createEntityCallback or self.createEntityCallback
+    self.deleteEntityCallback = tabl.deleteEntityCallback or self.deleteEntityCallback
 end
 
 

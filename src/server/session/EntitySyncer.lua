@@ -28,8 +28,10 @@ end
 
 
 local function deleteEntity(self, ent)
-    self.packer:removeKnownEntity(ent)
-    self.serverConnection:broadcast(false, "@ent_delete", ent)
+    if self.packer:isEntityKnown(ent) then
+        self.serverConnection:broadcast(false, "@ent_delete", ent)
+        self.packer:removeKnownEntity(ent)
+    end
 end
 
 
@@ -107,7 +109,11 @@ function setupCallbacks(self)
 
     self.cyWorld:setCallbacks({
         addComponentCallback = addComponent,
-        removeComponentCallback = removeComponent
+        removeComponentCallback = removeComponent,
+
+        deleteEntityCallback = function(ent)
+            deleteEntity(self, ent)
+        end
     })
 end
 
