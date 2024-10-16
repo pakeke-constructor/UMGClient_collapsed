@@ -110,6 +110,7 @@ local function addEntityFunctions(umg, lobj)
 end
 
 
+---@param lobj LObj
 local function addSerializers(umg, lobj)
     local modLoader = lobj.modLoader
     local umgSession = modLoader.umgSession
@@ -135,16 +136,16 @@ local function addSerializers(umg, lobj)
         return packer:serializeStable(...)
     end
 
-    function umg.deserialize(data)
-        return packer:deserializeStable(data)
+    function umg.deserialize(data, options)
+        return packer:deserializeStable(data, options)
     end
 
     function umg.serializeVolatile(...)
         return packer:serializeVolatile(...)
     end
 
-    function umg.deserializeVolatile(data)
-        return packer:deserializeVolatile(data)
+    function umg.deserializeVolatile(data, options)
+        return packer:deserializeVolatile(data, options)
     end
 end
 
