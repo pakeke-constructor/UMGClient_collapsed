@@ -3,7 +3,7 @@
 ---Server-side api
 server = {}
 
----@type table<string, fun(...):Entity>
+---@type table<string, EntityType>
 server.entities = {}
 
 ---broadcasts an event to clients
