@@ -132,12 +132,46 @@ local function addSerializers(umg, lobj)
         packer:register(resource, alias)
     end
 
+    local function rebuildOptions(opts)
+        if opts then
+            local newOpts = {
+                onEntityNotFound = opts.onEntityNotFound
+            }
+
+            -- FIXME: We ideally want to flip this around in the future such that
+            -- resources registered using `umg.register` won't have "@" prefix
+            -- while entity types are registered with "@" prefix.
+            -- However, currently it's the other way around because resources
+            -- registered using `umg.register` has "@" prefix while entity types
+            -- doesn't.
+            -- Mod doesn't aware of any "@" prefix so intercept if resource didn't
+            -- start with "@" and pssthrough otherwise. Again, we want this to be
+            -- the other way around in the future.
+            if opts.onResourceNotFound then
+                function newOpts.onResourceNotFound(name)
+                    if name:sub(1, #constants.PCKR_API_REGISTER_PREFIX) == constants.PCKR_API_REGISTER_PREFIX then
+                        return opts.onResourceNotFound(name:sub(#constants.PCKR_API_REGISTER_PREFIX + 1))
+                    end
+
+                    return nil
+                end
+            end
+
+            return newOpts
+        end
+
+        return nil
+    end
+
+    local deserializeTc = tc.assert(tc.string, "table?")
+
     function umg.serialize(...)
         return packer:serializeStable(...)
     end
 
     function umg.deserialize(data, options)
-        return packer:deserializeStable(data, options)
+        deserializeTc(data, options)
+        return packer:deserializeStable(data, rebuildOptions(options))
     end
 
     function umg.serializeVolatile(...)
@@ -145,7 +179,8 @@ local function addSerializers(umg, lobj)
     end
 
     function umg.deserializeVolatile(data, options)
-        return packer:deserializeVolatile(data, options)
+        deserializeTc(data, options)
+        return packer:deserializeVolatile(data, rebuildOptions(options))
     end
 end
 
