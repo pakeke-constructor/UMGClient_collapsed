@@ -73,7 +73,7 @@ local function addEntityFunctions(umg, lobj)
     local cyWorld = modLoader.umgSession.cyWorld
 
     function umg.exists(ent)
-        return cyWorld:exists(ent)
+        return cyWorld:isEntity(ent) and (not ent:isDeleted())
     end
 
     function umg.isEntity(x)

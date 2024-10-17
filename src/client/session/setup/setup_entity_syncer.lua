@@ -15,6 +15,7 @@ Receives events related to entity-syncing
 local function setupSpawnAndDelete(ingameSession)
     local clientConnection = ingameSession.clientConnection
     local packer = ingameSession.umgSession.packer
+    local cyWorld = ingameSession.umgSession.cyWorld
 
     clientConnection:on("@spawn_entities", function(entityPckrData)
         local t, err = packer:deserializeVolatile(entityPckrData)
@@ -23,6 +24,11 @@ local function setupSpawnAndDelete(ingameSession)
                 log.error("@spawn_entities: Couldn't deserialize: ", err)
             else
                 for _, ent in ipairs(t)do
+                    --[[
+                    the reason we can incorporate without buffering,
+                    is because packets are received between ticks anyway
+                    ]]
+                    cyWorld:incorporateEntityInstantly(ent)
                     log.debug("entity-spawn: ", tostring(ent))
                 end
             end

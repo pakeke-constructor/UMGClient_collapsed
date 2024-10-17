@@ -194,7 +194,8 @@ local function setupPckrClient(self)
         if not ent.id then
             error("Entity didn't have an id: " .. tostring(ent))
         end
-        if cyWorld:getEntity(ent.id) then
+        -- if cyWorld:getEntity(ent.id) then
+        if self.serializedEntities[ent.id] then
             -- Ahh!! We have already deserialized this entity!
             -- This can occur when a previous serialization cycle has serialized this entity.
             -- What we need to do is update the existing entity with the data in the new entity,
@@ -202,16 +203,12 @@ local function setupPckrClient(self)
             -- (A common situation where this occurs is when nested entities are serialized)
 
             -- log.trace("Deserializing duplicate entity: ", ent.id)
-            local oldEnt = cyWorld:getEntity(ent.id)
+            local oldEnt = self.serializedEntities[ent.id]
+            -- assert(ent:getEntityType() == oldEnt:getEntityType(), "Ent types didnt match")
             copyComponents(ent, oldEnt)
             return oldEnt
-        else
-            -- Else, this is the first time we have seen this entity.
-            -- Put the deserialized entity into the cyWorld.
-            -- (We incorporate it instantly, because packets are guaranteed 
-            -- to be received during flushes. Yes, this is a bit hacky.)
-            cyWorld:incorporateEntityInstantly(ent)
         end
+        self.serializedEntities[ent.id] = ent
         return ent
     end
 
@@ -235,6 +232,9 @@ function Packer:init(deps)
     self.cyWorld = deps.cyWorld
     
     if CLIENT_SIDE then
+        self.serializedEntities = setmetatable({--[[
+            [ecs-ent-id] -> ent
+        ]]}, {__mode="v"})
         setupPckrClient(self)
     else -- server:
         self.knownEntities = {--[[
