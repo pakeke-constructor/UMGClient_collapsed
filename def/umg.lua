@@ -39,9 +39,12 @@ end
 function umg.serialize(...)
 end
 
+---@alias EntityType table<string,any>|fun(...):Entity
+
 ---@param data string
+---@param options? {entityTypeFallbackHandler?:fun(name:string):(EntityType?),resourceFallbackHandler?:fun(name:string):any}
 ---@return any
-function umg.deserialize(data)
+function umg.deserialize(data, options)
 end
 
 ---@param ... any
@@ -50,8 +53,9 @@ function umg.serializeVolatile(...)
 end
 
 ---@param data string
+---@param options? {entityTypeFallbackHandler?:fun(name:string):(EntityType?),resourceFallbackHandler?:fun(name:string):any}
 ---@return any
-function umg.deserializeVolatile(data)
+function umg.deserializeVolatile(data, options)
 end
 
 ---@param packetName string

@@ -633,6 +633,7 @@ end
 
 
 
+---@param reader PckrReader
 local function pull(reader)
     local i = reader.index
     local ccode = byte(reader.data, i)
@@ -864,6 +865,7 @@ deserializers[TABLE] = function(re, tabl_or_nil)
 end
 
 
+---@param re PckrReader
 deserializers[ENT] = function(re)
     local etypename, err = pull(re)
     if err then
@@ -871,6 +873,10 @@ deserializers[ENT] = function(re)
     end
     local self = re.self
     local etype = self.typename_to_etype[etypename]
+    if not etype and re.options.entityTypeFallbackHandler then
+        etype = re.options.entityTypeFallbackHandler(etypename)
+    end
+
     if not etype then
         return nil, "deserializers[ENT]: etype was not registered: `" .. tostring(etypename) .. "`\nAre you sure all the entity types are loaded?"
     end
@@ -994,7 +1000,11 @@ deserializers[RESOURCE] = function(re)
     if er then
         return nil, "deserializers[RESOURCE] - " .. er
     end
+
     local val = re.self.alias_to_resource[alias]
+    if not val and re.options.resourceFallbackHandler then
+        val = re.options.resourceFallbackHandler(alias)
+    end
     if not val then
         return nil, "deserializers[RESOURCE] - unknown resource alias: " .. tostring(alias)
     end
@@ -1014,14 +1024,21 @@ local function newBuffer(self)
 end
 
 
-local function newReader(self, data)
-    return {
+---@param self PckrState
+---@param data string
+---@param options table?
+local function newReader(self, data, options)
+    ---@class PckrReader
+    local t = {
         self = self,
         refs = {[COUNT] = 0}; -- [ref_num] --> object
-        
+
         data = data;
-        index = 1
+        index = 1,
+
+        options = options or {}
     }
+    return t
 end
 
 
@@ -1060,8 +1077,8 @@ end
 
 
 
-function PckrState:deserialize(data)
-    local reader = newReader(self, data)
+function PckrState:deserialize(data, options)
+    local reader = newReader(self, data, options)
     local results = {}
 
     local i=MAX_LOOP

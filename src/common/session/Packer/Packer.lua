@@ -312,13 +312,13 @@ end
 
 
 
-function Packer:deserializeStable(data)
-    return self.pckr_stable:deserialize(data)
+function Packer:deserializeStable(data, options)
+    return self.pckr_stable:deserialize(data, options)
 end
 
 
-function Packer:deserializeVolatile(data)
-    return self.pckr_volatile:deserialize(data)
+function Packer:deserializeVolatile(data, options)
+    return self.pckr_volatile:deserialize(data, options)
 end
 
 

@@ -53,6 +53,7 @@ function ModLoader:init(args)
         self.serverSession = sesh
         self.connection = sesh.serverConnection
     end
+    ---@type UMGSession
     self.umgSession = sesh.umgSession
 
     if CLIENT_SIDE then
