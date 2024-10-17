@@ -135,7 +135,7 @@ local function addSerializers(umg, lobj)
     local function rebuildOptions(opts)
         if opts then
             local newOpts = {
-                onEntityNotFound = opts.onEntityNotFound
+                entityTypeFallbackHandler = opts.entityTypeFallbackHandler
             }
 
             -- FIXME: We ideally want to flip this around in the future such that
@@ -147,10 +147,10 @@ local function addSerializers(umg, lobj)
             -- Mod doesn't aware of any "@" prefix so intercept if resource didn't
             -- start with "@" and pssthrough otherwise. Again, we want this to be
             -- the other way around in the future.
-            if opts.onResourceNotFound then
-                function newOpts.onResourceNotFound(name)
+            if opts.resourceFallbackHandler then
+                function newOpts.resourceFallbackHandler(name)
                     if name:sub(1, #constants.PCKR_API_REGISTER_PREFIX) == constants.PCKR_API_REGISTER_PREFIX then
-                        return opts.onResourceNotFound(name:sub(#constants.PCKR_API_REGISTER_PREFIX + 1))
+                        return opts.resourceFallbackHandler(name:sub(#constants.PCKR_API_REGISTER_PREFIX + 1))
                     end
 
                     return nil

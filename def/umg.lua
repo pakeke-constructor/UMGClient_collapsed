@@ -42,7 +42,7 @@ end
 ---@alias EntityType table<string,any>|fun(...):Entity
 
 ---@param data string
----@param options? {onEntityNotFound?:fun(name:string):(EntityType?),onResourceNotFound?:fun(name:string):any}
+---@param options? {entityTypeFallbackHandler?:fun(name:string):(EntityType?),resourceFallbackHandler?:fun(name:string):any}
 ---@return any
 function umg.deserialize(data, options)
 end
@@ -53,7 +53,7 @@ function umg.serializeVolatile(...)
 end
 
 ---@param data string
----@param options? {onEntityNotFound?:fun(name:string):(EntityType?),onResourceNotFound?:fun(name:string):any}
+---@param options? {entityTypeFallbackHandler?:fun(name:string):(EntityType?),resourceFallbackHandler?:fun(name:string):any}
 ---@return any
 function umg.deserializeVolatile(data, options)
 end

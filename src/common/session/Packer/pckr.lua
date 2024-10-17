@@ -873,8 +873,8 @@ deserializers[ENT] = function(re)
     end
     local self = re.self
     local etype = self.typename_to_etype[etypename]
-    if not etype and re.options.onEntityNotFound then
-        etype = re.options.onEntityNotFound(etypename)
+    if not etype and re.options.entityTypeFallbackHandler then
+        etype = re.options.entityTypeFallbackHandler(etypename)
     end
 
     if not etype then
@@ -1002,8 +1002,8 @@ deserializers[RESOURCE] = function(re)
     end
 
     local val = re.self.alias_to_resource[alias]
-    if not val and re.options.onResourceNotFound then
-        val = re.options.onResourceNotFound(alias)
+    if not val and re.options.resourceFallbackHandler then
+        val = re.options.resourceFallbackHandler(alias)
     end
     if not val then
         return nil, "deserializers[RESOURCE] - unknown resource alias: " .. tostring(alias)
