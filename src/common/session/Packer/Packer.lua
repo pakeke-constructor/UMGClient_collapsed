@@ -124,6 +124,10 @@ if SERVER_SIDE then
     Useful for checking whether we serialized by id or not.
 ]]
 
+function Packer:setSerializeEntityForNetworkCallback(cb)
+    self.serializeEntityForNetworkCB = cb
+end
+
 function Packer:isEntityKnown(ent)
     -- Should we serialize by id or not?
     return not not self.knownEntities[ent]
@@ -143,6 +147,9 @@ function Packer:getEntityKnownState(ent)
     return self.knownEntities[ent]
 end
 
+Packer.ENTITY_SENT_TO_NETWORK = "sent"
+Packer.ENTITY_INCORPORATED = "incorporated"
+
 end
 
 
@@ -151,12 +158,22 @@ end
 ---@param self Packer
 local function setupPckrServer(self)
     local function shouldSerializeEntityById(ent)
-        return self.knownEntities[ent]
+        return self.knownEntities[ent] == Packer.ENTITY_INCORPORATED
     end
 
     setupPckr(self, {
         cyWorld = self.cyWorld,
         shouldSerializeEntityById = shouldSerializeEntityById,
+
+        serializeEntityVolatile = function(ent)
+            if not self:getEntityKnownState(ent) then
+                self:makeEntityKnown(ent, Packer.ENTITY_SENT_TO_NETWORK)
+
+                if self.serializeEntityForNetworkCB then
+                    self.serializeEntityForNetworkCB(ent)
+                end
+            end
+        end,
 
         deserializeEntityVolatile = function()
             -- If clientside sends us an entity, DON'T incorporate it!
