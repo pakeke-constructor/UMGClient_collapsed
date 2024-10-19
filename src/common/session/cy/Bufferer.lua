@@ -21,8 +21,10 @@ end
 function Bufferer:removeBuffered(ent)
     if self.addBuffer:has(ent) then
         self.addBuffer:remove(ent)
+        return false
     else
         self.remBuffer:add(ent)
+        return true
     end
 end
 
