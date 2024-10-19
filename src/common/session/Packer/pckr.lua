@@ -137,7 +137,6 @@ function PckrState:init(options)
     self.getEntityById = options.getEntityById
     self.deserializeEntity = options.deserializeEntity
     self.shouldSerializeEntityById = options.shouldSerializeEntityById
-    self.serializeEntity = options.serializeEntity
 
     -- options:
     assert(options.shouldSerializeIdOfEntity ~= nil)
@@ -489,10 +488,6 @@ local function serialize_entity(buffer, ent, meta)
         end
         ent.id = old_id
         push_str(buffer, TABLE_END)
-    end
-
-    if self.serializeEntity then
-        self.serializeEntity(ent)
     end
 end
 

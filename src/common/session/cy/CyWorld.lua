@@ -130,6 +130,7 @@ function CyWorld:setCallbacks(tabl)
     --[[
         Sets callbacks for cy context
     ]]
+    if tabl.deleteEntityCallback then error("nyi") end
 
     self.entityManager:setCallbacks(tabl)
 end
