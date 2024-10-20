@@ -1,5 +1,5 @@
 
-
+local Packer = require("src.common.session.Packer.Packer")
 
 local EntitySyncer = tools.SafeClass()
 
@@ -28,8 +28,14 @@ end
 
 
 local function deleteEntity(self, ent)
-    self.packer:removeKnownEntity(ent)
-    self.serverConnection:broadcast(false, "@ent_delete", ent)
+    if self.packer:isEntityKnown(ent) then
+        self.serverConnection:broadcast(false, "@ent_delete", ent)
+        -- Note: Make sure to removeKnownEntity AFTER call above.
+        -- Otherwise, the setSerializeEntityForNetworkCallback callback
+        -- below will try to re-mark the deleted entity as ENTITY_SENT_TO_NETWORK
+        -- resulting in feedback loop.
+        self.packer:removeKnownEntity(ent)
+    end
 end
 
 
@@ -45,9 +51,16 @@ function setupAllGroup(self)
             This ^^^ is why we need buffering.
     ]]
     local allGroup = self.cyWorld:group()
+    local packer = self.packer
 
     allGroup:onAdded(function(ent)
-        table.insert(createEntityBuffer, ent)
+        if packer:getEntityKnownState(ent) == Packer.ENTITY_SENT_TO_NETWORK then
+            -- Already sent, no need to send it again.
+            packer:makeEntityKnown(ent, Packer.ENTITY_INCORPORATED)
+        else
+            -- Send to create buffer
+            table.insert(createEntityBuffer, ent)
+        end
     end)
 
     allGroup:onRemoved(function(ent)
@@ -58,23 +71,25 @@ end
 
 
 
-function EntitySyncer:sendSpawnEntities()
+local function sendEntities(self, ents, markState)
     local packer = self.packer
+    local entData = packer:serializeVolatile(ents)
+    self.serverConnection:broadcast(false, "@spawn_entities", entData)
+    for _, ent in ipairs(ents) do
+        log.debug("entity-spawn: ", tostring(ent))
+        self.packer:makeEntityKnown(ent, markState)
+    end
+end
+
+function EntitySyncer:sendSpawnEntities()
     if #self.createEntityBuffer <= 0 then
         -- nothing in the creation-buffer!
         return
     end
 
-    local entData = packer:serializeVolatile(self.createEntityBuffer)
-    self.serverConnection:broadcast(false, "@spawn_entities", entData)
-    for _, ent in ipairs(self.createEntityBuffer) do
-        log.debug("entity-spawn: ", tostring(ent))
-        packer:makeEntityKnown(ent)
-    end
-    
+    sendEntities(self, self.createEntityBuffer, Packer.ENTITY_INCORPORATED)
     table.clear(self.createEntityBuffer)
 end
-
 
 
 
@@ -105,10 +120,20 @@ function setupCallbacks(self)
         serverConnection:broadcast(false, "@ent_remove_component", ent, compName)
     end
 
+    local function entityDeleted(ent)
+        return deleteEntity(self, ent)
+    end
+
     self.cyWorld:setCallbacks({
         addComponentCallback = addComponent,
-        removeComponentCallback = removeComponent
+        removeComponentCallback = removeComponent,
+        deleteEntityCallback = entityDeleted -- Note: May be called twice if the entity is incorporated.
     })
+    self.packer:setSerializeEntityForNetworkCallback(function(ent)
+        -- Force send @spawn_entities with 1 member: the entity
+        -- Why force send? Because a mod tries to send it through a packet.
+        sendEntities(self, {ent}, Packer.ENTITY_SENT_TO_NETWORK)
+    end)
 end
 
 
