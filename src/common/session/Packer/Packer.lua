@@ -94,14 +94,16 @@ local function setupPckr(s, options)
 
     self.pckr_stable = PckrState({
         canSerializeEntity = canSerializeEntity,
+        serializeEntity = options.serializeEntityStable, -- can be nil
         getEntityById = noIdDeserialization, -- never deserialize BY id with stable impl.
         deserializeEntity = deserializeEntityStable,
         shouldSerializeEntityById = falsey, -- never serialize WITH id with stable impl.
-        shouldSerializeIdOfEntity = false
+        shouldSerializeIdOfEntity = false,
     })
 
     self.pckr_volatile = PckrState({
         canSerializeEntity = canSerializeEntity,
+        serializeEntity = options.serializeEntityVolatile, -- can be nil
         getEntityById = getEntityById,
         deserializeEntity = deserializeEntityVolatile,
         shouldSerializeEntityById = shouldSerializeEntityById,
@@ -122,9 +124,13 @@ if SERVER_SIDE then
     Useful for checking whether we serialized by id or not.
 ]]
 
+function Packer:setSerializeEntityForNetworkCallback(cb)
+    self.serializeEntityForNetworkCB = cb
+end
+
 function Packer:isEntityKnown(ent)
     -- Should we serialize by id or not?
-    return self.knownEntities[ent]
+    return not not self.knownEntities[ent]
 end
 
 function Packer:removeKnownEntity(ent)
@@ -132,10 +138,17 @@ function Packer:removeKnownEntity(ent)
     self.knownEntities[ent] = nil
 end
 
-function Packer:makeEntityKnown(ent)
+function Packer:makeEntityKnown(ent, state)
     -- We will now serialize this entity by id.
-    self.knownEntities[ent] = true
+    self.knownEntities[ent] = state
 end
+
+function Packer:getEntityKnownState(ent)
+    return self.knownEntities[ent]
+end
+
+Packer.ENTITY_SENT_TO_NETWORK = "sent"
+Packer.ENTITY_INCORPORATED = "incorporated"
 
 end
 
@@ -145,12 +158,22 @@ end
 ---@param self Packer
 local function setupPckrServer(self)
     local function shouldSerializeEntityById(ent)
-        return self.knownEntities[ent]
+        return self.knownEntities[ent] == Packer.ENTITY_INCORPORATED
     end
 
     setupPckr(self, {
         cyWorld = self.cyWorld,
         shouldSerializeEntityById = shouldSerializeEntityById,
+
+        serializeEntityVolatile = function(ent)
+            if not self:getEntityKnownState(ent) then
+                self:makeEntityKnown(ent, Packer.ENTITY_SENT_TO_NETWORK)
+
+                if self.serializeEntityForNetworkCB then
+                    self.serializeEntityForNetworkCB(ent)
+                end
+            end
+        end,
 
         deserializeEntityVolatile = function()
             -- If clientside sends us an entity, DON'T incorporate it!
