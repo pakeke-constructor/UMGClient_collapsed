@@ -48,9 +48,12 @@ local function setupAddRemoveComponent(ingameSession)
 
     clientConnection:on("@ent_add_component", function(ent, comp_name, comp_data)
         local comp_value, err = packer:deserializeVolatile(comp_data)
-        if comp_value then
-            log.trace("add-comp", ent, comp_name)
-            ent:addComponentInstantly(comp_name, comp_value)
+        if comp_value ~= nil then
+            -- Make sure we're not overwriting mutable component.
+            if type(ent:getComponent(comp_name)) ~= "table" then
+                log.trace("add-comp", ent, comp_name)
+                ent:addComponentInstantly(comp_name, comp_value)
+            end
         elseif err then
             log.error("addComponent: bad data: comp, err", comp_name, err)
         end
