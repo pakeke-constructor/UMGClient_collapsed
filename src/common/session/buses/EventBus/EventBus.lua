@@ -1,4 +1,4 @@
-local TimingRingBuffer = require("src.common.timing_ring_buffer")
+local TimingRingBuffer = require("src.common.session.buses.timing_ring_buffer")
 
 ---@class EventBus
 local EventBus = tools.SafeClass()
