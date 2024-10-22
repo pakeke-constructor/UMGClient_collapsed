@@ -112,23 +112,13 @@ end
 
 
 local EMPTY = {}
----@param name string
----@param ... any
-function EventBus:_callDirect(name, ...)
-    local arr = self.events[name] or EMPTY
-    for i=1, #arr do
-        arr[i](...)
-    end
-end
+
+if constants.PROFILE_EVENT_BUS then
 
 local getTime = love.timer.getTime
 ---@param name string
 ---@param ... any
 function EventBus:call(name, ...)
-    if not constants.PROFILE_EVENT_BUS then
-        return self:_callDirect(name, ...)
-    end
-
     local arr = self.events[name] or EMPTY
     if #arr > 0 then
         local rb = self.event_time_measurements[name]
@@ -149,6 +139,19 @@ function EventBus:call(name, ...)
         rb:add(getTime() - t)
     end
 end
+
+else -- if constants.PROFILE_EVENT_BUS
+
+---@param name string
+---@param ... any
+function EventBus:call(name, ...)
+    local arr = self.events[name] or EMPTY
+    for i=1, #arr do
+        arr[i](...)
+    end
+end
+
+end -- if constants.PROFILE_EVENT_BUS
 
 
 
