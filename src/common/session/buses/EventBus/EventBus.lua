@@ -136,10 +136,10 @@ end
 if constants.PROFILE_EVENT_BUS then
 
 function EventBus:getProfilerReport()
-    ---@type table<string, number>
+    ---@type table<string, {sampleCount:integer,average:number}>
     local result = {}
     for k, v in pairs(self.event_time_measurements) do
-        result[k] = v:average()
+        result[k] = {sampleCount = v:sampleCount(), average = v:average()}
     end
     return result
 end

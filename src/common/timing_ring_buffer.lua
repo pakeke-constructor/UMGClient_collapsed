@@ -37,4 +37,8 @@ function TimingRingBuffer:average()
     return result
 end
 
+function TimingRingBuffer:sampleCount()
+    return #self.buffer
+end
+
 return TimingRingBuffer
