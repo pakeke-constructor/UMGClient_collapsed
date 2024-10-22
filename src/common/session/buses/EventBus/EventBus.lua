@@ -1,3 +1,4 @@
+local TimingRingBuffer = require("src.common.timing_ring_buffer")
 
 ---@class EventBus
 local EventBus = tools.SafeClass()
@@ -16,6 +17,11 @@ function EventBus:init()
         -- [event_name] = { response_obj list }
     }, hash_mt)
     self.events = {}
+
+    if constants.PROFILE_EVENT_BUS then
+        ---@type table<string, TimingRingBuffer>
+        self.event_time_measurements = {}
+    end
 end
 
 if false then
@@ -84,10 +90,36 @@ end
 local EMPTY = {}
 ---@param name string
 ---@param ... any
-function EventBus:call(name, ...)
+function EventBus:_callDirect(name, ...)
     local arr = self.events[name] or EMPTY
     for i=1, #arr do
         arr[i](...)
+    end
+end
+
+local getTime = love.timer.getTime
+---@param name string
+---@param ... any
+function EventBus:call(name, ...)
+    if not constants.PROFILE_EVENT_BUS then
+        return self:_callDirect(name, ...)
+    end
+
+    local arr = self.events[name] or EMPTY
+    if #arr > 0 then
+        local rb = self.event_time_measurements[name]
+        if not rb then
+            rb = TimingRingBuffer()
+            self.event_time_measurements[name] = rb
+        end
+
+        local t = getTime() * 1000
+
+        for i = 1, #arr do
+            arr[i](...)
+        end
+
+        rb:add(getTime() * 1000 - t)
     end
 end
 
@@ -98,6 +130,20 @@ function EventBus:clear()
     self.event_to_responselist = setmetatable({
         -- [event_name] = { function list }
     }, hash_mt);
+end
+
+
+if constants.PROFILE_EVENT_BUS then
+
+function EventBus:getProfilerReport()
+    ---@type table<string, number>
+    local result = {}
+    for k, v in pairs(self.event_time_measurements) do
+        result[k] = v:average()
+    end
+    return result
+end
+
 end
 
 
