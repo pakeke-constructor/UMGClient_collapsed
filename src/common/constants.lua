@@ -96,6 +96,8 @@ return setmetatable({
         -- no questions are emitted by the engine (yet)
     },
 
+    PROFILE_EVENT_BUS = false, -- true = emits event bus profiling data in milliseconds.
+
     UMG_NAMESPACE_SEPARATOR = ":",
 
     PCKR_API_REGISTER_PREFIX = "@", -- prepend this to any register alias used while modding.
@@ -157,7 +159,7 @@ return setmetatable({
     INTERNAL_PATH = "internal_DONT_TOUCH/", -- the directory path for interally used files
     TEMP_PATH = "temporary/", -- temporary files
 
-    BASE_ANALYTICS_SERVER_PATH = "" -- without trailing slash. empty string = disabled
+    BASE_ANALYTICS_SERVER_PATH = "", -- without trailing slash. empty string = disabled
 },
 
 

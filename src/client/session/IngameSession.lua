@@ -98,6 +98,10 @@ end
 function IngameSession:disconnectFromServer(reason)
     self.disconnectReason = reason
     self.quitFlag = true
+
+    if constants.PROFILE_EVENT_BUS then
+        self.umgSession:generateProfilerReport("client")
+    end
 end
 
 

@@ -1,3 +1,4 @@
+local TimingRingBuffer = require("src.common.session.buses.timing_ring_buffer")
 
 ---@class EventBus
 local EventBus = tools.SafeClass()
@@ -16,6 +17,13 @@ function EventBus:init()
         -- [event_name] = { response_obj list }
     }, hash_mt)
     self.events = {}
+
+    if constants.PROFILE_EVENT_BUS then
+        ---@type table<string, TimingRingBuffer>
+        self.event_time_measurements = {}
+        ---@type table<function, {source:string,ringbuffer:TimingRingBuffer}>
+        self.func_time_measurements = {}
+    end
 end
 
 if false then
@@ -78,10 +86,62 @@ function EventBus:on(name, order_or_func, func_or_nil)
         (Not top priority tho, since this only affects load times.)
     ]]
     update_event_function_list(self, name, arr)
+
+    if constants.PROFILE_EVENT_BUS then
+        -- Create event ring buffer
+        if not self.event_time_measurements[name] then
+            self.event_time_measurements[name] = TimingRingBuffer()
+        end
+
+        -- Create function ring buffer
+        if not self.func_time_measurements[func] then
+            local info = debug.getinfo(func, "nS")
+            local source
+
+            if info.source and info.linedefined then
+                source = info.source..":"..info.linedefined
+            else
+                -- Yeah fallback
+                source = tostring(func)
+            end
+
+            self.func_time_measurements[func] = {source = source, ringbuffer = TimingRingBuffer()}
+        end
+    end
 end
 
 
 local EMPTY = {}
+
+if constants.PROFILE_EVENT_BUS then
+
+local getTime = love.timer.getTime
+---@param name string
+---@param ... any
+function EventBus:call(name, ...)
+    local arr = self.events[name] or EMPTY
+    if #arr > 0 then
+        local rb = self.event_time_measurements[name]
+        if not rb then
+            rb = TimingRingBuffer()
+            self.event_time_measurements[name] = rb
+        end
+
+        local t = getTime()
+
+        for i = 1, #arr do
+            local f = arr[i]
+            local t2 = getTime()
+            f(...)
+            self.func_time_measurements[f].ringbuffer:add(getTime() - t2)
+        end
+
+        rb:add(getTime() - t)
+    end
+end
+
+else -- if constants.PROFILE_EVENT_BUS
+
 ---@param name string
 ---@param ... any
 function EventBus:call(name, ...)
@@ -91,6 +151,8 @@ function EventBus:call(name, ...)
     end
 end
 
+end -- if constants.PROFILE_EVENT_BUS
+
 
 
 function EventBus:clear()
@@ -98,6 +160,43 @@ function EventBus:clear()
     self.event_to_responselist = setmetatable({
         -- [event_name] = { function list }
     }, hash_mt);
+end
+
+
+if constants.PROFILE_EVENT_BUS then
+
+---@class EventBusProfileReport
+---@field public sampleCount integer
+---@field public average number
+
+---@class EventBusProfileReportParent: EventBusProfileReport
+---@field public child table<string, EventBusProfileReport>
+
+function EventBus:getProfilerReport()
+    ---@type table<string, EventBusProfileReportParent>
+    local result = {}
+    for k, v in pairs(self.event_time_measurements) do
+        local arr = self.events[k]
+        ---@type table<string, EventBusProfileReport>
+        local childreport = {}
+
+        for _, f in ipairs(arr) do
+            local info = self.func_time_measurements[f]
+            childreport[info.source] = {
+                sampleCount = info.ringbuffer:sampleCount(),
+                average = info.ringbuffer:average()
+            }
+        end
+
+        result[k] = {
+            sampleCount = v:sampleCount(),
+            average = v:average(),
+            child = childreport
+        }
+    end
+    return result
+end
+
 end
 
 
