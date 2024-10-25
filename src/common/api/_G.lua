@@ -21,6 +21,12 @@ return function(lobj)
     G.math = require(path .. ".math.math")(lobj)
     G.table = require(path .. ".table.table")(lobj)
     G.debug = require(path .. ".debug")(lobj)
+    G.string = require(path .. ".string")(lobj)
+    G.os = require(path .. ".os")(lobj)
+
+    -- TODO!!! I'm pretty sure this isn't safe, since the coroutine
+    -- can access globals from UMGClient.
+    G.coroutine = require(path .. ".coroutine")(lobj)
 
     G.love = {
         physics = require(path .. ".physics.physics")(lobj),
@@ -66,13 +72,6 @@ return function(lobj)
         decode = json.decode,
         encode = json.encode
     }
-
-    -- TODO: Ensure these other ones are fully safe
-    G.string = string
-
-    -- TODO!!! I'm pretty sure this isn't safe, since the coroutine
-    -- can access globals from UMGClient.
-    G.coroutine = coroutine
 
     G.bit = require("bit")
 
