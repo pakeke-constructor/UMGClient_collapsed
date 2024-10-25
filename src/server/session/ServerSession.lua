@@ -115,6 +115,10 @@ function ServerSession:close()
     self.serverConnection:flushPackets()
     self.save:close()
     self.closed = true
+
+    if constants.PROFILE_EVENT_BUS then
+        self.umgSession:generateProfilerReport("server")
+    end
 end
 
 function ServerSession:isClosed()

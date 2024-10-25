@@ -101,6 +101,54 @@ end
 
 
 
+if constants.PROFILE_EVENT_BUS then
+
+---@param f love.File
+---@param report table<string, EventBusProfileReport|EventBusProfileReportParent>
+---@param indent integer
+local function writeReport(f, report, indent)
+    if next(report) then
+        local tab = string.rep(" ", indent)
+
+        local numericReport = {}
+        for k, v in pairs(report) do
+            numericReport[#numericReport+1] = {k, v.sampleCount, v.average * 1000, v.child}
+        end
+
+        -- Sort by sample count then by average time, by highest.
+        table.sort(numericReport, function(a, b)
+            if a[2] == b[2] then
+                return a[3] > b[3]
+            else
+                return a[2] > b[2]
+            end
+        end)
+
+        for _, v in ipairs(numericReport) do
+            f:write(tab.."- "..v[1]..": "..v[3].."ms over "..v[2].." samples\n")
+
+            if v[4] then
+                writeReport(f, v[4], indent + 2)
+            end
+        end
+    end
+end
+
+---Write profiler report to umg_eventbus_report_\<suffix\>.txt
+---@param suffix string
+function UMGSession:generateProfilerReport(suffix)
+    local report = self.eventBus:getProfilerReport()
+
+    -- Ensure the report is not empty
+    if next(report) then
+        local f = assert(love.filesystem.openFile("umg_eventbus_report_"..suffix..".txt", "w"))
+        f:write("Event bus measurement statistics:\n")
+        writeReport(f, report, 0)
+        f:close()
+    end
+end
+
+end
 
 
 return UMGSession
