@@ -280,16 +280,6 @@ local function make_umg(lobj)
         return newModFSysObj(lobj.fsysObj)
     end
 
-    -- backward compatibility
-    function umg.newDirectoryObject(pth)
-        local dirobj = umg.getModFilesystem()
-        if pth and #pth > 0 then
-            dirobj = dirobj:cloneWithSubpath(pth)
-        end
-
-        return dirobj
-    end
-
     umg.log = require("src.common.log")
     return umg
 end
