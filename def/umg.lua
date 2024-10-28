@@ -143,7 +143,7 @@ end
 
 ---@param question string
 ---@param ... any
----@return any
+---@return any ...
 function umg.ask(question, ...)
 end
 
@@ -157,12 +157,6 @@ umg.melt = error
 ---@param variable_name string
 ---@param value any
 function umg.expose(variable_name, value)
-end
-
----@param path string
----@return umg.FilesystemObject
----@deprecated @ renamed to umg.getModFilesystem
-function umg.newDirectoryObject(path)
 end
 
 ---@return umg.FilesystemObject
