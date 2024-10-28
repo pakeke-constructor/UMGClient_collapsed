@@ -4,16 +4,15 @@ local Text = require("src.client.ui.elements.Text")
 local sfx = require("lootplot.sfx")
 
 
--- TODO: Oli please have better wording on this ok.
 local DESCRIPTION = [[
-Our game uses anlytics to
-improve the game balancing
+We use analytics to
+improve the game balance
 and to diagnose crashes.
 
-We're required by law to
-inform, know, and comply
-with your decision regarding
-this analytics.
+If you want to help us 
+make the game better,
+please allow analytics!
+Thank you! :D
 ]]
 
 
