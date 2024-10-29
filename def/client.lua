@@ -56,6 +56,12 @@ end
 function client.disconnect()
 end
 
+---Returns writable (potentially persistent) filesystem object for the particular mod. Data stored in here is shared
+---across all servers.
+---@return umg.FilesystemObject
+function client.getSaveFilesystem()
+end
+
 ---access to global texture atlas
 ---@class Atlas
 client.atlas = {}

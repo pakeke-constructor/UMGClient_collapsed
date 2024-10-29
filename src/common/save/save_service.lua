@@ -100,4 +100,19 @@ end
 
 
 
+-- Client-side save is a singleton.
+---@type Save?
+local clientSave = nil
+
+function saveService.getClientDataSave()
+    if not clientSave then
+        assert(love.filesystem.createDirectory(constants.CLIENT_SAVE_DATA_PATH), "cannot create client save")
+        clientSave = Save("client", constants.CLIENT_SAVE_DATA_PATH)
+    end
+
+    return clientSave
+end
+
+
+
 return saveService
