@@ -21,6 +21,7 @@ local utf8 = require("utf8")
 
 local hoster = require("src.client.hoster")
 local analyticsService = require("src.common.analytics.analytics_service")
+local saveService = require("src.common.save.save_service")
 
 
 local function dbgcall(f, ...)
@@ -37,6 +38,7 @@ function love.quit()
         hoster.close()
     end)
     analyticsService.quit(false)
+    saveService.getClientDataSave():close()
 end
 
 

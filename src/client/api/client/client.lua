@@ -1,4 +1,6 @@
 
+local saveService = require("src.common.save.save_service")
+local newModFSysObj = require("src.common.api.umg.filesystemObjects")
 
 
 
@@ -73,6 +75,20 @@ end
 
 function client.disconnect()
     clientConnection:tryDisconnect()
+end
+
+
+local rootDirObj = nil
+
+function client.getSaveFilesystem()
+    local save = saveService.getClientDataSave()
+    local fsysobj = save:getFSysObjFor(lobj.modname)
+
+    if not rootDirObj then
+        rootDirObj = newModFSysObj(fsysobj)
+    end
+
+    return rootDirObj
 end
 
 

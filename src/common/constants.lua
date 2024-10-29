@@ -111,6 +111,7 @@ return setmetatable({
 
     ENTITY_DATA_FILE = "entity_data.pckr", -- stores entity-data
     SAVE_DATA_PATH = "saves/",
+    CLIENT_SAVE_DATA_PATH = "clientdata/",
 
     -- mod path for %appdata% only for experimental mods (see _modloader.md)
     LOCAL_MOD_PATH = "mods/",
