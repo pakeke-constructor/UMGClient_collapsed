@@ -17,21 +17,11 @@ function api.setmetatable(x, mt)
 end
 
 
-local NIL_METATABLES = {
-    -- all of these types return nil for their metatable
-    number = true,
-    boolean = true,
-    ["nil"] = true
-}
-
-
 function api.getmetatable(x)
     if type(x) == "table" then
         return getmetatable(x)
-    elseif NIL_METATABLES[type(x)] then
-        return nil
     else
-        error("getmetatable doesn't work on type: " .. tostring(type(x)))
+        return nil
     end
 end
 
