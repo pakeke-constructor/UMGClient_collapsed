@@ -196,6 +196,23 @@ end
 
 
 
+---@param func function
+function tools.get_func_info(func)
+    local info = debug.getinfo(func, "nS")
+    local source
+
+    if info.source and info.linedefined then
+        source = info.source..":"..info.linedefined
+    else
+        -- Yeah fallback
+        source = tostring(func)
+    end
+
+    return source
+end
+
+
+
 if constants.TEST then
     -- tests of exten functions
     local exten_tests = {
