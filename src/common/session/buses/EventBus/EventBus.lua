@@ -95,16 +95,7 @@ function EventBus:on(name, order_or_func, func_or_nil)
 
         -- Create function ring buffer
         if not self.func_time_measurements[func] then
-            local info = debug.getinfo(func, "nS")
-            local source
-
-            if info.source and info.linedefined then
-                source = info.source..":"..info.linedefined
-            else
-                -- Yeah fallback
-                source = tostring(func)
-            end
-
+            local source = tools.get_func_info(func)
             self.func_time_measurements[func] = {source = source, ringbuffer = TimingRingBuffer()}
         end
     end

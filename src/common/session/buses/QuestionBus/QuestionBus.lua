@@ -64,8 +64,15 @@ function QuestionBus:ask(question, reducer, ...)
 
     local ans1, ans2, ans3 = answers[1](...)
     for i=2, len do
+        local success
         local a1, a2, a3 = answers[i](...)
-        ans1, ans2, ans3 = reducer(ans1,a1,  ans2,a2,  ans3,a3)
+        success, ans1, ans2, ans3 = pcall(reducer, ans1,a1,  ans2,a2,  ans3,a3)
+
+        if not success then
+            local ansInfo = tools.get_func_info(answers[i])
+            local redInfo = tools.get_func_info(reducer)
+            error("error while calling reducer `"..redInfo.."` from answer `"..ansInfo.."`: "..ans1)
+        end
     end
 
     return ans1, ans2, ans3
