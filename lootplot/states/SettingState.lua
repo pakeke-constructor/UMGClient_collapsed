@@ -120,14 +120,12 @@ end
 
 local SettingSceneRoot = LUI.Element()
 
-local BOX_COLOR = {love.math.colorFromBytes(133, 81, 21)}
-
 function SettingSceneRoot:init(...)
     self.content = SettingScene(...)
     self.box = StretchableBox(COMMON_IMAGE.WHITE_PRESSED_BIG, 8, {
         content = self.content,
         scale = 2,
-        color = BOX_COLOR,
+        color = COMMON_COLOR.DARK_BROWN,
         stretchType = "repeat"
     })
 

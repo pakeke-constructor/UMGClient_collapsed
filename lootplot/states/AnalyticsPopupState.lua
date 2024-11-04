@@ -2,6 +2,10 @@ local PixelButton = require("lootplot.elements.PixelButton")
 local Text = require("src.client.ui.elements.Text")
 
 local sfx = require("lootplot.sfx")
+local COMMON_COLOR = require("lootplot.common_color")
+local COMMON_IMAGE = require("lootplot.common_image")
+local StretchableBox = require("lootplot.elements.StretchableBox")
+local StretchableButton = require("lootplot.elements.StretchableButton")
 
 
 local DESCRIPTION = [[
@@ -23,9 +27,10 @@ function AnalyticsPopupScene:init(state, save)
 
     self.title = Text("Analytics Consent")
     self.content = Text(desc)
-    self.acceptButton = PixelButton({
-        color = "green",
+    self.acceptButton = StretchableButton({
+        color = COMMON_COLOR.GREEN,
         text = "Allow",
+        scale = 2,
         onClick = function()
             sfx.click()
             userService.setAnalyticsConsent(true)
@@ -35,9 +40,10 @@ function AnalyticsPopupScene:init(state, save)
             return state:pop()
         end,
     })
-    self.rejectButton = PixelButton({
-        color = "red",
+    self.rejectButton = StretchableButton({
+        color = COMMON_COLOR.RED,
         text = "Deny",
+        scale = 2,
         onClick = function()
             sfx.click()
             userService.setAnalyticsConsent(false)
@@ -64,6 +70,42 @@ function AnalyticsPopupScene:init(state, save)
 end
 
 function AnalyticsPopupScene:onRender(x, y, w, h)
+    local settingWindowRegionBase = Region(x, y, w, h)
+
+    local windowRegion = settingWindowRegionBase:padRatio(0.04)
+    local titleBase, contentUnpad, status, buttonBase = windowRegion:splitVertical(3, 6, 1, 2)
+
+    local title = titleBase:padRatio(0.01)
+    love.graphics.setColor(1, 1, 1)
+    self.title:render(title:get())
+
+    local content = contentUnpad:padRatio(0.04)
+    self.content:render(content:get())
+
+    self.analyticsStatus:render(status:get())
+
+    local allow, _, deny = select(2, buttonBase:padRatio(0.05):splitHorizontal(1, 4, 1, 4, 1))
+    self.acceptButton:render(allow:get())
+    self.rejectButton:render(deny:get())
+end
+
+
+
+local AnalyticsPopupSceneRoot = LUI.Element()
+
+function AnalyticsPopupSceneRoot:init(...)
+    self.content = AnalyticsPopupScene(...)
+    self.box = StretchableBox(COMMON_IMAGE.WHITE_PRESSED_BIG, 8, {
+        content = self.content,
+        scale = 2,
+        color = COMMON_COLOR.DARK_BROWN,
+        stretchType = "repeat"
+    })
+
+    self:addChild(self.box)
+end
+
+function AnalyticsPopupSceneRoot:onRender(x, y, w, h)
     -- Make below state slightly darker
     local region = Region(x, y, w, h)
     love.graphics.setColor(0, 0, 0, 0.24)
@@ -72,24 +114,7 @@ function AnalyticsPopupScene:onRender(x, y, w, h)
     local horizontalWindow = select(2, region:splitHorizontal(2, 9, 2))
     local verticalWindow = select(2, region:splitVertical(1, 6, 1))
     local settingWindowRegionBase = horizontalWindow:intersection(verticalWindow)
-    love.graphics.setColor(love.math.colorFromBytes(133, 81, 21))
-    love.graphics.rectangle("fill", settingWindowRegionBase:get())
-
-    local windowRegion = settingWindowRegionBase:pad(0.04)
-    local titleBase, contentUnpad, status, buttonBase = windowRegion:splitVertical(3, 6, 1, 2)
-
-    local title = titleBase:pad(0.01)
-    love.graphics.setColor(1, 1, 1)
-    self.title:render(title:get())
-
-    local content = contentUnpad:pad(0.04)
-    self.content:render(content:get())
-
-    self.analyticsStatus:render(status:get())
-
-    local allow, _, deny = select(2, buttonBase:pad(0.05):splitHorizontal(1, 4, 1, 4, 1))
-    self.acceptButton:render(allow:get())
-    self.rejectButton:render(deny:get())
+    return self.box:render(settingWindowRegionBase:get())
 end
 
 
@@ -97,7 +122,7 @@ end
 local AnalyticsPopupState = StateClass()
 
 function AnalyticsPopupState:init(save)
-    self.scene = AnalyticsPopupScene(self, save)
+    self.scene = AnalyticsPopupSceneRoot(self, save)
     self.scene:makeRoot()
 end
 
