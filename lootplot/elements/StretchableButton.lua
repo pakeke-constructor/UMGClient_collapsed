@@ -1,5 +1,6 @@
 local StretchableBox = require("lootplot.elements.StretchableBox")
 local globalScale = require("lootplot.globalScale")
+local COMMON_IMAGE = require("lootplot.common_image")
 local Text = require("src.client.ui.elements.Text")
 
 local StretchableButton = LUI.Element("lootplot.main:StretchableButton")
@@ -26,21 +27,18 @@ local function giveTextElement(self, elem)
     elem:setContent(textElement)
 end
 
-local image = love.graphics.newImage("lootplot/assets/ui/white_big.png")
-local imagePressed = love.graphics.newImage("lootplot/assets/ui/white_pressed_big.png")
-
 function StretchableButton:init(args)
     self.click = args.onClick
     self.text = args.text
     self.color = args.color
     self.scale = args.scale or 1
 
-    self.buttonPressed = StretchableBox(imagePressed, BUTTON_PADDING, {
+    self.buttonPressed = StretchableBox(COMMON_IMAGE.WHITE_PRESSED_BIG, BUTTON_PADDING, {
         scale = self.scale,
         stretchType = "repeat",
     })
 
-    self.button = StretchableBox(image, BUTTON_PADDING, {
+    self.button = StretchableBox(COMMON_IMAGE.WHITE_BIG, BUTTON_PADDING, {
         scale = self.scale,
         stretchType = "repeat",
     })
