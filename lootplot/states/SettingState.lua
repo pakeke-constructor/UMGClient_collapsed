@@ -2,6 +2,7 @@ local Slider = require("src.client.ui.elements.Slider")
 local Text = require("src.client.ui.elements.Text")
 local Toggle = require("src.client.ui.elements.Toggle")
 
+local COMMON_COLOR = require("lootplot.common_color")
 local COMMON_IMAGE = require("lootplot.common_image")
 local StretchableBox = require("lootplot.elements.StretchableBox")
 local StretchableButton = require("lootplot.elements.StretchableButton")
@@ -16,9 +17,6 @@ local SettingScene = LUI.Element()
 local function formatSliderLabel(elem, prefix, newvalue)
     elem:setText(string.format("%s: %3d", prefix, newvalue))
 end
-
-local ANALYTICS_BUTTON_COLOR = {love.math.colorFromBytes(0x4b, 0xb3, 0xfa)}
-local APPLY_BUTTON_COLOR = {love.math.colorFromBytes(0x69, 0xd1, 0x35)}
 
 function SettingScene:init(args)
     assert(args.onClose and args.state)
@@ -55,7 +53,7 @@ function SettingScene:init(args)
     })
 
     self.analyticsButton = StretchableButton({
-        color = ANALYTICS_BUTTON_COLOR,
+        color = COMMON_COLOR.BLUE,
         text = "Analytics Settings",
         scale = 2,
         onClick = function()
@@ -65,7 +63,7 @@ function SettingScene:init(args)
     })
 
     self.closeButton = StretchableButton({
-        color = APPLY_BUTTON_COLOR,
+        color = COMMON_COLOR.GREEN,
         text = "Apply",
         scale = 2,
         onClick = function()
