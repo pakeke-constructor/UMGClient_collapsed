@@ -68,7 +68,7 @@ function StretchableButton:onRender(x,y,w,h)
 end
 
 
-function StretchableButton:mousereleased(cont)
+function StretchableButton:onMouseRelease(_, _, cont)
     if cont == 1 then
         self:click()
     end
