@@ -1,20 +1,15 @@
-local Button = require("src.client.ui.elements.Button")
-local PixelButton = require("lootplot.elements.PixelButton")
 local Slider = require("src.client.ui.elements.Slider")
 local Text = require("src.client.ui.elements.Text")
 local Toggle = require("src.client.ui.elements.Toggle")
+
+local COMMON_IMAGE = require("lootplot.common_image")
+local StretchableBox = require("lootplot.elements.StretchableBox")
+local StretchableButton = require("lootplot.elements.StretchableButton")
 local AnalyticsPopupState = require("lootplot.states.AnalyticsPopupState")
 local sfx = require("lootplot.sfx")
 
 local SettingState = StateClass()
 
-local DIR = "lootplot/assets/items"
-
----@param ... string
----@return love.ImageData
-local function loadImage(...)
-    return love.image.newImageData(table.concat({...}, "/"))
-end
 
 local SettingScene = LUI.Element()
 
@@ -22,18 +17,11 @@ local function formatSliderLabel(elem, prefix, newvalue)
     elem:setText(string.format("%s: %3d", prefix, newvalue))
 end
 
+local ANALYTICS_BUTTON_COLOR = {love.math.colorFromBytes(0x4b, 0xb3, 0xfa)}
+local APPLY_BUTTON_COLOR = {love.math.colorFromBytes(0x69, 0xd1, 0x35)}
+
 function SettingScene:init(args)
     assert(args.onClose and args.state)
-
-    self.oldSettings = {
-        sfx = userService.getSFXVolume(),
-        bgm = userService.getBGMVolume(),
-        fullscreen = love.window.getFullscreen()
-    }
-    if userService.isAnalyticsConsentAsked() then
-        self.oldSettings.analytics = userService.isUserConsentedForAnalytics()
-    end
-
 
     self.title = Text("Settings")
 
@@ -41,7 +29,7 @@ function SettingScene:init(args)
     self.sfxSlider = Slider({
         min = 0,
         max = 100,
-        value = self.oldSettings.sfx,
+        value = userService.getSFXVolume(),
         onValueChanged = function(_, value)
             userService.setSFXVolume(value)
             sfx.setVolume(value / 100)
@@ -52,48 +40,37 @@ function SettingScene:init(args)
     self.bgmSlider = Slider({
         min = 0,
         max = 100,
-        value = self.oldSettings.bgm,
+        value = userService.getBGMVolume(),
         onValueChanged = function(_, value)
             userService.setBGMVolume(value)
             formatSliderLabel(self.bgmSliderLabel, "BGM Volume", userService.getBGMVolume())
         end
     })
 
+    -- FIXME: This will be incorrect when user pressed Alt+Enter directly. No clean way to fix it.
     self.fullscreenToggle = Toggle({
         label = "Fullscreen",
-        value = self.oldSettings.fullscreen,
+        value = love.window.getFullscreen(),
         onValueChanged = love.window.setFullscreen
     })
 
-    self.analyticsButton = PixelButton({
-        color = "blue",
-        text = "Analytics",
+    self.analyticsButton = StretchableButton({
+        color = ANALYTICS_BUTTON_COLOR,
+        text = "Analytics Settings",
+        scale = 2,
         onClick = function()
             sfx.click()
             args.state:push(AnalyticsPopupState(false))
         end
     })
 
-    self.closeButton = PixelButton({
-        color = "green",
+    self.closeButton = StretchableButton({
+        color = APPLY_BUTTON_COLOR,
         text = "Apply",
+        scale = 2,
         onClick = function()
             userService.saveSettings()
             sfx.click()
-            return args.onClose()
-        end,
-    })
-    self.closeButtonAlt = Button({
-        image = love.graphics.newImage("lootplot/assets/ui/red_square_1.png"),
-        onClick = function()
-            userService.setSFXVolume(self.oldSettings.sfx)
-            userService.setBGMVolume(self.oldSettings.bgm)
-            sfx.setVolume(self.oldSettings.sfx / 100)
-            sfx.click()
-            if self.oldSettings.analytics ~= nil then
-                userService.setAnalyticsConsent(self.oldSettings.analytics)
-            end
-            love.window.setFullscreen(self.oldSettings.fullscreen)
             return args.onClose()
         end,
     })
@@ -109,7 +86,6 @@ function SettingScene:init(args)
     self:addChild(self.fullscreenToggle)
     self:addChild(self.analyticsButton)
     self:addChild(self.closeButton)
-    self:addChild(self.closeButtonAlt)
 end
 
 local function debugRegion(region, r, g, b, a)
@@ -120,32 +96,15 @@ end
 
 function SettingScene:onRender(x, y, w, h)
     -- Make below state slightly darker
-    local region = Region(x, y, w, h)
-    love.graphics.setColor(0, 0, 0, 0.24)
-    love.graphics.rectangle("fill", region:get())
+    local settingWindowRegionBase = Region(x, y, w, h)
+    local windowRegion = settingWindowRegionBase:padRatio(0.04)
+    local titleBase, contentUnpad, buttonBase = windowRegion:splitVertical(3, 8, 5)
 
-    local horizontalWindow = select(2, region:splitHorizontal(3, 4, 3))
-    local verticalWindow = select(2, region:splitVertical(1, 8, 1))
-    local settingWindowRegionBase = horizontalWindow:intersection(verticalWindow)
-    love.graphics.setColor(love.math.colorFromBytes(133, 81, 21))
-    love.graphics.rectangle("fill", settingWindowRegionBase:get())
-
-    local windowRegion = settingWindowRegionBase:pad(0.04)
-    local titleBase, contentUnpad, buttonBase = windowRegion:splitVertical(3, 8, 4)
-
-    local titleArea = titleBase:splitVertical(1, 1)
-    do
-        local closeButtonAlt = Region(0, 0, 18, 18):scaleToFit(titleArea)
-        local wx, wy, ww = settingWindowRegionBase:get()
-        local rw, rh = select(3, closeButtonAlt:get())
-        self.closeButtonAlt:render(wx + ww - rw / 2, wy - rh / 2, rw, rh)
-    end
-
-    local title = titleBase:pad(0.01)
+    local title = titleBase:padRatio(0.01)
     love.graphics.setColor(1, 1, 1)
     self.title:render(title:get())
 
-    local content = contentUnpad:pad(0.04)
+    local content = contentUnpad:padRatio(0.04)
     local sfxLabel, sfx, _, bgmLabel, bgm, _, fullscreen = content:splitVertical(2, 3, 1, 2, 3, 1, 4)
     self.sfxSliderLabel:render(sfxLabel:get()) -- line 66
     self.sfxSlider:render(sfx:get())
@@ -153,17 +112,45 @@ function SettingScene:onRender(x, y, w, h)
     self.bgmSlider:render(bgm:get())
     self.fullscreenToggle:render(fullscreen:get())
 
-    local analyticsButtonBase, _, closeButtonBase = buttonBase:splitVertical(4, 0.2, 5)
-
-    local analyticsButton = Region(0, 0, 70, 18):scaleToFit(analyticsButtonBase):center(analyticsButtonBase):pad(0.05)
+    local analyticsButton, closeButtonBase = buttonBase:splitVertical(3, 5)
     self.analyticsButton:render(analyticsButton:get())
 
-    local closeButton = Region(0, 0, 70, 18):scaleToFit(closeButtonBase):center(closeButtonBase):pad(0.05)
+    local closeButton = closeButtonBase:padRatio(0, 0.2, 0, 0)
     self.closeButton:render(closeButton:get())
 end
 
+
+local SettingSceneRoot = LUI.Element()
+
+local BOX_COLOR = {love.math.colorFromBytes(133, 81, 21)}
+
+function SettingSceneRoot:init(...)
+    self.content = SettingScene(...)
+    self.box = StretchableBox(COMMON_IMAGE.WHITE_PRESSED_BIG, 8, {
+        content = self.content,
+        scale = 2,
+        color = BOX_COLOR,
+        stretchType = "repeat"
+    })
+
+    self:addChild(self.box)
+end
+
+function SettingSceneRoot:onRender(x, y, w, h)
+    -- Make below state slightly darker
+    local region = Region(x, y, w, h)
+    love.graphics.setColor(0, 0, 0, 0.24)
+    love.graphics.rectangle("fill", region:get())
+
+    local horizontalWindow = select(2, region:splitHorizontal(1, 2, 1))
+    local verticalWindow = select(2, region:splitVertical(1, 9, 1))
+    local settingWindowRegionBase = horizontalWindow:intersection(verticalWindow)
+    self.box:render(settingWindowRegionBase:get())
+end
+
+
 function SettingState:init()
-    self.scene = SettingScene({
+    self.scene = SettingSceneRoot({
         state = self,
         onClose = function()
             return self:pop()
@@ -171,6 +158,7 @@ function SettingState:init()
     })
     self.scene:makeRoot()
 end
+
 
 SettingState:on("update", function(self, dt)
     return self:broadcastBelow("update", dt)
