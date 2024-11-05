@@ -5,6 +5,7 @@ local PixelButton = require("lootplot.elements.PixelButton")
 local LaunchOptions = require("src.common.misc.LaunchOptions")
 
 local PhysicsWorldScreen = require("lootplot.states.physics_background")
+local PhysicsBackground = require("lootplot.states.PhysicsBackground2")
 
 local HosterSetup = require("src.client.state.setup.HosterSetup")
 local AnalyticsPopupState = require("lootplot.states.AnalyticsPopupState")
@@ -13,6 +14,7 @@ local SettingState = require("lootplot.states.SettingState")
 local LoadingVisual = require("lootplot.states.LoadingVisual")
 local TransitionState = require("lootplot.states.TransitionState")
 local sfx = require("lootplot.sfx")
+local globalScale = require("lootplot.globalScale")
 
 local analyticsService = require("src.common.analytics.analytics_service")
 
@@ -81,7 +83,6 @@ end
 
 function MenuState:init()
     self.physicsTransform = love.math.newTransform()
-    self.physicsScale = 1
     self.doNotFree = false
     self.settingState = SettingState()
 
@@ -134,14 +135,15 @@ function MenuState:_performLUIRender(x, y, w, h)
     -- Unfortunately Kirigami doesn't offer a way to position element based on
     -- other position of an existing elements.
     -- TODO: Kirigami has been updated. Rectify this.
-    local ww, wh = 70 * self.physicsScale, 18 * self.physicsScale
+    local s = globalScale.get() * 2
+    local ww, wh = 70 * s, 18 * s
     local wy =  h - wh - 10
     self.wishlistButton:render(x + 10, wy, ww, wh)
 
-    local dd = 26 * self.physicsScale
+    local dd = 26 * s
     self.discordButton:render(x + 10, wy - dd - 10, dd, dd)
 
-    local settingDim = 32 * self.physicsScale
+    local settingDim = 32 * s
     self.settingButton:render(x + w - settingDim - 10, y + h - settingDim - 10, settingDim, settingDim)
 end
 
@@ -156,13 +158,9 @@ function MenuState:_showConsent()
 end
 
 function MenuState:_updatePhysicsTransform()
-    local x, y, w, h = getScreenView()
+    local w, h = love.graphics.getDimensions()
+    local s = globalScale.get() * 2
     -- Physics world center is (0, 0)
-    -- But also we want to scale it to match the screen itself
-    local sx = w / PHYSICS_WORLD_WIDTH
-    local sy = h / PHYSICS_WORLD_HEIGHT
-    local s = math.max(sx, sy)
-    self.physicsScale = s
     self.physicsTransform:reset()
     self.physicsTransform:translate(w/2, h/2)
     self.physicsTransform:scale(s, s)
@@ -170,24 +168,12 @@ end
 
 function MenuState:onEnter()
     if not self.physicsWorld then
-        self.physicsWorld = PhysicsWorldScreen(PHYSICS_WORLD_WIDTH, PHYSICS_WORLD_HEIGHT)
-        self.physicsWorld:addButton({
-            x = 0, y = 0,
-            text = "Play",
-            image = "src/client/ui/images/big_buttons/blue_big.png",
-            onClick = function()
-                self.doNotFree = true
-                sfx.click()
-                startHost(self)
-            end
-        })
-        self.physicsWorld:addObject({
-            x = 0, y = 0,
-            image = "lootplot/assets/LOGO_PIXELATED.png",
-            scale = 0.75,
-            padding = -10
-        })
         self:_updatePhysicsTransform()
+        self.physicsWorld = PhysicsBackground(self.physicsTransform, function()
+            self.doNotFree = true
+            sfx.click()
+            startHost(self)
+        end)
     end
     self.doNotFree = false
 
@@ -206,7 +192,7 @@ end
 ---@param dt number
 MenuState:on("update", function(self, dt)
     if self.physicsWorld then
-        self.physicsWorld:update(dt)
+        self.physicsWorld:update(dt, self.physicsTransform)
     end
 end)
 
