@@ -196,8 +196,20 @@ end
 
 
 
----@param func function
-function tools.get_func_info(func)
+function tools.get_callable(x)
+    if type(x) == "function" then
+        return x
+    end
+    local mt = getmetatable(x)
+    if mt then
+        return mt.__call
+    end
+
+    return nil
+end
+
+function tools.get_func_info(x)
+    local func = assert(tools.get_callable(x), "not callable")
     local info = debug.getinfo(func, "nS")
     local source
 

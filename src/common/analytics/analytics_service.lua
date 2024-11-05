@@ -3,7 +3,7 @@ local analyticsModlistChannel = love.thread.getChannel("analytics:modlist")
 local analyticsChannel -- if this is nil, then analytics is not enabled in this build
 local analyticsThread
 
-if #constants.BASE_ANALYTICS_SERVER_PATH > 0 then
+if #constants.BASE_ANALYTICS_SERVER_PATH > 0 and (not constants.DEV_MODE or os.getenv(constants.FORCE_ANALYTICS_ENVVAR) ~= nil) then
     analyticsStatusChannel:performAtomic(function()
         analyticsChannel = analyticsStatusChannel:peek()
         if not analyticsChannel then

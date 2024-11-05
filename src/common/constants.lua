@@ -2,8 +2,21 @@
 -- Constants are for real this time.
 -- EVERYTHING HERE MUSTTT BE A CONSTANT!!!
 
+local DEV_MODE = false
+-- This is slightly sophisticated DEV_MODE check.
+-- Basically we assume DEV_MODE if:
+-- * `.git` is present in (and only in) the game directory
+-- * is not fused.
+do
+    if love.filesystem.getInfo(".git", "directory") then
+        local path = love.filesystem.getRealDirectory(".git")
+        DEV_MODE = path == love.filesystem.getSource() and not love.filesystem.isFused()
+    end
+end
+
 return setmetatable({
     VERSION = "0.0.0";
+    DEV_MODE = DEV_MODE,
 
     -- path to custom boot state
     CUSTOM_BOOT_STATE = "lootplot.states.menu",
@@ -67,9 +80,9 @@ return setmetatable({
         We should probably fix e2e tests before running AGGRESSIVE_DEBUG mode.
     ]]
 
-    DEFAULT_CONSOLE_LOG_LEVEL = "info",
+    DEFAULT_CONSOLE_LOG_LEVEL = DEV_MODE and "info" or "warn",
     CONSOLE_LOG_LEVEL_ENVVAR = "UMG_CONSOLE_LOG_LEVEL",
-    DEFAULT_FILE_LOG_LEVEL = "none",
+    DEFAULT_FILE_LOG_LEVEL = DEV_MODE and "none" or "info",
     FILE_LOG_LEVEL_ENVVAR = "UMG_FILE_LOG_LEVEL",
 
     LOVE_EVENTS = {
@@ -160,7 +173,8 @@ return setmetatable({
     INTERNAL_PATH = "internal_DONT_TOUCH/", -- the directory path for interally used files
     TEMP_PATH = "temporary/", -- temporary files
 
-    BASE_ANALYTICS_SERVER_PATH = "", -- without trailing slash. empty string = disabled
+    BASE_ANALYTICS_SERVER_PATH = "https://srv593957.hstgr.cloud/analytics", -- without trailing slash. empty string = disabled
+    FORCE_ANALYTICS_ENVVAR = "UMG_FORCE_ANALYTICS",
 },
 
 
