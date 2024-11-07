@@ -4,7 +4,6 @@ local PixelButton = require("lootplot.elements.PixelButton")
 
 local LaunchOptions = require("src.common.misc.LaunchOptions")
 
-local PhysicsWorldScreen = require("lootplot.states.physics_background")
 local PhysicsBackground = require("lootplot.states.PhysicsBackground2")
 
 local HosterSetup = require("src.client.state.setup.HosterSetup")
