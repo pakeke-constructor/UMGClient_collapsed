@@ -1,6 +1,6 @@
 
 local Button = require("src.client.ui.elements.Button")
-local PixelButton = require("lootplot.elements.PixelButton")
+local StretchableButton = require("lootplot.elements.StretchableButton")
 
 local LaunchOptions = require("src.common.misc.LaunchOptions")
 
@@ -12,6 +12,8 @@ local SettingState = require("lootplot.states.SettingState")
 
 local LoadingVisual = require("lootplot.states.LoadingVisual")
 local TransitionState = require("lootplot.states.TransitionState")
+
+local COMMON_COLOR = require("lootplot.common_color")
 local sfx = require("lootplot.sfx")
 local globalScale = require("lootplot.globalScale")
 
@@ -95,9 +97,10 @@ function MenuState:init()
             love.system.openURL(constants.DISCORD_LINK)
         end
     })
-    self.wishlistButton = PixelButton({
-        color = "green",
+    self.wishlistButton = StretchableButton({
+        color = COMMON_COLOR.GREEN,
         text = "Wishlist!",
+        scale = 2,
         onClick = function()
             sfx.click()
             print("Wishlist link goes here")
