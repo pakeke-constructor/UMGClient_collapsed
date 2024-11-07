@@ -149,7 +149,7 @@ function PhysicsBackground:spawnObject(args)
         body = body,
         shape = shape,
         shapeArgs = args.shapeArgs,
-        type = type,
+        type = args.type,
         onClick = args.onClick,
         image = args.image,
         quad = args.quad,
@@ -214,6 +214,23 @@ function PhysicsBackground:click(x, y)
         if obj.onClick and obj.shape:testPoint(x, y) then
             obj.onClick()
             return
+        end
+    end
+
+    -- Make items react go away froom the mouse cursor
+    -- when clicked.
+    -- Only executed if there's no valid click
+    for _, obj in ipairs(self.objects) do
+        if obj.type ~= "static" then
+            local xx, yy = obj.body:getPosition()
+            local dx, dy = xx - x, yy - y
+            local mass = obj.body:getMass()
+            local l = math.sqrt(dx * dx + dy * dy)
+
+            if l > 0 then
+                local s = (mass * 3000) / ( l * l)
+                obj.body:applyLinearImpulse(s*dx, s*dy)
+            end
         end
     end
 end
