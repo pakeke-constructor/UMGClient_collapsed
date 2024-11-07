@@ -87,9 +87,16 @@ function MenuState:init()
     self.doNotFree = false
     self.settingState = SettingState()
 
-    -- LUI always consumes our inputs while we only want it
-    -- to be consumed if the children really consume it.
-    -- So make everything a root element for now.
+    self.playButton = StretchableButton({
+        color = COMMON_COLOR.BLUE,
+        text = "Play!",
+        scale = 2,
+        onClick = function()
+            self.doNotFree = true
+            sfx.click()
+            startHost(self)
+        end
+    })
     self.discordButton = Button({
         image = love.graphics.newImage("lootplot/assets/ui/modified_discord_logo.png"),
         onClick = function()
@@ -113,6 +120,13 @@ function MenuState:init()
             return self:_gotoSettings()
         end
     })
+
+    self.logo = love.graphics.newImage("lootplot/assets/LOGO_PIXELATED.png")
+
+    -- LUI always consumes our inputs while we only want it
+    -- to be consumed if the children really consume it.
+    -- So make everything a root element for now.
+    self.playButton:makeRoot()
     self.discordButton:makeRoot()
     self.wishlistButton:makeRoot()
     self.settingButton:makeRoot()
@@ -120,12 +134,14 @@ end
 
 function MenuState:_performLUIButtonsPress(...)
     return
+        self.playButton:mousepressed(...) or
         self.discordButton:mousepressed(...) or
         self.wishlistButton:mousepressed(...) or
         self.settingButton:mousepressed(...)
 end
 
 function MenuState:_performLUIButtonsRelease(...)
+    self.playButton:mousereleased(...)
     self.discordButton:mousereleased(...)
     self.wishlistButton:mousereleased(...)
     self.settingButton:mousereleased(...)
@@ -133,20 +149,57 @@ end
 
 -- Since we're making all the button a root element, we have to render them ourselves.
 function MenuState:_performLUIRender(x, y, w, h)
+    local s = globalScale.get() * 2
+    local region = Region(x, y, w, h)
+
+    local titleLogo, playbuttonBase = region:splitVertical(1, 1)
+    local playButton = Region(0, 0, 90 * s, 40 * s)
+        :centerX(playbuttonBase)
+        :attachToTopOf(playbuttonBase)
+        :moveRatio(0, 1)
+    -- Where 70, 18 comes from?
+    local wishlistButton = Region(0, 0, 70 * s, 18 * s)
+        :attachToLeftOf(region)
+        :attachToBottomOf(region)
+        :moveRatio(1, -1)
+        :moveUnit(10, -10)
+    -- Where 26 comes from? Icon dimension
+    local discordButton = Region(0, 0, 26 * s, 26 * s)
+        :attachToTopOf(wishlistButton)
+        :attachToLeftOf(region)
+        :moveRatio(1, 0)
+        :moveUnit(10, -10)
+    local settingButton = Region(0, 0, 32 * s, 32 * s)
+        :attachToBottomOf(region)
+        :attachToRightOf(region)
+        :moveRatio(-1, -1)
+        :moveUnit(-10, -10)
+
+    -- print(wishlistButton:get())
+    self.playButton:render(playButton:get())
+    self.wishlistButton:render(wishlistButton:get())
+    self.discordButton:render(discordButton:get())
+    self.settingButton:render(settingButton:get())
+
+    -- Render logo
+    local lw, lh = self.logo:getDimensions()
+    local cx, cy = titleLogo:getCenter()
+    cy = cy + 7 * math.sin(love.timer.getTime() % 5 / 5 * 2 * math.pi)
+    love.graphics.draw(self.logo, cx, cy, 0, s * 0.75, s * 0.75, lw / 2, lh / 2)
+
     -- Uh this is ugly. We have to compute the position ourself.
     -- Unfortunately Kirigami doesn't offer a way to position element based on
     -- other position of an existing elements.
     -- TODO: Kirigami has been updated. Rectify this.
-    local s = globalScale.get() * 2
-    local ww, wh = 70 * s, 18 * s
-    local wy =  h - wh - 10
-    self.wishlistButton:render(x + 10, wy, ww, wh)
+    -- local ww, wh = 70 * s, 18 * s
+    -- local wy =  h - wh - 10
+    -- self.wishlistButton:render(x + 10, wy, ww, wh)
 
-    local dd = 26 * s
-    self.discordButton:render(x + 10, wy - dd - 10, dd, dd)
+    -- local dd = 26 * s
+    -- self.discordButton:render(x + 10, wy - dd - 10, dd, dd)
 
-    local settingDim = 32 * s
-    self.settingButton:render(x + w - settingDim - 10, y + h - settingDim - 10, settingDim, settingDim)
+    -- local settingDim = 32 * s
+    -- self.settingButton:render(x + w - settingDim - 10, y + h - settingDim - 10, settingDim, settingDim)
 end
 
 function MenuState:_gotoSettings()
@@ -171,11 +224,7 @@ end
 function MenuState:onEnter()
     if not self.physicsWorld then
         self:_updatePhysicsTransform()
-        self.physicsWorld = PhysicsBackground(self.physicsTransform, function()
-            self.doNotFree = true
-            sfx.click()
-            startHost(self)
-        end)
+        self.physicsWorld = PhysicsBackground(self.physicsTransform)
     end
     self.doNotFree = false
 
