@@ -1,8 +1,4 @@
 local AutoAtlas = require("libs.AutoAtlas.AutoAtlas")
-local n9p = require("libs.n9p.n9p")
-
-local COMMON_COLOR = require("lootplot.common_color")
-local COMMON_IMAGE = require("lootplot.common_image")
 
 local PHYSICS_ITEM_SIZE = 6
 local GRAVITY = 100

@@ -28,7 +28,6 @@ local MenuState = StateClass()
 
 
 
-local PHYSICS_WORLD_WIDTH, PHYSICS_WORLD_HEIGHT = 360, 180
 local PERSISTENT_SAVE_NAME = "save1"
 
 
@@ -74,11 +73,6 @@ local function startHost(self)
     end
 
     self:push(TransitionState(hosterSetupState, 0.15, true))
-end
-
-
-local function getScreenView()
-    return 0,0,lg.getDimensions()
 end
 
 
@@ -169,13 +163,13 @@ function MenuState:_performLUIRender(x, y, w, h)
         :attachToLeftOf(region)
         :moveRatio(1, 0)
         :moveUnit(10, -10)
+    -- Where 32 comes from? Icon dimension
     local settingButton = Region(0, 0, 32 * s, 32 * s)
         :attachToBottomOf(region)
         :attachToRightOf(region)
         :moveRatio(-1, -1)
         :moveUnit(-10, -10)
 
-    -- print(wishlistButton:get())
     self.playButton:render(playButton:get())
     self.wishlistButton:render(wishlistButton:get())
     self.discordButton:render(discordButton:get())
@@ -186,20 +180,6 @@ function MenuState:_performLUIRender(x, y, w, h)
     local cx, cy = titleLogo:getCenter()
     cy = cy + 7 * math.sin(love.timer.getTime() % 5 / 5 * 2 * math.pi)
     love.graphics.draw(self.logo, cx, cy, 0, s * 0.75, s * 0.75, lw / 2, lh / 2)
-
-    -- Uh this is ugly. We have to compute the position ourself.
-    -- Unfortunately Kirigami doesn't offer a way to position element based on
-    -- other position of an existing elements.
-    -- TODO: Kirigami has been updated. Rectify this.
-    -- local ww, wh = 70 * s, 18 * s
-    -- local wy =  h - wh - 10
-    -- self.wishlistButton:render(x + 10, wy, ww, wh)
-
-    -- local dd = 26 * s
-    -- self.discordButton:render(x + 10, wy - dd - 10, dd, dd)
-
-    -- local settingDim = 32 * s
-    -- self.settingButton:render(x + w - settingDim - 10, y + h - settingDim - 10, settingDim, settingDim)
 end
 
 function MenuState:_gotoSettings()
