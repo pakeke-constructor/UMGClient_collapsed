@@ -146,8 +146,8 @@ function MenuState:_performLUIRender(x, y, w, h)
     local s = globalScale.get() * 2
     local region = Region(x, y, w, h)
 
-    local titleLogo, playbuttonBase = region:splitVertical(1, 1)
-    local playButton = Region(0, 0, 90 * s, 40 * s)
+    local titleLogo, playbuttonBase = region:splitVertical(3, 2)
+    local playButton = Region(0, 0, 100 * s, 30 * s)
         :centerX(playbuttonBase)
         :attachToTopOf(playbuttonBase)
         :moveRatio(0, 1)

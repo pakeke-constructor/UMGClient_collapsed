@@ -97,7 +97,7 @@ function PhysicsBackground:spawnItem(quad, x, y)
     })
 end
 
-local MAX_VELOCITY_SCALAR = 50
+local MAX_VELOCITY_SCALAR = 20
 
 ---@param body love.Body
 local function limitVelocity(body)
@@ -130,8 +130,8 @@ function PhysicsBackground:update(dt, transform)
 
             if ty > screenBY and by > screenBY then
                 -- Relocate
-                -- TODO: Relocate by taking AABB into account
-                obj.body:setPosition(width * (math.random() - 0.5), screenTY - math.max(bx - tx, by - ty))
+                local maxSideSize = math.max(bx - tx, by - ty)
+                obj.body:setPosition(width * (math.random() - 0.5), screenTY - maxSideSize - 10)
 
                 if obj.other and obj.other.item then
                     -- Change quad
