@@ -1,10 +1,10 @@
 
 local Button = require("src.client.ui.elements.Button")
-local PixelButton = require("lootplot.elements.PixelButton")
+local StretchableButton = require("lootplot.elements.StretchableButton")
 
 local LaunchOptions = require("src.common.misc.LaunchOptions")
 
-local PhysicsWorldScreen = require("lootplot.states.physics_background")
+local PhysicsBackground = require("lootplot.states.PhysicsBackground2")
 
 local HosterSetup = require("src.client.state.setup.HosterSetup")
 local AnalyticsPopupState = require("lootplot.states.AnalyticsPopupState")
@@ -12,7 +12,10 @@ local SettingState = require("lootplot.states.SettingState")
 
 local LoadingVisual = require("lootplot.states.LoadingVisual")
 local TransitionState = require("lootplot.states.TransitionState")
+
+local COMMON_COLOR = require("lootplot.common_color")
 local sfx = require("lootplot.sfx")
+local globalScale = require("lootplot.globalScale")
 
 local analyticsService = require("src.common.analytics.analytics_service")
 
@@ -25,7 +28,6 @@ local MenuState = StateClass()
 
 
 
-local PHYSICS_WORLD_WIDTH, PHYSICS_WORLD_HEIGHT = 360, 180
 local PERSISTENT_SAVE_NAME = "save1"
 
 
@@ -74,20 +76,21 @@ local function startHost(self)
 end
 
 
-local function getScreenView()
-    return 0,0,lg.getDimensions()
-end
-
-
 function MenuState:init()
     self.physicsTransform = love.math.newTransform()
-    self.physicsScale = 1
     self.doNotFree = false
     self.settingState = SettingState()
 
-    -- LUI always consumes our inputs while we only want it
-    -- to be consumed if the children really consume it.
-    -- So make everything a root element for now.
+    self.playButton = StretchableButton({
+        color = COMMON_COLOR.BLUE,
+        text = "Play!",
+        scale = 2,
+        onClick = function()
+            self.doNotFree = true
+            sfx.click()
+            startHost(self)
+        end
+    })
     self.discordButton = Button({
         image = love.graphics.newImage("lootplot/assets/ui/modified_discord_logo.png"),
         onClick = function()
@@ -95,9 +98,10 @@ function MenuState:init()
             love.system.openURL(constants.DISCORD_LINK)
         end
     })
-    self.wishlistButton = PixelButton({
-        color = "green",
+    self.wishlistButton = StretchableButton({
+        color = COMMON_COLOR.GREEN,
         text = "Wishlist!",
+        scale = 2,
         onClick = function()
             sfx.click()
             print("Wishlist link goes here")
@@ -110,6 +114,13 @@ function MenuState:init()
             return self:_gotoSettings()
         end
     })
+
+    self.logo = love.graphics.newImage("lootplot/assets/LOGO_PIXELATED.png")
+
+    -- LUI always consumes our inputs while we only want it
+    -- to be consumed if the children really consume it.
+    -- So make everything a root element for now.
+    self.playButton:makeRoot()
     self.discordButton:makeRoot()
     self.wishlistButton:makeRoot()
     self.settingButton:makeRoot()
@@ -117,12 +128,14 @@ end
 
 function MenuState:_performLUIButtonsPress(...)
     return
+        self.playButton:mousepressed(...) or
         self.discordButton:mousepressed(...) or
         self.wishlistButton:mousepressed(...) or
         self.settingButton:mousepressed(...)
 end
 
 function MenuState:_performLUIButtonsRelease(...)
+    self.playButton:mousereleased(...)
     self.discordButton:mousereleased(...)
     self.wishlistButton:mousereleased(...)
     self.settingButton:mousereleased(...)
@@ -130,19 +143,43 @@ end
 
 -- Since we're making all the button a root element, we have to render them ourselves.
 function MenuState:_performLUIRender(x, y, w, h)
-    -- Uh this is ugly. We have to compute the position ourself.
-    -- Unfortunately Kirigami doesn't offer a way to position element based on
-    -- other position of an existing elements.
-    -- TODO: Kirigami has been updated. Rectify this.
-    local ww, wh = 70 * self.physicsScale, 18 * self.physicsScale
-    local wy =  h - wh - 10
-    self.wishlistButton:render(x + 10, wy, ww, wh)
+    local s = globalScale.get() * 2
+    local region = Region(x, y, w, h)
 
-    local dd = 26 * self.physicsScale
-    self.discordButton:render(x + 10, wy - dd - 10, dd, dd)
+    local titleLogo, playbuttonBase = region:splitVertical(3, 2)
+    local playButton = Region(0, 0, 100 * s, 30 * s)
+        :centerX(playbuttonBase)
+        :attachToTopOf(playbuttonBase)
+        :moveRatio(0, 1)
+    -- Where 70, 18 comes from?
+    local wishlistButton = Region(0, 0, 70 * s, 18 * s)
+        :attachToLeftOf(region)
+        :attachToBottomOf(region)
+        :moveRatio(1, -1)
+        :moveUnit(10, -10)
+    -- Where 26 comes from? Icon dimension
+    local discordButton = Region(0, 0, 26 * s, 26 * s)
+        :attachToTopOf(wishlistButton)
+        :attachToLeftOf(region)
+        :moveRatio(1, 0)
+        :moveUnit(10, -10)
+    -- Where 32 comes from? Icon dimension
+    local settingButton = Region(0, 0, 32 * s, 32 * s)
+        :attachToBottomOf(region)
+        :attachToRightOf(region)
+        :moveRatio(-1, -1)
+        :moveUnit(-10, -10)
 
-    local settingDim = 32 * self.physicsScale
-    self.settingButton:render(x + w - settingDim - 10, y + h - settingDim - 10, settingDim, settingDim)
+    self.playButton:render(playButton:get())
+    self.wishlistButton:render(wishlistButton:get())
+    self.discordButton:render(discordButton:get())
+    self.settingButton:render(settingButton:get())
+
+    -- Render logo
+    local lw, lh = self.logo:getDimensions()
+    local cx, cy = titleLogo:getCenter()
+    cy = cy + 7 * math.sin(love.timer.getTime() % 5 / 5 * 2 * math.pi)
+    love.graphics.draw(self.logo, cx, cy, 0, s * 0.75, s * 0.75, lw / 2, lh / 2)
 end
 
 function MenuState:_gotoSettings()
@@ -156,13 +193,9 @@ function MenuState:_showConsent()
 end
 
 function MenuState:_updatePhysicsTransform()
-    local x, y, w, h = getScreenView()
+    local w, h = love.graphics.getDimensions()
+    local s = globalScale.get() * 2
     -- Physics world center is (0, 0)
-    -- But also we want to scale it to match the screen itself
-    local sx = w / PHYSICS_WORLD_WIDTH
-    local sy = h / PHYSICS_WORLD_HEIGHT
-    local s = math.max(sx, sy)
-    self.physicsScale = s
     self.physicsTransform:reset()
     self.physicsTransform:translate(w/2, h/2)
     self.physicsTransform:scale(s, s)
@@ -170,24 +203,8 @@ end
 
 function MenuState:onEnter()
     if not self.physicsWorld then
-        self.physicsWorld = PhysicsWorldScreen(PHYSICS_WORLD_WIDTH, PHYSICS_WORLD_HEIGHT)
-        self.physicsWorld:addButton({
-            x = 0, y = 0,
-            text = "Play",
-            image = "src/client/ui/images/big_buttons/blue_big.png",
-            onClick = function()
-                self.doNotFree = true
-                sfx.click()
-                startHost(self)
-            end
-        })
-        self.physicsWorld:addObject({
-            x = 0, y = 0,
-            image = "lootplot/assets/LOGO_PIXELATED.png",
-            scale = 0.75,
-            padding = -10
-        })
         self:_updatePhysicsTransform()
+        self.physicsWorld = PhysicsBackground(self.physicsTransform)
     end
     self.doNotFree = false
 
@@ -206,7 +223,7 @@ end
 ---@param dt number
 MenuState:on("update", function(self, dt)
     if self.physicsWorld then
-        self.physicsWorld:update(dt)
+        self.physicsWorld:update(dt, self.physicsTransform)
     end
 end)
 
