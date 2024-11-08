@@ -3,6 +3,8 @@ local AutoAtlas = require("libs.AutoAtlas.AutoAtlas")
 local PHYSICS_ITEM_SIZE = 6
 local GRAVITY = 100
 local NUM_ITEMS = 400
+local MAX_VELOCITY_SCALAR = 20
+local INVISIBLE_Y = 100
 local ITEMS_DIR = "lootplot/assets/items/"
 
 local PhysicsBackground = tools.SafeClass()
@@ -31,11 +33,12 @@ function PhysicsBackground:init(transform)
     do
         local screenTX, screenTY = transform:inverseTransformPoint(0, 0)
         local screenBX, screenBY = transform:inverseTransformPoint(love.graphics.getDimensions())
+        local ty = screenTY - INVISIBLE_Y
         for _ = 1, NUM_ITEMS do
             self:spawnItem(
                 self.quads[math.random(1, #self.quads)],
                 screenTX + math.random() * (screenBX - screenTX),
-                screenTY + math.random() * (screenBY - screenTY)
+                ty + math.random() * (screenBY - ty)
             )
         end
     end
@@ -54,50 +57,39 @@ local function defaultDraw(obj)
     if not obj.image then return end
 
     if obj.quad then
-        love.graphics.draw(obj.image, obj.quad, obj.transform)
+        local w, h = select(3, obj.quad:getViewport())
+        love.graphics.draw(obj.image, obj.quad, 0, 0, 0, 1, 1, w / 2, h / 2)
     else
-        love.graphics.draw(obj.image, obj.transform)
+        local w, h = obj.image:getDimensions()
+        love.graphics.draw(obj.image, 0, 0, 0, 1, 1, w / 2, h / 2)
     end
 end
 
----@param args {x:number,y:number,type:love.BodyType,shape:(fun(body:love.Body,...):love.Shape),shapeArgs:any[],onClick:function,image:love.Texture?,quad:love.Quad?,transform:love.Transform?,draw:(fun(obj:lootplot.PhysicsBackgroundObject))?,other:any}
+---@param args {x:number,y:number,shape:(fun(body:love.Body,...):love.Shape),shapeArgs:any[],image:love.Texture?,quad:love.Quad?}
 function PhysicsBackground:spawnObject(args)
-    local body = love.physics.newBody(self.world, args.x, args.y, args.type)
+    local body = love.physics.newBody(self.world, args.x, args.y, "dynamic")
     local shape = args.shape(body, unpack(args.shapeArgs))
     ---@class lootplot.PhysicsBackgroundObject
     local t = {
         body = body,
         shape = shape,
-        shapeArgs = args.shapeArgs,
-        type = args.type,
-        onClick = args.onClick,
         image = args.image,
         quad = args.quad,
-        transform = args.transform,
-        draw = args.draw or defaultDraw,
-        other = args.other
     }
     self.objects[#self.objects+1] = t
     return #self.objects
 end
 
-local ITEM_TRANSFORM = love.math.newTransform(0, 0, 0, 1, 1, PHYSICS_ITEM_SIZE, PHYSICS_ITEM_SIZE)
-
 function PhysicsBackground:spawnItem(quad, x, y)
     return self:spawnObject({
         x = x,
         y = y,
-        type = "dynamic",
         shape = love.physics.newCircleShape,
         shapeArgs = {PHYSICS_ITEM_SIZE},
         image = self.atlas.image,
         quad = quad,
-        transform = ITEM_TRANSFORM,
-        other = {item = true}
     })
 end
-
-local MAX_VELOCITY_SCALAR = 20
 
 ---@param body love.Body
 local function limitVelocity(body)
@@ -113,49 +105,49 @@ local function limitVelocity(body)
     end
 end
 
+local function pointInRect(x1, y1, x2, y2, x, y, l)
+    return x >= (x1 - l) and y >= (y1 - l) and x < (x2 + l) and y < (y2 + l)
+end
+
+local function smolRectInBigRect(sx1, sy1, sx2, sy2, bx1, by1, bx2, by2, l)
+    return
+        pointInRect(bx1, by1, bx2, by2, sx1, sy1, l) or
+        pointInRect(bx1, by1, bx2, by2, sx2, sy1, l) or
+        pointInRect(bx1, by1, bx2, by2, sx2, sy2, l) or
+        pointInRect(bx1, by1, bx2, by2, sx1, sy2, l)
+end
+
 function PhysicsBackground:update(dt, transform)
     self.world:update(dt)
 
     -- Note: Center of the screen is (0, 0)
     local width, height = love.graphics.getDimensions()
     local halfWidth = width / 2
-    local screenTY = select(2, transform:inverseTransformPoint(halfWidth, 0))
-    local screenBY = select(2, transform:inverseTransformPoint(halfWidth, height))
+    local screenTX, screenTY = transform:inverseTransformPoint(0, 0)
+    local screenBX, screenBY = transform:inverseTransformPoint(love.graphics.getDimensions())
 
     for _, obj in ipairs(self.objects) do
-        if obj.type ~= "static" then
-            local x, y = obj.body:getPosition()
-            local angle = obj.body:getAngle()
-            local tx, ty, bx, by = obj.shape:computeAABB(x, y, angle)
+        local x, y = obj.body:getPosition()
+        local angle = obj.body:getAngle()
+        local tx, ty, bx, by = obj.shape:computeAABB(x, y, angle)
+        local maxSideSize = math.max(bx - tx, by - ty)
 
-            if ty > screenBY and by > screenBY then
-                -- Relocate
-                local maxSideSize = math.max(bx - tx, by - ty)
-                obj.body:setPosition(width * (math.random() - 0.5), screenTY - maxSideSize - 10)
-
-                if obj.other and obj.other.item then
-                    -- Change quad
-                    obj.quad = self.quads[math.random(1, #self.quads)]
-                end
-            end
-
-            limitVelocity(obj.body)
+        if not smolRectInBigRect(tx, ty, bx, by, screenTX, screenTY - INVISIBLE_Y, screenBX, screenBY, maxSideSize) then
+            -- Relocate
+            local maxSideSize = math.max(bx - tx, by - ty)
+            obj.body:setPosition(width * (math.random() - 0.5), screenTY - maxSideSize - 10)
+            -- Change quad
+            obj.quad = self.quads[math.random(1, #self.quads)]
         end
+
+        limitVelocity(obj.body)
     end
 end
 
 -- X and Y needs to be in physics world space (use inverseTransformPoint)
 function PhysicsBackground:click(x, y)
-    for _, obj in ipairs(self.objects) do
-        if obj.onClick and obj.shape:testPoint(x, y) then
-            obj.onClick()
-            return
-        end
-    end
-
     -- Make items react go away froom the mouse cursor
     -- when clicked.
-    -- Only executed if there's no valid click
     for _, obj in ipairs(self.objects) do
         if obj.type ~= "static" then
             local xx, yy = obj.body:getPosition()
@@ -176,7 +168,7 @@ function PhysicsBackground:draw()
         love.graphics.push()
         love.graphics.translate(obj.body:getPosition())
         love.graphics.rotate(obj.body:getAngle())
-        obj:draw()
+        defaultDraw(obj)
         love.graphics.pop()
     end
 end
