@@ -214,15 +214,15 @@ function love.errorhandler(msg)
             love.graphics.setColor(0.4, 0.4, 0.4)
             love.graphics.draw(blurredCanvas, 0, 0, 0, w / cw, gh / ch)
         end
-        love.graphics.setColor(0.6,0.6,1)
 
+        love.graphics.setColor(1,1,1)
         local height = 15
         love.graphics.printf("THE MELT ZONE", 0, height, w / 2, "center", 0, 2, 2)
         love.graphics.printf("There has been a melt! (This is normal)", 0, height + h2, w / 2, "center", 0, 2, 2)
         love.graphics.printf("Press Ctrl+C to copy error message.", 0, height + 2*h2, w / 2, "center", 0, 2, 2)
         love.graphics.printf("Press R to restart in offline mode.", 0, height + 3*h2, w / 2, "center", 0, 2, 2)
 
-        love.graphics.setColor(0,0.8,0)
+        love.graphics.setColor(1,1,1)
         love.graphics.printf(p, BORDER, BORDER + 3*h2, w)
         love.graphics.present()
     end
