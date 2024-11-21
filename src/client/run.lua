@@ -114,6 +114,23 @@ local function crash_restart()
 end
 
 
+local MELT_ZONE_TEXT = [[THE MELT ZONE
+There has been a melt! (This is normal)
+Press Ctrl+C to copy error message.
+Press R to restart in offline mode.
+]]
+
+local function drawWithOutline(text, font, o, x, y, ...)
+    love.graphics.printf(text, font, x - o, y - o, ...)
+    love.graphics.printf(text, font, x, y - o, ...)
+    love.graphics.printf(text, font, x + o, y - o, ...)
+    love.graphics.printf(text, font, x - o, y, ...)
+    love.graphics.printf(text, font, x + o, y, ...)
+    love.graphics.printf(text, font, x - o, y + o, ...)
+    love.graphics.printf(text, font, x, y + o, ...)
+    love.graphics.printf(text, font, x + o, y + o, ...)
+end
+
 function love.errorhandler(msg)
     msg = tostring(msg)
 
@@ -153,9 +170,13 @@ function love.errorhandler(msg)
     if love.audio then love.audio.stop() end
 
     love.graphics.reset()
-    local f = love.graphics.newFont(15)
-    f:setFilter("linear", "linear")
-    love.graphics.setFont(f)
+
+    -- Make font
+    local font = love.graphics.newFont(15)
+    font:setFilter("linear", "linear")
+    love.graphics.setFont(font)
+    local titleFont = love.graphics.newFont(30)
+    font:setFilter("linear", "linear")
 
     love.graphics.setColor(1, 1, 1)
 
@@ -204,26 +225,25 @@ function love.errorhandler(msg)
         love.graphics.origin()
         love.graphics.setColor(1,1,1)
         local w = love.graphics.getWidth()
-        local font = love.graphics.getFont()
-        local h = font:getHeight()
-        local h2 = h*2
+        local h2 = titleFont:getHeight()
         love.graphics.clear(0,0,0)
         if blurredCanvas then
             local gh = love.graphics.getHeight()
             local cw, ch = blurredCanvas:getDimensions()
-            love.graphics.setColor(0.4, 0.4, 0.4)
+            love.graphics.setColor(0.5, 0.5, 0.5)
             love.graphics.draw(blurredCanvas, 0, 0, 0, w / cw, gh / ch)
         end
 
-        love.graphics.setColor(1,1,1)
         local height = 15
-        love.graphics.printf("THE MELT ZONE", 0, height, w / 2, "center", 0, 2, 2)
-        love.graphics.printf("There has been a melt! (This is normal)", 0, height + h2, w / 2, "center", 0, 2, 2)
-        love.graphics.printf("Press Ctrl+C to copy error message.", 0, height + 2*h2, w / 2, "center", 0, 2, 2)
-        love.graphics.printf("Press R to restart in offline mode.", 0, height + 3*h2, w / 2, "center", 0, 2, 2)
+        love.graphics.setColor(0.5, 0.15, 0.15)
+        drawWithOutline(MELT_ZONE_TEXT, titleFont, 2, 0, height, w, "center", 0)
+        love.graphics.setColor(0.96, 0.63, 0.63)
+        love.graphics.printf(MELT_ZONE_TEXT, titleFont, 0, height, w, "center", 0)
 
+        love.graphics.setColor(0,0,0)
+        drawWithOutline(p, font, 1, BORDER, BORDER + 3*h2, w)
         love.graphics.setColor(1,1,1)
-        love.graphics.printf(p, BORDER, BORDER + 3*h2, w)
+        love.graphics.printf(p, font, BORDER, BORDER + 3*h2, w)
         love.graphics.present()
     end
 
@@ -232,10 +252,6 @@ function love.errorhandler(msg)
         if not love.system then return end
         love.system.setClipboardText(fullErrorText)
         p = p .. "\nCopied to clipboard!"
-    end
-
-    if love.system then
-        p = p .. "\n\nPress Ctrl+C or tap to copy this error"
     end
 
     local function isCtrlCPressed(a)
