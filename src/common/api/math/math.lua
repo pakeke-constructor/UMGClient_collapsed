@@ -85,11 +85,12 @@ local love_math_functions = {
     "newBezierCurve",
     "newRandomGenerator",
     "newTransform",
-    "noise",
+    "perlinNoise",
     "random",
     "randomNormal",
     "setRandomSeed",
     "setRandomState",
+    "simplexNoise",
     "triangulate"
 }
 
