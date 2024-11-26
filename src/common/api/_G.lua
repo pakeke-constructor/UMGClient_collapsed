@@ -37,8 +37,6 @@ return function(lobj)
         getVersion = love.getVersion
     }
 
-    G.json = json
-
     G.print = print
     G.error = error
     G.assert = assert
@@ -88,5 +86,3 @@ return function(lobj)
 
     return G
 end
-
-
