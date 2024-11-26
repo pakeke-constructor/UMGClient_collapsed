@@ -94,7 +94,7 @@ function mod_config.get_mod_config_from_path(pth, is_local)
         end
     end
 
-    local succ, config = pcall(json.decode, contents)
+    local succ, config = pcall(json.json5_decode, contents)
     if succ then
         check_mod_type(config, pth)
         update_uses(config)

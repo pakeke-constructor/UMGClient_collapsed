@@ -105,7 +105,7 @@ local function new_mod_struct(modlist_or_jsondata)
 
     if type(modlist_or_jsondata) == "string" then
         local data = modlist_or_jsondata
-        local tabl = json.decode(data)
+        local tabl = json.json5_decode(data)
         return setmetatable(tabl, mt)
     else
         modlist = modlist_or_jsondata
