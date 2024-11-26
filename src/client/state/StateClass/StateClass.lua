@@ -174,7 +174,9 @@ function State:broadcast(event, ...)
         (ie. the state at the top of the stack)
     ]]
     local top = getTop(self)
-    call(top, event, ...)
+    if top then
+        call(top, event, ...)
+    end
 end
 
 

@@ -53,6 +53,11 @@ function Ingame:onExit()
     if hoster.isHosting() then
         hoster.close()
     end
+
+    -- HACK: If this is the root of the state, exit immediately
+    if self:getRoot() == self then
+        love.event.quit()
+    end
 end
 
 

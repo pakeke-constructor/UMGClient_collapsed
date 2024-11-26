@@ -42,7 +42,6 @@ math.linearToGamma = love.math.linearToGamma
 math.newBezierCurve = love.math.newBezierCurve
 math.newRandomGenerator = love.math.newRandomGenerator
 math.newTransform = love.math.newTransform
-math.noise = love.math.noise
 math.random = love.math.random
 math.randomNormal = love.math.randomNormal
 math.setRandomSeed = love.math.setRandomSeed
