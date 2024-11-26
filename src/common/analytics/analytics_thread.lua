@@ -3,7 +3,6 @@ require("love.system")
 
 local https = require("https")
 local constants = require("src.common.constants")
-local json = require("libs.nm_json.json")
 
 local analyticsStatusChannel = love.thread.getChannel("analytics:channel")
 local analyticsModlistChannel = love.thread.getChannel("analytics:modlist")

@@ -4,7 +4,6 @@ local newBuses = require("src.common.api.umg.buses")
 local newModFSysObj = require("src.common.api.umg.filesystemObjects")
 
 local analyticsService = require("src.common.analytics.analytics_service")
-local json = require("libs.nm_json.json")
 
 
 
