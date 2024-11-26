@@ -21,6 +21,10 @@ local analyticsService = require("src.common.analytics.analytics_service")
 
 local lg = love.graphics
 
+local windowIcon = love.image.newImageData("lootplot/assets/window_icon.png")
+love.window.setIcon(windowIcon)
+
+
 ---@class MenuState: State
 local MenuState = StateClass()
 
