@@ -53,6 +53,18 @@ local function load_file(path, lobj, cache, load_string)
 
     log.trace("Loading file: ", tools.toNamespaced(lobj.modname, path))
     local path_slash = path:gsub("%.", "/")
+
+    -- Fix module name
+    local requireFolder = false
+    if lobj.fsysObj:getInfo(path_slash, "directory") and not lobj.fsysObj:getInfo(path_slash .. ".lua", "file") then
+        path_slash = path_slash.."/init"
+        requireFolder = true
+    elseif pathkey:sub(-5) == ".init" then
+        -- strip .init out
+        pathkey = pathkey:sub(1, -6)
+        requireFolder = true
+    end
+
     local str, err = lobj.fsysObj:read(path_slash .. ".lua")
     if not str then
         error("couldn't load: " .. path_slash, 2)
@@ -69,6 +81,11 @@ local function load_file(path, lobj, cache, load_string)
     local result = chunk(pathkey)
     cache[pathkey] = result
     isLoaded[pathkey] = true
+
+    if requireFolder then
+        cache[pathkey..".init"] = result
+        isLoaded[pathkey..".init"] = true
+    end
 
     return result
 end
