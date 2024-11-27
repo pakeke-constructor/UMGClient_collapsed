@@ -43,7 +43,7 @@ local fdata = assert(love.filesystem.read(HARDCODED_MOD_IDENTIFIERS_FILE))
     can always create their own overwrite in %appdata%.
     (This is absolutely a last ditch resort ^^^^)
 ]]
-local HARDCODED_MODS = json.decode(fdata)
+local HARDCODED_MODS = json.json5_decode(fdata)
 --[[
     should look something like:
 

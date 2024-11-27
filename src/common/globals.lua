@@ -23,7 +23,7 @@ if constants.TEST or constants.DEBUG then
     rawset(_G, "inspect",   require "libs.nm_inspect.inspect")
 end
 
-rawset(_G, "json", require "libs.nm_json.json")
+rawset(_G, "json", require "src.common.json")
 
 rawset(_G, "ffi", require "ffi")
 

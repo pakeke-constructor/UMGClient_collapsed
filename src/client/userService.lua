@@ -68,7 +68,7 @@ local function setupSettings()
 
     if f then
         local status
-        status, currentValues = pcall(json.decode, f:read())
+        status, currentValues = pcall(json.decode, (f:read()))
 
         if not status then
             currentValues = nil

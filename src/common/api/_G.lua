@@ -37,8 +37,6 @@ return function(lobj)
         getVersion = love.getVersion
     }
 
-    G.json = json
-
     G.print = print
     G.error = error
     G.assert = assert
@@ -69,26 +67,25 @@ return function(lobj)
     G.tonumber = tonumber
 
     G.json = {
-        decode = json.decode,
-        encode = json.encode
+        encode = json.encode,
+        decode = json.json5_decode
     }
 
-    G.bit = require("bit")
+    G.bit = G.table.deepCopy(require("bit"))
 
-    G.utf8 = require("utf8")
+    G.utf8 = G.table.deepCopy(require("utf8"))
 
     G.loadstring = require(path .. ".loadstring")(lobj)
 
     local make_require = require(path .. ".require")
     G.require = make_require(lobj, G.loadstring, {
         love = G.love,
-        utf8 = G.table.deepCopy(require("utf8")),
-        bit = G.table.deepCopy(require("bit"))
+        utf8 = G.utf8,
+        bit = G.bit,
+        json = G.json
     })
 
     G._G = lobj.env
 
     return G
 end
-
-

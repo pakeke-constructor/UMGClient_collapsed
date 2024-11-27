@@ -378,8 +378,9 @@ end
 json = {}
 
 ---@param data string
+---@param opts {null:any}?
 ---@return any
-function json.decode(data)
+function json.decode(data, opts)
 end
 
 ---@param data any
