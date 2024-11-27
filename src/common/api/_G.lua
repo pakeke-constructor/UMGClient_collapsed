@@ -66,7 +66,10 @@ return function(lobj)
     G.tostring = tostring
     G.tonumber = tonumber
 
-    G.json = G.table.deepCopy(json)
+    G.json = {
+        encode = json.encode,
+        decode = json.json5_decode
+    }
 
     G.bit = G.table.deepCopy(require("bit"))
 
