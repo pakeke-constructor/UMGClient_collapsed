@@ -215,6 +215,19 @@ local function addLoaderFuncs(umg, lobj)
     function umg.getModName()
         return lobj.modname
     end
+
+    function umg.makeNamespacedString(modname, str)
+        return modname..":"..str
+    end
+
+    function umg.splitNamespacedString(str)
+        local modname, string = str:match("([^:]+):(.+)")
+        if modname and string then
+            return modname, string
+        end
+
+        error("invalid namespaced string '"..str.."'")
+    end
 end
 
 

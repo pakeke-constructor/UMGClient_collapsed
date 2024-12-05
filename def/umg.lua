@@ -80,6 +80,17 @@ end
 function umg.getModName()
 end
 
+---@param modname string
+---@param str string
+---@return string
+function umg.makeNamespacedString(modname, str)
+end
+
+---@param str string
+---@return string,string
+function umg.splitNamespacedString(str)
+end
+
 ---@param name string
 function umg.defineEvent(name)
 end
