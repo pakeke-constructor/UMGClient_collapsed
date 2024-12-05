@@ -293,6 +293,11 @@ local function make_umg(lobj)
     end
 
     umg.log = require("src.common.log")
+
+    if constants.DEV_MODE then
+        umg.DEVELOPMENT_MODE = true
+    end
+
     return umg
 end
 

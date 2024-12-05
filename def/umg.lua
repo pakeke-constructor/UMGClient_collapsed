@@ -1,6 +1,7 @@
 ---@meta
 
 ---@class umg
+---@field DEVELOPMENT_MODE boolean|nil
 umg = {}
 
 ---@param ent any
