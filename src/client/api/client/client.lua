@@ -67,6 +67,11 @@ function client.getMusicVolume()
     return userService.getBGMVolume() / 100
 end
 
+function client.getLanguage()
+    -- TODO
+    return love.system.getPreferredLocales()[1] or "en_US"
+end
+
 
 function client.getClient()
     return userService.clientId

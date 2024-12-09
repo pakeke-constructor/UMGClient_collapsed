@@ -53,6 +53,10 @@ end
 function client.getMusicVolume()
 end
 
+---@return string
+function client.getLanguage()
+end
+
 function client.disconnect()
 end
 
