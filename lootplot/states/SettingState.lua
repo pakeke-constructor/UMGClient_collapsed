@@ -14,16 +14,29 @@ local SettingState = StateClass()
 
 local SettingScene = LUI.Element()
 
-local function formatSliderLabel(elem, prefix, newvalue)
-    elem:setText(string.format("%s: %3d", prefix, newvalue))
+local function formatSliderLabel(elem, newvalue)
+    elem:setText(string.format("%3d", newvalue))
 end
+
+---@param size number
+---@param parent Region
+local function rescaleHeightBy(size, parent)
+    local x, y, w, h = parent:get()
+    return Region(x, y, w, h * size):center(parent)
+end
+
+local ANALYTICS_TEXT = {
+    [false] = "OFF",
+    [true] = "ON"
+}
 
 function SettingScene:init(args)
     assert(args.onClose and args.state)
 
-    self.title = Text("Settings")
+    self.title = Text({text = "Settings", outline = 2})
 
-    self.sfxSliderLabel = Text(" ")
+    self.sfxSliderLabel0 = Text({text = "SFX Volume", align = "left", outline = 1})
+    self.sfxSliderLabel = Text({text = "", align = "right", outline = 1})
     self.sfxSlider = Slider({
         min = 0,
         max = 100,
@@ -31,30 +44,32 @@ function SettingScene:init(args)
         onValueChanged = function(_, value)
             userService.setSFXVolume(value)
             sfx.setVolume(value / 100)
-            formatSliderLabel(self.sfxSliderLabel, "SFX Volume", userService.getSFXVolume())
+            formatSliderLabel(self.sfxSliderLabel, userService.getSFXVolume())
         end
     })
-    self.bgmSliderLabel = Text(" ")
+    self.bgmSliderLabel0 = Text({text = "BGM Volume", align = "left", outline = 1})
+    self.bgmSliderLabel = Text({text = "", align = "right", outline = 1})
     self.bgmSlider = Slider({
         min = 0,
         max = 100,
         value = userService.getBGMVolume(),
         onValueChanged = function(_, value)
             userService.setBGMVolume(value)
-            formatSliderLabel(self.bgmSliderLabel, "BGM Volume", userService.getBGMVolume())
+            formatSliderLabel(self.bgmSliderLabel, userService.getBGMVolume())
         end
     })
 
     -- FIXME: This will be incorrect when user pressed Alt+Enter directly. No clean way to fix it.
+    self.fullscreenLabel = Text({text = "Fullscreen", align = "left", outline = 1})
     self.fullscreenToggle = Toggle({
-        label = "Fullscreen",
         value = love.window.getFullscreen(),
         onValueChanged = love.window.setFullscreen
     })
 
+    self.analyticsLabel = Text({text = "Analytics", align = "left", outline = 1})
     self.analyticsButton = StretchableButton({
         color = COMMON_COLOR.BLUE,
-        text = "Analytics Settings",
+        text = "Change",
         scale = 2,
         onClick = function()
             sfx.click()
@@ -73,22 +88,26 @@ function SettingScene:init(args)
         end,
     })
 
-    formatSliderLabel(self.sfxSliderLabel, "SFX Volume", userService.getSFXVolume())
-    formatSliderLabel(self.bgmSliderLabel, "BGM Volume", userService.getBGMVolume())
+    formatSliderLabel(self.sfxSliderLabel, userService.getSFXVolume())
+    formatSliderLabel(self.bgmSliderLabel, userService.getBGMVolume())
 
     self:addChild(self.title)
+    self:addChild(self.sfxSliderLabel0)
     self:addChild(self.sfxSliderLabel)
     self:addChild(self.sfxSlider)
+    self:addChild(self.bgmSliderLabel0)
     self:addChild(self.bgmSliderLabel)
     self:addChild(self.bgmSlider)
+    self:addChild(self.fullscreenLabel)
     self:addChild(self.fullscreenToggle)
+    self:addChild(self.analyticsLabel)
     self:addChild(self.analyticsButton)
     self:addChild(self.closeButton)
 end
 
 local function debugRegion(region, r, g, b, a)
     love.graphics.setColor(r, g, b, a)
-    love.graphics.rectangle("fill", region:get())
+    love.graphics.rectangle("line", region:get())
     love.graphics.setColor(1, 1, 1)
 end
 
@@ -96,21 +115,34 @@ function SettingScene:onRender(x, y, w, h)
     -- Make below state slightly darker
     local settingWindowRegionBase = Region(x, y, w, h)
     local windowRegion = settingWindowRegionBase:padRatio(0.04)
-    local titleBase, contentUnpad, buttonBase = windowRegion:splitVertical(3, 8, 5)
-
-    local title = titleBase:padRatio(0.01)
-    love.graphics.setColor(1, 1, 1)
-    self.title:render(title:get())
+    local contentUnpad, closeButtonBase = windowRegion:splitVertical(8, 2)
 
     local content = contentUnpad:padRatio(0.04)
-    local sfxLabel, sfx, _, bgmLabel, bgm, _, fullscreen = content:splitVertical(2, 3, 1, 2, 3, 1, 4)
-    self.sfxSliderLabel:render(sfxLabel:get()) -- line 66
+    local sfxLabelBase, sfx, _, bgmLabelBase, bgm, _, fullscreenBase, _, analyticsBase = content:splitVertical(1, 1, 0.6, 1, 1, 0.6, 1, 0.6, 1, 0.6)
+
+    local sfxLabel0, _, sfxLabel = rescaleHeightBy(0.6, sfxLabelBase):splitHorizontal(3, 0.1, 1)
+    self.sfxSliderLabel0:render(sfxLabel0:get())
+    self.sfxSliderLabel:render(sfxLabel:get())
     self.sfxSlider:render(sfx:get())
+
+    local bgmLabel0, _, bgmLabel = rescaleHeightBy(0.6, bgmLabelBase):splitHorizontal(3, 0.1, 1)
+    self.bgmSliderLabel0:render(bgmLabel0:get())
     self.bgmSliderLabel:render(bgmLabel:get())
     self.bgmSlider:render(bgm:get())
+
+    local fullscreenLabel, _, fullscreen = fullscreenBase:splitHorizontal(3, 0.1, 1)
+    -- HACK: Increase the size of fullscreen toggle height
+    local fs = math.min(fullscreen.w, fullscreen.h * 1.5)
+    fullscreen = Region(0, 0, fullscreen.w, fs):center(fullscreen)
+    self.fullscreenLabel:render(rescaleHeightBy(0.6, fullscreenLabel):get())
     self.fullscreenToggle:render(fullscreen:get())
 
-    local analyticsButton, closeButtonBase = buttonBase:splitVertical(3, 5)
+    local analyticsLabel, _, analyticsButton = analyticsBase:splitHorizontal(3, 0.05, 1)
+    self.analyticsLabel:setText("Analytics: "..ANALYTICS_TEXT[userService.isUserConsentedForAnalytics()])
+    self.analyticsLabel:render(rescaleHeightBy(0.6, analyticsLabel):get())
+    -- HACK: Increase the size of analytics button height
+    local ah = math.min(analyticsButton.w, analyticsButton.h * 1.5)
+    analyticsButton = Region(0, 0, analyticsButton.w, ah):center(analyticsButton)
     self.analyticsButton:render(analyticsButton:get())
 
     local closeButton = closeButtonBase:padRatio(0, 0.2, 0, 0)
@@ -138,7 +170,7 @@ function SettingSceneRoot:onRender(x, y, w, h)
     love.graphics.setColor(0, 0, 0, 0.24)
     love.graphics.rectangle("fill", region:get())
 
-    local horizontalWindow = select(2, region:splitHorizontal(1, 2, 1))
+    local horizontalWindow = select(2, region:splitHorizontal(2, 7, 2))
     local verticalWindow = select(2, region:splitVertical(1, 9, 1))
     local settingWindowRegionBase = horizontalWindow:intersection(verticalWindow)
     self.box:render(settingWindowRegionBase:get())
