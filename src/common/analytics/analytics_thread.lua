@@ -1,6 +1,8 @@
 require("love.timer")
 require("love.system")
 
+_G.json = require("libs.nm_json.json")
+
 local https = require("https")
 local constants = require("src.common.constants")
 
