@@ -109,6 +109,7 @@ local function setupListeners(self)
         umgSession:deserializeWorld(pckr_data)
 
         umgSession.eventBus:call("@load")
+        umgSession.eventBus:call("@resize", love.graphics.getDimensions())
         done(self)
     end)
 end
