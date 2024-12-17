@@ -1,8 +1,10 @@
 
 
-local luasteam = require("luasteam")
+local success, luasteam = pcall(require, "luasteam")
 
-local success = luasteam.init()
+if success then
+    success = luasteam.init()
+end
 
 if not success then
     log.error("steam connection failed.")
