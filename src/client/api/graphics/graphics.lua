@@ -175,11 +175,13 @@ local function convert_first_arg_to_filedata(lobj, func)
     ]]
     return function(a,...)
         local t = type(a)
-        if t == "string"  then
+        if t == "string" then
             -- its a filename, convert first arg to filedata
             local path = a
             local filedata = lobj.fsysObj:newFileData(path)
             return func(filedata, ...)
+        elseif isLOVEType(a, "ImageData") then
+            return func(a, ...)
         elseif not isLOVEType(a, "FileData") then
             if isLOVEType(a, "Object") then
                 ---@cast a love.Object
