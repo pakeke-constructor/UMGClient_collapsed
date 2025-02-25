@@ -11,7 +11,9 @@ function LoadingVisual:init(itemAtlas, itemQuads)
     self.items = {}
     self.loadingText = Text({
         text = "Loading",
-        color = {0, 0, 0}
+        color = {1,1,1},
+        outlineColor = {0,0,0},
+        outline = 1
     })
     self.loadingText:makeRoot()
 
@@ -59,7 +61,7 @@ function LoadingVisual:draw()
     love.graphics.rectangle("fill", 0, 0, width, height)
 
     local region = Region(0, 0, width, height)
-    local itemDrawArea, textDrawArea = region:pad(0.25):splitVertical(2, 1)
+    local itemDrawArea, textDrawArea = region:padRatio(0.5):splitVertical(3, 1)
 
     local ix, iy, iw, ih = itemDrawArea:get()
     love.graphics.setColor(1, 1, 1)
