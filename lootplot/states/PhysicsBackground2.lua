@@ -118,6 +118,7 @@ local function smolRectInBigRect(sx1, sy1, sx2, sy2, bx1, by1, bx2, by2, l)
 end
 
 function PhysicsBackground:update(dt, transform)
+    dt = math.min(dt, 1/60) -- cap at 60fps
     self.world:update(dt)
 
     -- Note: Center of the screen is (0, 0)
