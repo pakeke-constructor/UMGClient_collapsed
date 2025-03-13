@@ -61,7 +61,10 @@ function LoadingVisual:draw()
     love.graphics.rectangle("fill", 0, 0, width, height)
 
     local region = Region(0, 0, width, height)
-    local itemDrawArea, textDrawArea = region:padRatio(0.5):splitVertical(3, 1)
+    local itemDrawArea, textDrawArea = region
+        :padRatio(0.5,0.5,0.5,0.5)
+        :splitVertical(3, 1)
+    textDrawArea = textDrawArea:padRatio(0.2, 0.2, 0.2, 0.2)
 
     local ix, iy, iw, ih = itemDrawArea:get()
     love.graphics.setColor(1, 1, 1)
