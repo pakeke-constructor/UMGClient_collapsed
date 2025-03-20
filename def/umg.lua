@@ -213,12 +213,15 @@ umg.achievements = {}
 
 --- Unlocks an achievement. WARNING: This is an expensive operation!!!
 --- This will flush the data to steam, sending over network.
----@param achievementName any
+---@param achievementName string
 function umg.achievements.unlockAchievement(achievementName)
 end
 
----@param achievementName any
----@return boolean
+--- Returns true if the achievement is unlocked,
+--- false if the achievement hasnt yet been achieved,
+--- and nil if the achievement is invalid, OR if there is no steam connection.
+---@param achievementName string
+---@return boolean|nil
 function umg.achievements.getAchievement(achievementName)
 end
 

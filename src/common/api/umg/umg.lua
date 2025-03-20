@@ -247,12 +247,16 @@ local function addAchievements(umg, lobj)
     umg.achievements = {}
 
     function umg.achievements.getAchievement(name)
-        return luasteam.userStats.getAchievement(name)
+        local ok, val = luasteam.userStats.getAchievement(name)
+        if ok then
+            return (not not val)
+        end
+        return nil
     end
 
     function umg.achievements.unlockAchievement(name)
-        if not umg.achievements.getAchievement(name) then
-            -- delta compress ^^^
+        local ok, achievementStatus = luasteam.userStats.getAchievement(name)
+        if ok and (not achievementStatus) then
             luasteam.userStats.setAchievement(name)
             luasteam.userStats.storeStats()
         end
