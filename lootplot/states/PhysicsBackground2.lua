@@ -3,7 +3,7 @@ local AutoAtlas = require("libs.AutoAtlas.AutoAtlas")
 local PHYSICS_ITEM_SIZE = 6
 local GRAVITY = 100
 local NUM_ITEMS = 400
-local MAX_VELOCITY_SCALAR = 20
+local MAX_VELOCITY_SCALAR = 50
 local INVISIBLE_Y = 100
 local ITEMS_DIR = "lootplot/assets/items/"
 
@@ -68,6 +68,7 @@ end
 ---@param args {x:number,y:number,shape:(fun(body:love.Body,...):love.Shape),shapeArgs:any[],image:love.Texture?,quad:love.Quad?}
 function PhysicsBackground:spawnObject(args)
     local body = love.physics.newBody(self.world, args.x, args.y, "dynamic")
+    body:setLinearDamping(3)
     local shape = args.shape(body, unpack(args.shapeArgs))
     ---@class lootplot.PhysicsBackgroundObject
     local t = {
@@ -93,6 +94,7 @@ end
 
 ---@param body love.Body
 local function limitVelocity(body)
+    do return end
     local vx, vy = body:getLinearVelocity()
     local dist = math.sqrt(vx * vx + vy * vy)
 
@@ -140,8 +142,6 @@ function PhysicsBackground:update(dt, transform)
             -- Change quad
             obj.quad = self.quads[math.random(1, #self.quads)]
         end
-
-        limitVelocity(obj.body)
     end
 end
 
@@ -149,6 +149,7 @@ end
 function PhysicsBackground:click(x, y)
     -- Make items react go away froom the mouse cursor
     -- when clicked.
+    local STRENGTH = 3000
     for _, obj in ipairs(self.objects) do
         if obj.type ~= "static" then
             local xx, yy = obj.body:getPosition()
@@ -157,7 +158,7 @@ function PhysicsBackground:click(x, y)
             local l = math.sqrt(dx * dx + dy * dy)
 
             if l > 0 then
-                local s = (mass * 3000) / ( l * l)
+                local s = (mass * STRENGTH) / (l^1.7)
                 obj.body:applyLinearImpulse(s*dx, s*dy)
             end
         end
