@@ -246,13 +246,16 @@ end
 local function addAchievements(umg, lobj)
     umg.achievements = {}
 
-    function umg.achievements.getAchievement()
-        return luasteam.userStats.getAchievement()
+    function umg.achievements.getAchievement(name)
+        return luasteam.userStats.getAchievement(name)
     end
 
-    function umg.achievements.setAchievement(name)
-        luasteam.userStats.setAchievement(name)
-        luasteam.userStats.storeStats()
+    function umg.achievements.unlockAchievement(name)
+        if not umg.achievements.getAchievement(name) then
+            -- delta compress ^^^
+            luasteam.userStats.setAchievement(name)
+            luasteam.userStats.storeStats()
+        end
     end
 end
 

@@ -208,6 +208,21 @@ umg.analytics = {}
 function umg.analytics.collect(name, contents)
 end
 
+
+umg.achievements = {}
+
+--- Unlocks an achievement. WARNING: This is an expensive operation!!!
+--- This will flush the data to steam, sending over network.
+---@param achievementName any
+function umg.achievements.unlockAchievement(achievementName)
+end
+
+---@param achievementName any
+---@return boolean
+function umg.achievements.getAchievement(achievementName)
+end
+
+
 ---@class EntityClass
 ---@field public id integer
 local EntityClass = {}
