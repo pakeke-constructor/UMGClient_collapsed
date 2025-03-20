@@ -243,6 +243,21 @@ end
 
 
 
+local function addAchievements(umg, lobj)
+    umg.achievements = {}
+
+    function umg.achievements.getAchievement()
+        return luasteam.userStats.getAchievement()
+    end
+
+    function umg.achievements.setAchievement(name)
+        luasteam.userStats.setAchievement(name)
+        luasteam.userStats.storeStats()
+    end
+end
+
+
+
 local function make_umg(lobj)
     local umg = {}
 
@@ -255,6 +270,8 @@ local function make_umg(lobj)
     addLoaderFuncs(umg, lobj)
 
     addAnalytics(umg, lobj)
+
+    addAchievements(umg, lobj)
 
     local buses = newBuses(lobj)
     umg.defineEvent = buses.defineEvent
