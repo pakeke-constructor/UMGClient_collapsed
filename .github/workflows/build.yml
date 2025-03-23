@@ -108,7 +108,7 @@ jobs:
       run: |
         set -e
         cp -r main/build/love/win64 windows
-        rm windows/love.exe windows/love_orig.exe windows/love.ico windows/lovec.exe
+        rm windows/love.exe windows/love.ico windows/lovec.exe
     - name: Add 3rd-party Libs (Windows Fusing)
       run: |
         set -e
