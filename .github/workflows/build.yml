@@ -166,6 +166,7 @@ jobs:
           echo ${{ inputs.app_id }} > build/win64/steam_appid.txt
       - name: Deploy to Steam
         uses: game-ci/steam-deploy@v3
+        continue-on-error: true
         with:
           username: ${{ secrets.STEAM_USERNAME }}
           configVdf: ${{ secrets.STEAM_CONFIG_VDF}}
