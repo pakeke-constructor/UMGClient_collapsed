@@ -280,9 +280,8 @@ end)
 
 MenuState:on("mousepressed", function(self, x, y, b)
     if not self:_performLUIButtonsPress(x, y, b) then
-        if b == 1 then
-            self.physicsWorld:click(self.physicsTransform:inverseTransformPoint(x, y))
-        end
+        local xx, yy = self.physicsTransform:inverseTransformPoint(x, y)
+        self.physicsWorld:mousepressed(xx, yy, b)
     end
 end)
 

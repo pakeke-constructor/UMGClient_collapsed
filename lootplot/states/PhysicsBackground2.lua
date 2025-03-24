@@ -146,10 +146,20 @@ function PhysicsBackground:update(dt, transform)
 end
 
 -- X and Y needs to be in physics world space (use inverseTransformPoint)
-function PhysicsBackground:click(x, y)
+function PhysicsBackground:mousepressed(x, y, b)
     -- Make items react go away froom the mouse cursor
     -- when clicked.
     local STRENGTH = 3000
+    local dir
+
+    if b == 1 then
+        dir = 1
+    elseif b == 2 then
+        dir = -1 -- left click sucks items in
+    else
+        return
+    end
+
     for _, obj in ipairs(self.objects) do
         if obj.type ~= "static" then
             local xx, yy = obj.body:getPosition()
@@ -159,7 +169,7 @@ function PhysicsBackground:click(x, y)
 
             if l > 0 then
                 local s = (mass * STRENGTH) / (l^1.7)
-                obj.body:applyLinearImpulse(s*dx, s*dy)
+                obj.body:applyLinearImpulse(s*dx*dir, s*dy*dir)
             end
         end
     end
