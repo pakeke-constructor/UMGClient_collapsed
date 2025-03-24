@@ -339,7 +339,10 @@ function love.run()
             end
 
             love.graphics.push("all")
-            love.graphics.setCanvas(canvas)
+            love.graphics.setCanvas({
+                {canvas},
+                stencil = true
+            })
             love.graphics.clear(love.graphics.getBackgroundColor())
 
             love.graphics.push("all")

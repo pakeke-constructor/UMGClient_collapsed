@@ -26,7 +26,7 @@ function ScrollBox:init(args)
     self:addChild(args.content)
     self.content = args.content
 
-    self.scroll = elements.ScrollBar({
+    self.scroll = ui.elements.ScrollBar({
         sensitivity = args.sensitivity
     })
     self:addChild(self.scroll)

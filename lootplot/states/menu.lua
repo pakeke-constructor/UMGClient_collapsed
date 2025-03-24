@@ -9,6 +9,7 @@ local PhysicsBackground = require("lootplot.states.PhysicsBackground2")
 local HosterSetup = require("src.client.state.setup.HosterSetup")
 local AnalyticsPopupState = require("lootplot.states.AnalyticsPopupState")
 local SettingState = require("lootplot.states.SettingState")
+local CreditsState = require("lootplot.states.CreditsState")
 
 local LoadingVisual = require("lootplot.states.LoadingVisual")
 local TransitionState = require("lootplot.states.TransitionState")
@@ -80,10 +81,15 @@ local function startHost(self)
 end
 
 
+local LOOTPLOT_WISHLIST_LINK = "https://store.steampowered.com/app/3057190/LOOTPLOT/"
+
+
 function MenuState:init()
     self.physicsTransform = love.math.newTransform()
     self.doNotFree = false
+
     self.settingState = SettingState()
+    self.creditsState = CreditsState()
 
     self.playButton = StretchableButton({
         color = COMMON_COLOR.BLUE,
@@ -102,13 +108,22 @@ function MenuState:init()
             love.system.openURL(constants.DISCORD_LINK)
         end
     })
+    self.creditsButton = StretchableButton({
+        color = COMMON_COLOR.RED,
+        text = "Credits",
+        scale = 2,
+        onClick = function()
+            sfx.click()
+            self:_openCredits()
+        end
+    })
     self.wishlistButton = StretchableButton({
         color = COMMON_COLOR.GREEN,
         text = "Wishlist!",
         scale = 2,
         onClick = function()
             sfx.click()
-            print("Wishlist link goes here")
+            love.system.openURL(LOOTPLOT_WISHLIST_LINK)
         end
     })
     self.settingButton = Button({
@@ -126,6 +141,7 @@ function MenuState:init()
     -- So make everything a root element for now.
     self.playButton:makeRoot()
     self.discordButton:makeRoot()
+    self.creditsButton:makeRoot()
     self.wishlistButton:makeRoot()
     self.settingButton:makeRoot()
 end
@@ -135,7 +151,8 @@ function MenuState:_performLUIButtonsPress(...)
         self.playButton:mousepressed(...) or
         self.discordButton:mousepressed(...) or
         self.wishlistButton:mousepressed(...) or
-        self.settingButton:mousepressed(...)
+        self.settingButton:mousepressed(...) or
+        self.creditsButton:mousepressed(...)
 end
 
 function MenuState:_performLUIButtonsRelease(...)
@@ -143,6 +160,7 @@ function MenuState:_performLUIButtonsRelease(...)
     self.discordButton:mousereleased(...)
     self.wishlistButton:mousereleased(...)
     self.settingButton:mousereleased(...)
+    self.creditsButton:mousereleased(...)
 end
 
 -- Since we're making all the button a root element, we have to render them ourselves.
@@ -155,11 +173,16 @@ function MenuState:_performLUIRender(x, y, w, h)
         :centerX(playbuttonBase)
         :attachToTopOf(playbuttonBase)
         :moveRatio(0, 1)
-    -- Where 70, 18 comes from?
-    local wishlistButton = Region(0, 0, 70 * s, 18 * s)
+    local creditsButton = Region(0, 0, 70 * s, 18 * s)
         :attachToLeftOf(region)
         :attachToBottomOf(region)
         :moveRatio(1, -1)
+        :moveUnit(10, -10)
+    -- Where 70, 18 comes from?
+    local wishlistButton = Region(0, 0, 70 * s, 18 * s)
+        :attachToLeftOf(region)
+        :attachToTopOf(creditsButton)
+        :moveRatio(1, 0)
         :moveUnit(10, -10)
     -- Where 26 comes from? Icon dimension
     local discordButton = Region(0, 0, 26 * s, 26 * s)
@@ -175,6 +198,7 @@ function MenuState:_performLUIRender(x, y, w, h)
         :moveUnit(-10, -10)
 
     self.playButton:render(playButton:get())
+    self.creditsButton:render(creditsButton:get())
     self.wishlistButton:render(wishlistButton:get())
     self.discordButton:render(discordButton:get())
     self.settingButton:render(settingButton:get())
@@ -189,6 +213,11 @@ end
 function MenuState:_gotoSettings()
     self.doNotFree = true
     self:push(self.settingState)
+end
+
+function MenuState:_openCredits()
+    self.doNotFree = true
+    self:push(self.creditsState)
 end
 
 function MenuState:_showConsent()

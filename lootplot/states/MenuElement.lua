@@ -33,9 +33,9 @@ function MenuElement:onRender(x,y,w,h)
     -- Draw button
     local region = Region(x,y,w,h)
     local a,_ = region:splitHorizontal(0.3,0.7)
-    a,_ = a:splitVertical(0.2,0.8):pad(0.1)
+    a,_ = a:splitVertical(0.2,0.8):padRatio(0.1)
 
-    self.playButton:render(region:pad(0.25):get())
+    self.playButton:render(region:padRatio(0.25):get())
 end
 
 
