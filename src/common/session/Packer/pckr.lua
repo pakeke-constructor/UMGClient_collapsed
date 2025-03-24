@@ -61,7 +61,6 @@ local TABLE_WITH_META = "\244" -- ( table // flat-table // array, metatable )
 local ARRAY   = "\246" -- (just values)
 local ARRAY_END = "\247"
 
-local TEMPLATE = "\248"
 local TABLE   = "\249" -- (table data; must use `pairs` to serialize)
 
 local TABLE_END = "\250" -- NULL terminator for tables.
@@ -117,9 +116,6 @@ function PckrState:init(options)
         -- resource registration:
     self.alias_to_resource = {}
     self.resource_to_alias = {}
-
-    -- templates:
-    self.mt_to_template = {} -- metatable --> template
 
     self.is_entity_mt = {--[[
         [mt] --> true / false
@@ -217,10 +213,6 @@ end
 
 
 
-local function unregister_low(self, meta)
-    self.mt_to_template[meta] = nil
-end
-
 
 local function get_res_alias(self, res_or_alias)
     -- gets resource, alias  tuple with either res or alias.
@@ -252,14 +244,6 @@ function PckrState:unregister(res_or_alias)
 end
 
 
-
-
-function PckrState:lowlevel_set_template(res_or_alias, templ)
-    assert(#templ > 0, "pckr: Incorrect template usage. See readme.md")
-    local res, _ = get_res_alias(self, res_or_alias)
-    assert(res, "must be used on a registered type!")
-    self.mt_to_template[res] = templ
-end
 
 
 
@@ -362,16 +346,29 @@ setmetatable(serializers, {__index = function() return force_push_resource end})
 
 
 
+local MAX_ARRAY_SIZE = 200000
 
 local function push_array_to_buffer(buffer, x)
     push_str(buffer, ARRAY)
-    local arr_len = #x
-    for i=1, arr_len do
-        serializers[type(x[i])](buffer, x[i])
+    local arr_len = 1
+    --[[
+    we cant use `#` here, because there could be gaps.
+    # operator doesn't guarantee no gaps, which kinda sucks
+    ]]
+    for i=1, MAX_ARRAY_SIZE do
+        local val = rawget(x,i)
+        if val then
+            serializers[type(val)](buffer, val)
+        else
+            push_str(buffer, ARRAY_END)
+            return arr_len
+        end
     end
+
     push_str(buffer, ARRAY_END)
-    return arr_len
+    return MAX_ARRAY_SIZE
 end
+
 
 local function should_skip(arr_len, key)
     -- returns whether this key should be skipped because it's in the array
@@ -401,54 +398,22 @@ end
 --[[     anatomy:
 
 `ARRAY`  --> denotes a list of values. <val1, val2, ...>
-`TEMPLATE`  --> denotes a templates type.  <typename, val1, val2, val3, ...>
 `TABLE` --> denotes a key-val relation:  <key1, val1, key2, val2, ...>
 
 
 possible types:
 
 `TABLE_WITH_META`  (`ARRAY` <arr_data> `TABLE` <table_data> TABLE_END)    <meta>
-`TABLE_WITH_META`  (`ARRAY` <arr_data> `TEMPLATE` <table_data> TABLE_END)   <meta>
 `TABLE_WITH_META`  (`TABLE` <data> TABLE_END)    <meta>
 note that template can't have regular keys afterwards   
 
 ]]
 
-local function push_template(buffer, x, meta, arr_len)
-    push_str(buffer, TABLE)
-    push_str(buffer, TABLE_END)
-    -- gotta push this to inform deserializer that the metatable isn't
-
-    serializers.table(buffer, meta)
-
-    push_str(buffer, TEMPLATE)
-    local template = buffer.self.mt_to_template[meta]
-    for i=1, #template do
-        local k = template[i]
-        if not should_skip(arr_len, k) then
-            local val = x[k]
-            serializers[type(val)](buffer, val)
-        end
-    end
-    push_str(buffer, TABLE_END)
-end
-
-
 
 local function serialize_with_meta(buffer, x, meta)
     push_str(buffer, TABLE_WITH_META)
-
-    if buffer.self.mt_to_template[meta] then
-        local arr_len = nil
-        if rawget(x, 1) then
-            arr_len = push_array_to_buffer(buffer, x)
-        end
-        push_template(buffer, x, meta, arr_len)
-    else
-        -- gonna have to serialize normally, oh well
-        serialize_raw(buffer, x)
-        serializers.table(buffer, meta)
-    end
+    serialize_raw(buffer, x)
+    serializers.table(buffer, meta)
 end
 
 
@@ -753,7 +718,6 @@ deserializers[TABLE_WITH_META] = function(re)
         TABLE_WITH_META
         TABLE / ARRAY (...)
          <<metatable>>
-        TEMPLATE - optional
 
         The template must be after the metatable, else pckr won't know
         what the template is!
@@ -774,15 +738,6 @@ deserializers[TABLE_WITH_META] = function(re)
         return nil, "TABLE_WITH_META requires the signature: [tabl],[metatab]. `metatab` was of type: " .. type(meta)
     end
 
-    if peek(re) == TEMPLATE then
-        local er3
-        re.index = re.index + 1
-        tabl, er3 = deserializers[TEMPLATE](re, tabl, meta)
-        if er3 then
-            return nil, er3
-        end
-    end
-
     return setmetatable(tabl, meta)
 end
 
@@ -791,7 +746,6 @@ end
 
 local ALLOWED_TOKENS_AFTER_ARRAY = {
     [TABLE] = true;
-    [TEMPLATE] = true;
 }
 
 local tinsert = table.insert
@@ -804,7 +758,7 @@ local MAX_LOOP = 200000
 
 deserializers[ARRAY] = function(re, tabl, mt_or_nil)
     -- Remember for an array: 
-    -- TABLE, TEMPLATE, or TABLE_END could all follow!
+    -- TABLE, or TABLE_END could all follow!
     -- We must account for that; `ARRAY` should automatically pull these extra
     -- headers.
     if not tabl then
@@ -930,46 +884,6 @@ deserializers[ENT_ID] = function(re)
     return res
 end
 
-
-deserializers[TEMPLATE] = function(re, tabl_or_nil, meta)
-    if not (meta) then
-        return nil, "deserializers[TEMPLATE](re, meta, tab_or_nil) didn't pass in meta!"
-    end
-
-    local templ = re.self.mt_to_template[meta]
-    if not (templ) then
-        return nil, "deserializers[TEMPLATE]: No template for metatable type! (make sure it is registered)"
-    end
-
-    local tabl
-    if tabl_or_nil then
-        tabl = tabl_or_nil
-    else
-        tabl = {}
-        pull_ref(re, tabl)
-    end
-    
-    local i = 1
-    local tlen = #templ
-
-    while i <= tlen do
-        local x, err = pull(re)
-        if err then
-            return nil, "deserializers[TEMPLATE]: " .. err
-        end
-        local key = templ[i]
-        tabl[key] = x
-        i = i + 1
-    end
-
-    local x, err = pull(re)
-    if x ~= UNIQUE_TABLE_END then
-        -- we don't *really* need this here, but it's safer to check.
-        return nil, "deserializers[TEMPLATE]: " .. err
-    end
-
-    return tabl
-end
 
 
 deserializers[ARRAY_END] = function(_)

@@ -144,6 +144,16 @@ end
 
 
 
+
+do
+local a = {1, nil, 2, nil, 5}
+check(a)
+end
+
+
+
+
+
 do
 for i=1, 10 do
     check(string.rep("r", i))
@@ -246,16 +256,6 @@ table.insert(a,a)
 check(a)
 end
 
-
-do
-local oop = {"z;kjdfsjild", foo = "Bar"}
-local mt = {__index = oop}
-pckrState:register(mt, "mt_checker")
-pckrState:lowlevel_set_template(mt, {"a", "b", "c"})
-local a = setmetatable({a=30949, b=mt, c=88800.589}, mt)
-check(a)
-pckrState = newDummyPckrState()
-end
 
 
 do
