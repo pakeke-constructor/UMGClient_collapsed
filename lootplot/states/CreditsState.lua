@@ -224,16 +224,6 @@ function CreditsScene:init(args)
         }
     }
 
-    for _, t in ipairs(credits) do
-        assert(t.credits and t.title)
-        print("===================")
-        print(t.title)
-        print("===================")
-        for _,v in ipairs(t.credits) do
-            print("   ", v)
-        end
-    end
-
     assert(ui.elements)
     self.creditsScrollBox = ui.elements.ScrollBox({
         content = CreditsTextBox(credits)
