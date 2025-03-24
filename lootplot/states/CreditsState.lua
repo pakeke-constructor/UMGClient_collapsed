@@ -34,12 +34,23 @@ function CreditsTextBox:onRender(x,y,w,h)
     local fontH = love.graphics.getFont():getHeight()
 
     local currY = y + fontH
+    local currX = x + fontH
+
     for _, creditSection in ipairs(self.credits) do
-        love.graphics.printf(creditSection.title, x, currY, limit, "left", 0, 2, 2)
+        love.graphics.setColor(0,0,0)
+        do
+        local d = 2
+        love.graphics.printf(creditSection.title, currX-d, currY-d, limit, "left", 0, 2, 2)
+        love.graphics.printf(creditSection.title, currX+d, currY+d, limit, "left", 0, 2, 2)
+        love.graphics.printf(creditSection.title, currX-d, currY+d, limit, "left", 0, 2, 2)
+        love.graphics.printf(creditSection.title, currX+d, currY-d, limit, "left", 0, 2, 2)
+        love.graphics.setColor(1,1,1)
+        love.graphics.printf(creditSection.title, currX, currY, limit, "left", 0, 2, 2)
+        end
 
         currY = currY + 3 * fontH
         for _, txt in ipairs(creditSection.credits) do
-            love.graphics.printf(txt, x, currY, limit, "left")
+            love.graphics.printf(txt, currX, currY, limit, "left")
             currY = currY + fontH
         end
 
@@ -91,8 +102,8 @@ function CreditsScene:init(args)
     self.title = Text({text = "Credits", outline = 1})
 
     self.closeButton = StretchableButton({
-        color = COMMON_COLOR.GREEN,
-        text = "Apply",
+        color = COMMON_COLOR.RED,
+        text = "X",
         scale = 2,
         onClick = function()
             userService.saveSettings()
@@ -204,6 +215,12 @@ function CreditsScene:init(args)
             credits = {
                 "All other assets under CC0."
             }
+        },
+        {
+            title = "Special Thanks",
+            credits = {
+                "UC Center for Entrepreneurship",
+            }
         }
     }
 
@@ -244,13 +261,23 @@ function CreditsScene:onRender(x, y, w, h)
 
     local windowRegion = window:padRatio(0.04)
 
-    local title, content, closeButtonBase = windowRegion:splitVertical(2, 8, 2)
+    local header, content = windowRegion:splitVertical(2, 8)
 
-    self.creditsScrollBox:render(content:padRatio(0.1):get())
+    local creditsBox = content:padRatio(0.1, 0, 0.1, 0.1)
+    love.graphics.push("all")
+    love.graphics.setColor(0,0,0)
+    love.graphics.setLineWidth(4)
+    love.graphics.rectangle("line", creditsBox:get())
+    creditsBox = creditsBox:padUnit(4)
+    love.graphics.setColor(COMMON_COLOR.ULTRA_DARK_BROWN)
+    love.graphics.rectangle("fill", creditsBox:get())
+    self.creditsScrollBox:render(creditsBox:get())
+    love.graphics.pop()
 
+    local _, title, _, closeButtonBase = header:splitHorizontal(1,7,1,2)
     self.title:render(title:padRatio(0.3, 0.3, 0.3, 0.1):get())
 
-    local closeButton = closeButtonBase:padRatio(0, 0.2, 0, 0)
+    local closeButton = closeButtonBase:padRatio(0.2)
     self.closeButton:render(closeButton:get())
 end
 
