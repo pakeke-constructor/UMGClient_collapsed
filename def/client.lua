@@ -41,17 +41,30 @@ end
 function client.getClient()
 end
 
+
 ---@return number
 function client.getMasterVolume()
 end
-
 ---@return number
 function client.getSFXVolume()
 end
-
 ---@return number
 function client.getMusicVolume()
 end
+
+
+---@param x number
+function client.setMasterVolume(x)
+end
+---@param x number
+function client.setSFXVolume(x)
+end
+---@param x number
+function client.setMusicVolume(x)
+end
+
+
+
 
 ---@return string
 function client.getLanguage()
@@ -59,6 +72,9 @@ end
 
 function client.disconnect()
 end
+
+
+
 
 ---Returns writable (potentially persistent) filesystem object for the particular mod. Data stored in here is shared
 ---across all servers.

@@ -55,17 +55,38 @@ end
 
 
 
+---@return number
 function client.getMasterVolume()
     return userService.getMasterVolume() / 100
 end
 
+---@return number
 function client.getSFXVolume()
     return userService.getSFXVolume() / 100
 end
 
+---@return number
 function client.getMusicVolume()
     return userService.getBGMVolume() / 100
 end
+
+
+---@param x number
+function client.setMasterVolume(x)
+    userService.setMasterVolume(x * 100)
+end
+
+---@param x number
+function client.setSFXVolume(x)
+    userService.setSFXVolume(x * 100)
+end
+
+---@param x number
+function client.setMusicVolume(x)
+    userService.setBGMVolume(x * 100)
+end
+
+
 
 function client.getLanguage()
     -- TODO
