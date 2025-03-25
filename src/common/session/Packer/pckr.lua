@@ -382,7 +382,6 @@ local function serialize_raw(buffer, x)
     local arr_len
     if rawget(x, 1) then
         arr_len = push_array_to_buffer(buffer, x)
-        print("ARR-LEN: ", arr_len)
     end
 
     push_str(buffer, TABLE)
