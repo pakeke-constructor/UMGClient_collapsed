@@ -146,7 +146,7 @@ end
 
 
 do
-local a = {1, nil, 2, nil, 5}
+local a = {1, 1, 1, 1, nil, 1, 1, 1}
 check(a)
 end
 
