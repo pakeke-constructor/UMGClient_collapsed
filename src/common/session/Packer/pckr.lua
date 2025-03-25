@@ -357,7 +357,7 @@ local function push_array_to_buffer(buffer, x)
     ]]
     for i=1, MAX_ARRAY_SIZE do
         local val = rawget(x,i)
-        if val then
+        if val ~= nil then
             serializers[type(val)](buffer, val)
         else
             push_str(buffer, ARRAY_END)
