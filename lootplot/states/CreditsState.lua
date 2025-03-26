@@ -91,7 +91,9 @@ end
 
 local function alphabeticallyOrdered(list)
     local tabl = table.copy(list)
-    table.sort(tabl)
+    table.sort(tabl, function(a, b)
+        return a:lower() < b:lower()
+    end)
     return tabl
 end
 
@@ -186,16 +188,18 @@ function CreditsScene:init(args)
                 Ravi Lebgue
                 Tturna
                 illogicalapple
-                Juice_Baby
                 Anoomi
                 da_shreddah
                 iamcheeseman
                 Dot32
                 pablomaybre
+                IKEA
                 nemene
                 sugarsz
+                Sheeppollution
                 pressbackspace
                 Metta
+                Zomebody
             ]])
         },
         {
