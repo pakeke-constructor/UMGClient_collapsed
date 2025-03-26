@@ -193,7 +193,7 @@ function EntityType:getTypename()
     return self.___typename
 end
 
-function EntityType:getEntityMt()
+function EntityType:getEntityMetatable()
     return self.___ent_mt
 end
 

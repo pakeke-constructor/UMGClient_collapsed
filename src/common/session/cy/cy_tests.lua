@@ -259,7 +259,7 @@ do
     flush(ctx)
     local ent = ctx.groups.all[1]
     local etype = ent:getEntityType()
-    assert(getmetatable(ent) == etype:getEntityMt())
+    assert(getmetatable(ent) == etype:getEntityMetatable())
     assert(etype:getTypename())
 end
 

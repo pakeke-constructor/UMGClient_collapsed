@@ -40,7 +40,15 @@ end
 function umg.serialize(...)
 end
 
----@alias EntityType table<string,any>|fun(...):Entity
+
+---@class EntityTypeClass
+local EntityTypeClass = {}
+
+---@return string typename the etypes qualified type-name (eg my_mod:shotgun )
+function EntityTypeClass:getTypename()
+end
+
+---@alias EntityType table<string,any>|fun(...):Entity|EntityTypeClass
 
 ---@param data string
 ---@param options? {entityTypeFallbackHandler?:fun(name:string):(EntityType?),resourceFallbackHandler?:fun(name:string):any}

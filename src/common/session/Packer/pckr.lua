@@ -197,7 +197,7 @@ function PckrState:registerEntityType(etype_name, etype)
     assert(type(etype_name) == "string")
     assert(type(etype) == "table")
     
-    local entity_mt = etype:getEntityMt()
+    local entity_mt = etype:getEntityMetatable()
 
     self.is_entity_mt[entity_mt] = true
     self.typename_to_etype[etype_name] = etype
