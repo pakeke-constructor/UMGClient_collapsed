@@ -29,6 +29,23 @@ function CreditsTextBox:init(credits)
 end
 
 
+---@param txt string
+---@param x number
+---@param y number
+---@param limit number
+local function printWrapped(txt, x,y, limit)
+    local f = love.graphics.getFont()
+    local fontH = f:getHeight()
+    local _, wrapped = f:getWrap(txt, limit)
+    local currY = y
+    for _, t in ipairs(wrapped) do
+        love.graphics.print(t, x,currY)
+        currY = currY + fontH
+    end
+    return currY
+end
+
+
 function CreditsTextBox:onRender(x,y,w,h)
     local limit = w
     local fontH = love.graphics.getFont():getHeight()
@@ -50,8 +67,7 @@ function CreditsTextBox:onRender(x,y,w,h)
 
         currY = currY + 3 * fontH
         for _, txt in ipairs(creditSection.credits) do
-            love.graphics.printf(txt, currX, currY, limit, "left")
-            currY = currY + fontH
+            currY = printWrapped(txt, currX, currY, limit)
         end
 
         currY = currY + 3 * fontH
