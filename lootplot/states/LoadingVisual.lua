@@ -21,7 +21,7 @@ function LoadingVisual:init(itemAtlas, itemQuads)
     for i = 1, 10 do
         self.items[#self.items+1] = {
             quad = self.itemQuad[love.math.random(1, #self.itemQuad)],
-            duration = love.math.random() * 2 + 0.75, -- duration and jump height
+            duration = (i / 7) + 0.5, -- duration and jump height
             time = 0
         }
     end
