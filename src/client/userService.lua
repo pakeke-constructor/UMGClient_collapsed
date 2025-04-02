@@ -57,8 +57,8 @@ local SETTINGS_FILENAME = "umg_client_settings.json"
 -- Configure variables here
 local settings = {
     masterVolume = 100,
-    sfxVolume = 50,
-    bgmVolume = 30,
+    sfxVolume = 40,
+    bgmVolume = 25,
     analytics = 0, -- 0 = undecided, 1 = agree, 2 = deny
 }
 
