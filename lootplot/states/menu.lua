@@ -101,6 +101,15 @@ function MenuState:init()
             startHost(self)
         end
     })
+    self.quitButton = StretchableButton({
+        text = "X",
+        color = COMMON_COLOR.RED,
+        scale = 2,
+        onClick = function()
+            love.event.quit()
+        end
+    })
+
     self.discordButton = Button({
         image = love.graphics.newImage("lootplot/assets/ui/modified_discord_logo.png"),
         onClick = function()
@@ -144,6 +153,7 @@ function MenuState:init()
     self.creditsButton:makeRoot()
     self.wishlistButton:makeRoot()
     self.settingButton:makeRoot()
+    self.quitButton:makeRoot()
 end
 
 function MenuState:_performLUIButtonsPress(...)
@@ -152,7 +162,8 @@ function MenuState:_performLUIButtonsPress(...)
         self.discordButton:mousepressed(...) or
         self.wishlistButton:mousepressed(...) or
         self.settingButton:mousepressed(...) or
-        self.creditsButton:mousepressed(...)
+        self.creditsButton:mousepressed(...) or
+        self.quitButton:mousepressed(...)
 end
 
 function MenuState:_performLUIButtonsRelease(...)
@@ -161,6 +172,7 @@ function MenuState:_performLUIButtonsRelease(...)
     self.wishlistButton:mousereleased(...)
     self.settingButton:mousereleased(...)
     self.creditsButton:mousereleased(...)
+    self.quitButton:mousereleased(...)
 end
 
 -- Since we're making all the button a root element, we have to render them ourselves.
@@ -169,6 +181,14 @@ function MenuState:_performLUIRender(x, y, w, h)
     local region = Region(x, y, w, h)
 
     local titleLogo, playbuttonBase = region:splitVertical(3, 2)
+
+    local quitButton
+    do
+    local header,_ = region:splitVertical(1,6)
+    _, quitButton = header:splitHorizontal(8,1)
+    quitButton = quitButton:padRatio(0.2)
+    end
+
     local playButton = Region(0, 0, 100 * s, 30 * s)
         :centerX(playbuttonBase)
         :attachToTopOf(playbuttonBase)
@@ -202,11 +222,13 @@ function MenuState:_performLUIRender(x, y, w, h)
     self.wishlistButton:render(wishlistButton:get())
     self.discordButton:render(discordButton:get())
     self.settingButton:render(settingButton:get())
+    self.quitButton:render(quitButton:get())
 
     -- Render logo
     local lw, lh = self.logo:getDimensions()
     local cx, cy = titleLogo:getCenter()
     cy = cy + 7 * math.sin(love.timer.getTime() % 5 / 5 * 2 * math.pi)
+    love.graphics.setColor(1,1,1)
     love.graphics.draw(self.logo, cx, cy, 0, s * 0.75, s * 0.75, lw / 2, lh / 2)
 end
 
