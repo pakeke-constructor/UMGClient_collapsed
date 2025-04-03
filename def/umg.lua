@@ -222,6 +222,7 @@ umg.achievements = {}
 --- Unlocks an achievement. WARNING: This is an expensive operation!!!
 --- This will flush the data to steam, sending over network.
 ---@param achievementName string
+---@return boolean success Whether the operation succeeded
 function umg.achievements.unlockAchievement(achievementName)
 end
 

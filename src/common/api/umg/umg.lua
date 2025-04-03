@@ -247,6 +247,7 @@ local function addAchievements(umg, lobj)
     umg.achievements = {}
 
     function umg.achievements.getAchievement(name)
+        if not luasteam.CONNECTED then return false end
         local ok, val = luasteam.userStats.getAchievement(name)
         if ok then
             return (not not val)
@@ -255,10 +256,12 @@ local function addAchievements(umg, lobj)
     end
 
     function umg.achievements.unlockAchievement(name)
+        if not luasteam.CONNECTED then return false end
         local ok, achievementStatus = luasteam.userStats.getAchievement(name)
         if ok and (not achievementStatus) then
             luasteam.userStats.setAchievement(name)
             luasteam.userStats.storeStats()
+            return ok
         end
     end
 end
