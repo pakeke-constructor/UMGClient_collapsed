@@ -119,6 +119,8 @@ function CreditsScene:init(args)
     assert(args.onClose)
     self.title = Text({text = "Credits", outline = 1})
 
+    self.font = love.graphics.getFont()
+
     self.closeButton = StretchableButton({
         color = COMMON_COLOR.RED,
         text = "X",
@@ -258,6 +260,8 @@ end
 
 
 function CreditsScene:onRender(x, y, w, h)
+    love.graphics.setFont(self.font)
+
     -- Make below state slightly darker
     local region = Region(x, y, w, h)
     love.graphics.setColor(0, 0, 0, 0.24)
