@@ -298,10 +298,10 @@ local function make_umg(lobj)
 
     -- TODO: Remove this function maybe?
     umg.inspect = require("libs.nm_inspect.inspect")
-    
+
     local env = lobj.env
 
-    umg.melt = error 
+    umg.melt = error
     -- umg.melt exists purely for cultural reasons.
 
     local expose_tc = tc.assert("string")
@@ -323,6 +323,10 @@ local function make_umg(lobj)
 
     if constants.DEV_MODE then
         umg.DEVELOPMENT_MODE = true
+    end
+
+    if constants.DEMO_MODE then
+        umg.DEMO_MODE = true
     end
 
     return umg

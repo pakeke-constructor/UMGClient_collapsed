@@ -16,7 +16,12 @@ end
 
 return setmetatable({
     VERSION = "0.0.0";
+
     DEV_MODE = DEV_MODE,
+
+    DEMO_MODE = love.filesystem.getInfo("LOOTPLOT_DEMO.txt") or false,
+    -- we are in DEMO_MODE if LOOTPLOT_DEMO.txt exists. (IE for steam-demo.)
+    -- Generate this file via CI-CD option.
 
     -- path to custom boot state
     CUSTOM_BOOT_STATE = "lootplot.states.menu",
