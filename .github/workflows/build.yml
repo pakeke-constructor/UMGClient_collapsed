@@ -216,11 +216,9 @@ jobs:
           chmod +x umg.AppImage
           ./umg.AppImage --appimage-extract
           mv squashfs-root ../build/linux64
-      - name: Overwrite steam_appid.txt
+      - name: Delete steam_appid.txt
         run: |
-          set -e
-          echo ${{ steps.appid.outputs.id }} > build/linux64/share/umg/steam_appid.txt
-          echo ${{ steps.appid.outputs.id }} > build/win64/steam_appid.txt
+          rm build/win64/steam_appid.txt || true
       - name: Deploy to Steam
         uses: game-ci/steam-deploy@v3
         continue-on-error: false
