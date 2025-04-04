@@ -18,11 +18,6 @@ on:
         description: 'Steam release branch'
         required: false
         default: 'prerelease'
-      is_demo:
-        description: 'Steam Demo'
-        required: true
-        type: boolean
-        default: false
 
 
 jobs:
@@ -87,7 +82,7 @@ jobs:
     # Add LOOTPLOT_DEMO.txt if appropriate:
     - name: Add LOOTPLOT_DEMO.txt
       run: |
-        if [ "${{ inputs.is_demo }}" == "true" ]; then
+        if [ "${{ inputs.build_type }}" == "demo" ]; then
           touch main/LOOTPLOT_DEMO.txt
         fi
     # Clone and build Darklua:
