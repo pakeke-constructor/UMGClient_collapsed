@@ -11,7 +11,6 @@ on:
         - release
         - demo
         - playtest
-
       build_desc:
         description: 'Version description. eg: v0.0.0'  
         required: false
@@ -27,8 +26,44 @@ on:
 
 
 jobs:
+  prepare-resource:
+    runs-on: windows-latest
+    steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: false
+    - name: Copy LOVE for Manifest
+      shell: cmd
+      run: copy build\love\win64\love.exe build\resources\love.exe
+    - name: Generate Resource
+      if: github.event_name == 'workflow_dispatch' && github.event.inputs.input1 != ''
+      env:
+        VERSION: ${{ (github.event_name == 'workflow_dispatch' && inputs.build_desc != '') && inputs.build_desc || '0.0.0' }}
+      shell: cmd
+      working-directory: build
+      run: python generate_resource_data.py %VERSION% resources/umg_version.rc.in resources/umg_version.rc
+    - name: Compile VersionInfo Resource
+      shell: cmd
+      working-directory: build/resources
+      run: start /WAIT ResourceHacker.exe -open umg_version.rc -save umg_version.res -action compile
+    - name: Replace love.exe Resources
+      shell: cmd
+      working-directory: build/resources
+      run: start /WAIT ResourceHacker.exe -script resourcehackerscript.txt
+    - name: Artifact Modified LOVE
+      uses: actions/upload-artifact@v4
+      with:
+        name: manifested-love
+        path: build/resources/love_manifested.exe
+        if-no-files-found: error
   build:
     runs-on: ubuntu-latest
+    needs: prepare-resource
     steps:
     # Preps
     - name: Install libfuse2
@@ -120,6 +155,11 @@ jobs:
         path: umg.AppImage
         if-no-files-found: error
     # Windows fusing
+    - name: Download Manifested LOVE
+      uses: actions/download-artifact@v4
+      with:
+        name: manifested-love
+        path: manifested-love
     - name: Prepare Windows Fusing
       run: |
         set -e
@@ -136,7 +176,7 @@ jobs:
       working-directory: squashfs-root/share/umg
       run: 7z a -mx9 ../../../umg.zip *
     - name: Fuse (Windows)
-      run: cat main/build/love/win64/love.exe umg.zip > windows/umg.exe
+      run: cat manifested-love/love_manifested.exe umg.zip > windows/umg.exe
     - name: Artifact Windows Binaries
       uses: actions/upload-artifact@v4
       with:
@@ -145,7 +185,7 @@ jobs:
         if-no-files-found: error
   deploy:
     needs: build
-    if: inputs.app_id != '' && inputs.build_desc != ''
+    if: inputs.build_type != '' && inputs.build_desc != ''
     runs-on: ubuntu-latest
     steps:
       - name: Test Secrets Validity
@@ -158,6 +198,17 @@ jobs:
 
           if not (os.environ["STEAM_USERNAME"] and os.environ["STEAM_CONFIG_VDF"]):
             raise Exception("Secrets are improperly set up!")
+      - name: Output Steam AppID
+        id: appid
+        shell: python
+        env:
+          BUILD_TYPE: ${{ inputs.build_type }}
+        run: |
+          import os
+
+          APPIDS = {"playtest": 3157410, "demo": 3614120, "release": 3057190}
+          with open(os.environ["GITHUB_OUTPUT"], "w") as f:
+              f.write(f"id={APPIDS[os.environ['BUILD_TYPE']]}")
       - name: Download Artifact (Windows)
         uses: actions/download-artifact@v4
         with:
@@ -178,16 +229,16 @@ jobs:
       - name: Overwrite steam_appid.txt
         run: |
           set -e
-          echo ${{ inputs.app_id }} > build/linux64/share/umg/steam_appid.txt
-          echo ${{ inputs.app_id }} > build/win64/steam_appid.txt
+          echo ${{ steps.appid.outputs.id }} > build/linux64/share/umg/steam_appid.txt
+          echo ${{ steps.appid.outputs.id }} > build/win64/steam_appid.txt
       - name: Deploy to Steam
         uses: game-ci/steam-deploy@v3
-        continue-on-error: true
+        continue-on-error: false
         with:
           username: ${{ secrets.STEAM_USERNAME }}
           configVdf: ${{ secrets.STEAM_CONFIG_VDF}}
 
-          appId: ${{ inputs.app_id }}
+          appId: ${{ steps.appid.outputs.id }}
           # Todo ^^^ this might fail, since app_id is a string, and it expects number
 
           buildDescription: ${{ inputs.build_desc }}
