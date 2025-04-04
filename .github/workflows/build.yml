@@ -14,6 +14,11 @@ on:
         description: 'Steam release branch'
         required: false
         default: 'prerelease'
+      is_demo:
+        description: 'Steam Demo'
+        required: true
+        type: boolean
+        default: false
 
 
 jobs:
@@ -39,6 +44,12 @@ jobs:
         repository: UntitledModGame/umg-mods
         ssh-key: ${{ secrets.UMG_MODS_CICD }}
         path: main/builtin_mods
+    # Add LOOTPLOT_DEMO.txt if appropriate:
+    - name: Add LOOTPLOT_DEMO.txt
+      run: |
+        if [ "${{ inputs.is_demo }}" == "true" ]; then
+          touch main/LOOTPLOT_DEMO.txt
+        fi
     # Clone and build Darklua:
     - name: Clone Darklua
       uses: actions/checkout@v4
