@@ -36,7 +36,6 @@ jobs:
       shell: cmd
       run: copy build\love\win64\love.exe build\resources\love.exe
     - name: Generate Resource
-      if: github.event_name == 'workflow_dispatch' && github.event.inputs.input1 != ''
       env:
         VERSION: ${{ (github.event_name == 'workflow_dispatch' && inputs.build_desc != '') && inputs.build_desc || '0.0.0' }}
       shell: cmd
