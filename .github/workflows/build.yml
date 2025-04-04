@@ -114,22 +114,23 @@ jobs:
     # Linux fusing
     - name: Extract LOVE AppImage (Linux Fusing)
       run: main/build/love/linux64/love.AppImage --appimage-extract
-    - name: Copy UMG to /share/umg
-      run: |
-        set -e
-        cp -r main squashfs-root/share/umg
-    - name: Cleanup (Linux Fusing)
-      working-directory: squashfs-root/share/umg
+    - name: Copy UMG For LOVE
+      run: cp -r main umg_presetup
+    - name: Remove Confidential Files (Linux Fusing)
+      working-directory: umg_presetup
       run: |
         shopt -s globstar
         rm -rf .git .darklua.json ARCHITECTURE build *.toml *.dll config.ld r.bat steam_api64.lib .git*
         rm -rf builtin_mods/.git
         rm -rf **/*.md
+    - name: Archive UMG to /share/umg.love
+      working-directory: umg_presetup
+      run: 7z a -tzip -mx9 ../squashfs-root/share/umg.love *
     - name: Update AppRun
       working-directory: squashfs-root
       run: |
         set -e
-        sed 's@#FUSE_PATH="$APPDIR/my_game.love"@FUSE_PATH="$APPDIR/share/umg"@' AppRun > newAppRun
+        sed 's@#FUSE_PATH="$APPDIR/my_game.love"@FUSE_PATH="$APPDIR/share/umg.love"@' AppRun > newAppRun
         mv newAppRun AppRun
         chmod +x AppRun
     - name: Add 3rd-party Libs (Linux Fusing)
@@ -164,11 +165,8 @@ jobs:
         cp main/build/dlls/win64/steam_api.dll windows/steam_api.dll
         cp main/build/dlls/win64/steam_api64.dll windows/steam_api64.dll
         cp main/steam_appid.txt windows/steam_appid.txt
-    - name: Zip Game (Windows Fusing)
-      working-directory: squashfs-root/share/umg
-      run: 7z a -mx9 ../../../umg.zip *
     - name: Fuse (Windows)
-      run: cat manifested-love/love_manifested.exe umg.zip > windows/umg.exe
+      run: cat manifested-love/love_manifested.exe squashfs-root/share/umg.love > windows/umg.exe
     - name: Artifact Windows Binaries
       uses: actions/upload-artifact@v4
       with:
