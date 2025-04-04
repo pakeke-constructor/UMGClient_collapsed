@@ -48,7 +48,7 @@ jobs:
     - name: Add LOOTPLOT_DEMO.txt
       run: |
         if [ "${{ inputs.is_demo }}" == "true" ]; then
-          touch LOOTPLOT_DEMO.txt
+          touch main/LOOTPLOT_DEMO.txt
         fi
     # Clone and build Darklua:
     - name: Clone Darklua
