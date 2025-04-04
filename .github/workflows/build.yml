@@ -80,10 +80,8 @@ jobs:
         path: main/builtin_mods
     # Add LOOTPLOT_DEMO.txt if appropriate:
     - name: Add LOOTPLOT_DEMO.txt
-      run: |
-        if [ "${{ inputs.build_type }}" == "demo" ]; then
-          touch main/LOOTPLOT_DEMO.txt
-        fi
+      if: inputs.build_type == 'demo'
+      run: touch main/LOOTPLOT_DEMO.txt
     # Clone and build Darklua:
     - name: Clone Darklua
       uses: actions/checkout@v4
