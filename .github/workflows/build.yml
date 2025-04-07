@@ -36,7 +36,6 @@ jobs:
       shell: cmd
       run: copy build\love\win64\love.exe build\resources\love.exe
     - name: Generate Resource
-      if: github.event_name == 'workflow_dispatch' && github.event.inputs.input1 != ''
       env:
         VERSION: ${{ (github.event_name == 'workflow_dispatch' && inputs.build_desc != '') && inputs.build_desc || '0.0.0' }}
       shell: cmd
@@ -81,10 +80,8 @@ jobs:
         path: main/builtin_mods
     # Add LOOTPLOT_DEMO.txt if appropriate:
     - name: Add LOOTPLOT_DEMO.txt
-      run: |
-        if [ "${{ inputs.build_type }}" == "demo" ]; then
-          touch main/LOOTPLOT_DEMO.txt
-        fi
+      if: inputs.build_type == 'demo'
+      run: touch main/LOOTPLOT_DEMO.txt
     # Clone and build Darklua:
     - name: Clone Darklua
       uses: actions/checkout@v4
