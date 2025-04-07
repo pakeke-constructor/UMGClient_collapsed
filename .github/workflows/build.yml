@@ -12,7 +12,7 @@ on:
         - demo
         - playtest
       build_desc:
-        description: 'Version description. eg: v0.0.0'  
+        description: 'Version: Must be like X.Y.Z (eg 1.0.0)'  
         required: false
       release_branch: 
         description: 'Steam release branch'
