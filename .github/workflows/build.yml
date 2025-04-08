@@ -11,7 +11,6 @@ on:
         - release
         - demo
         - playtest
-
       build_desc:
         description: 'Version description. Must be of the form 0.0.0'  
         required: false
@@ -19,16 +18,46 @@ on:
         description: 'Steam release branch'
         required: false
         default: 'prerelease'
-      is_demo:
-        description: 'Steam Demo'
-        required: true
-        type: boolean
-        default: false
 
 
 jobs:
+  prepare-resource:
+    runs-on: windows-latest
+    steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: false
+    - name: Copy LOVE for Manifest
+      shell: cmd
+      run: copy build\love\win64\love.exe build\resources\love.exe
+    - name: Generate Resource
+      env:
+        VERSION: ${{ (github.event_name == 'workflow_dispatch' && inputs.build_desc != '') && inputs.build_desc || '0.0.0' }}
+      shell: cmd
+      working-directory: build
+      run: python generate_resource_data.py %VERSION% resources/umg_version.rc.in resources/umg_version.rc
+    - name: Compile VersionInfo Resource
+      shell: cmd
+      working-directory: build/resources
+      run: start /WAIT ResourceHacker.exe -open umg_version.rc -save umg_version.res -action compile
+    - name: Replace love.exe Resources
+      shell: cmd
+      working-directory: build/resources
+      run: start /WAIT ResourceHacker.exe -script resourcehackerscript.txt
+    - name: Artifact Modified LOVE
+      uses: actions/upload-artifact@v4
+      with:
+        name: manifested-love
+        path: build/resources/love_manifested.exe
+        if-no-files-found: error
   build:
     runs-on: ubuntu-latest
+    needs: prepare-resource
     steps:
     # Preps
     - name: Install libfuse2
@@ -51,10 +80,8 @@ jobs:
         path: main/builtin_mods
     # Add LOOTPLOT_DEMO.txt if appropriate:
     - name: Add LOOTPLOT_DEMO.txt
-      run: |
-        if [ "${{ inputs.is_demo }}" == "true" ]; then
-          touch main/LOOTPLOT_DEMO.txt
-        fi
+      if: inputs.build_type == 'demo'
+      run: touch main/LOOTPLOT_DEMO.txt
     # Clone and build Darklua:
     - name: Clone Darklua
       uses: actions/checkout@v4
@@ -87,22 +114,23 @@ jobs:
     # Linux fusing
     - name: Extract LOVE AppImage (Linux Fusing)
       run: main/build/love/linux64/love.AppImage --appimage-extract
-    - name: Copy UMG to /share/umg
-      run: |
-        set -e
-        cp -r main squashfs-root/share/umg
-    - name: Cleanup (Linux Fusing)
-      working-directory: squashfs-root/share/umg
+    - name: Copy UMG For LOVE
+      run: cp -r main umg_presetup
+    - name: Remove Confidential Files (Linux Fusing)
+      working-directory: umg_presetup
       run: |
         shopt -s globstar
         rm -rf .git .darklua.json ARCHITECTURE build *.toml *.dll config.ld r.bat steam_api64.lib .git*
         rm -rf builtin_mods/.git
         rm -rf **/*.md
+    - name: Archive UMG to /share/umg.love
+      working-directory: umg_presetup
+      run: 7z a -tzip -mx9 ../squashfs-root/share/umg.love *
     - name: Update AppRun
       working-directory: squashfs-root
       run: |
         set -e
-        sed 's@#FUSE_PATH="$APPDIR/my_game.love"@FUSE_PATH="$APPDIR/share/umg"@' AppRun > newAppRun
+        sed 's@#FUSE_PATH="$APPDIR/my_game.love"@FUSE_PATH="$APPDIR/share/umg.love"@' AppRun > newAppRun
         mv newAppRun AppRun
         chmod +x AppRun
     - name: Add 3rd-party Libs (Linux Fusing)
@@ -120,6 +148,11 @@ jobs:
         path: umg.AppImage
         if-no-files-found: error
     # Windows fusing
+    - name: Download Manifested LOVE
+      uses: actions/download-artifact@v4
+      with:
+        name: manifested-love
+        path: manifested-love
     - name: Prepare Windows Fusing
       run: |
         set -e
@@ -132,11 +165,8 @@ jobs:
         cp main/build/dlls/win64/steam_api.dll windows/steam_api.dll
         cp main/build/dlls/win64/steam_api64.dll windows/steam_api64.dll
         cp main/steam_appid.txt windows/steam_appid.txt
-    - name: Zip Game (Windows Fusing)
-      working-directory: squashfs-root/share/umg
-      run: 7z a -mx9 ../../../umg.zip *
     - name: Fuse (Windows)
-      run: cat main/build/love/win64/love.exe umg.zip > windows/umg.exe
+      run: cat manifested-love/love_manifested.exe squashfs-root/share/umg.love > windows/umg.exe
     - name: Artifact Windows Binaries
       uses: actions/upload-artifact@v4
       with:
@@ -145,7 +175,7 @@ jobs:
         if-no-files-found: error
   deploy:
     needs: build
-    if: inputs.app_id != '' && inputs.build_desc != ''
+    if: inputs.build_type != '' && inputs.build_desc != ''
     runs-on: ubuntu-latest
     steps:
       - name: Test Secrets Validity
@@ -158,6 +188,17 @@ jobs:
 
           if not (os.environ["STEAM_USERNAME"] and os.environ["STEAM_CONFIG_VDF"]):
             raise Exception("Secrets are improperly set up!")
+      - name: Output Steam AppID
+        id: appid
+        shell: python
+        env:
+          BUILD_TYPE: ${{ inputs.build_type }}
+        run: |
+          import os
+
+          APPIDS = {"playtest": 3157410, "demo": 3614120, "release": 3057190}
+          with open(os.environ["GITHUB_OUTPUT"], "w") as f:
+              f.write(f"id={APPIDS[os.environ['BUILD_TYPE']]}")
       - name: Download Artifact (Windows)
         uses: actions/download-artifact@v4
         with:
@@ -175,19 +216,17 @@ jobs:
           chmod +x umg.AppImage
           ./umg.AppImage --appimage-extract
           mv squashfs-root ../build/linux64
-      - name: Overwrite steam_appid.txt
+      - name: Delete steam_appid.txt
         run: |
-          set -e
-          echo ${{ inputs.app_id }} > build/linux64/share/umg/steam_appid.txt
-          echo ${{ inputs.app_id }} > build/win64/steam_appid.txt
+          rm build/win64/steam_appid.txt || true
       - name: Deploy to Steam
         uses: game-ci/steam-deploy@v3
-        continue-on-error: true
+        continue-on-error: false
         with:
           username: ${{ secrets.STEAM_USERNAME }}
           configVdf: ${{ secrets.STEAM_CONFIG_VDF}}
 
-          appId: ${{ inputs.app_id }}
+          appId: ${{ steps.appid.outputs.id }}
           # Todo ^^^ this might fail, since app_id is a string, and it expects number
 
           buildDescription: ${{ inputs.build_desc }}

@@ -1,0 +1,4 @@
+umg_version.rc
+umg_version.res
+*.exe
+!ResourceHacker.exe
