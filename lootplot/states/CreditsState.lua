@@ -143,9 +143,9 @@ function CreditsScene:init(args)
         {
             title = "Item Art",
             credits = splitLines[[
-                RunninBlood - itch.io
-                FinalBossblues - itch.io
-                DantePixels - itch.io
+                RunninBlood
+                FinalBossblues 
+                DantePixels
                 PixelEart
                 Oli
             ]]
@@ -189,12 +189,12 @@ function CreditsScene:init(args)
         },
         {
             title = "Fonts",
-            credits = {"somepx - itch.io"}
+            credits = {"somepx"}
         },
         {
             title = "Other Art",
             credits = {
-                "SnowyPandas - itch.io",
+                "SnowyPandas",
             }
         },
         {
