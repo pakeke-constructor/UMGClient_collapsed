@@ -147,20 +147,20 @@ function CreditsScene:init(args)
                 FinalBossblues 
                 DantePixels
                 PixelEart
-                Oli
+                Oli Garrett
             ]]
         },
         {
             title = "Slot Art",
             credits = {
                 "PixelEart",
-                "Oli",
+                "Oli Garrett",
             }
         },
         {
             title = "Coding and Design",
             credits = {
-                "Oli",
+                "Oli Garrett",
                 "AuahDark",
                 "Skahd",
             }
