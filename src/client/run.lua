@@ -115,9 +115,8 @@ end
 
 
 local MELT_ZONE_TEXT = [[THE MELT ZONE
-There has been a melt! (This is normal)
-Press Ctrl+C to copy error message.
-Press R to restart in offline mode.
+There has been a melt (aka crash)!
+Please send a screenshot of this screen to Oli.
 ]]
 
 local function drawWithOutline(text, font, o, x, y, ...)
