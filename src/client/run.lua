@@ -116,7 +116,7 @@ end
 
 local MELT_ZONE_TEXT = [[THE MELT ZONE
 There has been a melt (aka crash)!
-Please send a screenshot of this screen to Oli.
+If there aren't any mods loaded, please file a bug report in the discord!
 ]]
 
 local function drawWithOutline(text, font, o, x, y, ...)
