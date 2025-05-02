@@ -69,8 +69,8 @@ local function add_questions_to_api(api, lobj)
 
     function api.ask(question, ...)
         local reducer = question_to_reducer[question]
-        if not reducer then
-            error("Undefined question: " .. tostring(question), 2)
+        if type(reducer) ~= "function" then
+            error("Undefined question: " .. tostring(question) .. " with reducer " .. tostring(reducer), 2)
         end
         return questionBus:ask(question, reducer, ...)
     end

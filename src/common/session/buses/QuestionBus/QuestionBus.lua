@@ -56,9 +56,6 @@ end
 local EMPTY = {}
 
 function QuestionBus:ask(question, reducer, ...)
-    if (type(reducer) ~= "function") then
-        error("Reducer needs to be a function: " .. tostring(question) .. " : " .. tostring(reducer))
-    end
     local answers = self.answers[question] or EMPTY
     local len = #answers
     if len == 0 then
@@ -72,9 +69,12 @@ function QuestionBus:ask(question, reducer, ...)
         success, ans1, ans2, ans3 = pcall(reducer, ans1,a1,  ans2,a2,  ans3,a3)
 
         if not success then
+            if type(reducer) ~= "function" then
+                error("ERROR CALLING REDUCER: and reducer wasnt function??? " .. question .. ", " .. tostring(reducer))
+            end
             local ansInfo = tools.get_func_info(answers[i])
             local redInfo = tools.get_func_info(reducer)
-            error("error while calling reducer `"..redInfo.."` from answer `"..ansInfo.."`: "..ans1)
+            error("ERROR CALLING REDUCER `"..redInfo.."` from answer `"..ansInfo.."`: "..ans1)
         end
     end
 
