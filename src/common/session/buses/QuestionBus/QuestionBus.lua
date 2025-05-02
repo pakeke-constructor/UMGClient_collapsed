@@ -56,6 +56,9 @@ end
 local EMPTY = {}
 
 function QuestionBus:ask(question, reducer, ...)
+    if (type(reducer) ~= "function") then
+        error("Reducer needs to be a function: " .. tostring(question) .. " : " .. tostring(reducer))
+    end
     local answers = self.answers[question] or EMPTY
     local len = #answers
     if len == 0 then
