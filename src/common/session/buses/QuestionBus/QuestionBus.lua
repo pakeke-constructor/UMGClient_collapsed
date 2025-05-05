@@ -69,9 +69,6 @@ function QuestionBus:ask(question, reducer, ...)
         success, ans1, ans2, ans3 = pcall(reducer, ans1,a1,  ans2,a2,  ans3,a3)
 
         if not success then
-            if type(reducer) ~= "function" then
-                error("ERROR CALLING REDUCER: and reducer wasnt function??? " .. question .. ", " .. tostring(reducer))
-            end
             local ansInfo = tools.get_func_info(answers[i])
             local redInfo = tools.get_func_info(reducer)
             error("ERROR CALLING REDUCER `"..redInfo.."` from answer `"..ansInfo.."`: "..ans1)

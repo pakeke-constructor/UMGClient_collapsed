@@ -512,30 +512,9 @@ local sN, dN = get_ser_funcs("n")
 
 
 function serializers.number(buffer, x)
-    if floor(x) == x then
-        -- then is integer
-        if x > 0 then
-            -- serialize unsigned
-            if x < MAX_USMALL then
-                push_str(buffer, sUSMALL(x))
-            elseif x < (2^32 - 1) then
-                push_str(buffer, U32)
-                push_str(buffer, sU32(x))
-            else -- x is U64
-                push_str(buffer, U64)
-                push_str(buffer, sU64(x))
-            end
-        else
-            -- serialize signed
-            local mag = abs(x)
-            if mag < (2 ^ 31 - 2) then -- 32 bit signed num
-                push_str(buffer, I32)
-                push_str(buffer, sI32(x))
-            else
-                push_str(buffer, I64) -- else its 64 bit.
-                push_str(buffer, sI64(x))
-            end
-        end
+    if floor(x) == x and (x > 0) and (x < MAX_USMALL) then
+        -- no need to push a tag, any number below `MAX_USMALL` is a direct serialization
+        push_str(buffer, sUSMALL(x))
     else
         push_str(buffer, NUMBER)
         push_str(buffer, sN(x))
@@ -663,6 +642,11 @@ end
 
 deserializers[USMALL] = make_number_deserializer(dUSMALL, 2)
 
+--[[
+TODO: these special number serializers should be deprecated eventually.
+Right now, there are players with save-data using this format.
+So we should gradually phase them out. Maybe wait like 1 month or something.
+]]
 deserializers[U32] = make_number_deserializer(dU32, 4)
 deserializers[I32] = make_number_deserializer(dI32, 4)
 
