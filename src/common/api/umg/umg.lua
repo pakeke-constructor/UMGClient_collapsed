@@ -237,7 +237,12 @@ local function addAnalytics(umg, lobj)
 
     function umg.analytics.collect(name, contents)
         assertNamespaced(lobj, name)
-        analyticsService.add(not not CLIENT_SIDE, name, json.encode(contents))
+        local ok, encodedStr = pcall(json.encode, contents)
+        if ok then
+            analyticsService.add(not not CLIENT_SIDE, name, encodedStr)
+        else
+            log.error("UNABLE TO ENCODE ANALYTICS JSON: ", encodedStr)
+        end
     end
 end
 
