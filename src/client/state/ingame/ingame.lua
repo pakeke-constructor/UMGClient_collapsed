@@ -179,8 +179,11 @@ Ingame:on("wheelmoved", function(self, a,b,c,d,e,f)
 end)
 
 
-Ingame:on("resize", function(self, x,y)
-    self.eventBus:call("@resize", x,y)
+Ingame:on("resize", function(self, w,h)
+    userService.resize(w,h)
+    userService.saveSettings()
+
+    self.eventBus:call("@resize", w,h)
 end)
 
 

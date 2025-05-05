@@ -60,6 +60,10 @@ local settings = {
     sfxVolume = 40,
     bgmVolume = 25,
     analytics = 0, -- 0 = undecided, 1 = agree, 2 = deny
+
+    isFullscreen = true,
+    windowWidth = 900,
+    windowHeight = 1300,
 }
 
 local function setupSettings()
@@ -88,8 +92,18 @@ local function setupSettings()
             settings[k] = savedVar
         end
     end
+
+    love.window.setFullscreen(settings.isFullscreen)
+    if not settings.isFullscreen then
+        love.window.setMode(settings.windowWidth, settings.windowHeight, {
+            resizable = true
+        })
+    end
 end
+
 setupSettings()
+
+
 
 function userService.saveSettings()
     -- Save
@@ -136,6 +150,21 @@ end
 function userService.setBGMVolume(volume)
     assert(type(volume) == "number")
     settings.bgmVolume = clampVolume(assert(volume))
+end
+
+---@param isFullscreen boolean
+function userService.setFullscreen(isFullscreen)
+    assert(type(isFullscreen) == "boolean")
+    settings.isFullscreen = isFullscreen
+    love.window.setFullscreen(isFullscreen)
+end
+
+---@param w number
+---@param h number
+function userService.resize(w, h)
+    assert(type(w) == "number" and type(h) == "number")
+    settings.windowWidth = w
+    settings.windowHeight = h
 end
 
 

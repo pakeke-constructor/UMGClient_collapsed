@@ -297,6 +297,8 @@ MenuState:on("draw", function(self)
 end)
 
 MenuState:on("resize", function(self, w, h)
+    userService.resize(w,h)
+    userService.saveSettings()
     self:_updatePhysicsTransform()
 end)
 

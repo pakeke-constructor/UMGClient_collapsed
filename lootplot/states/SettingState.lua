@@ -63,7 +63,7 @@ function SettingScene:init(args)
     self.fullscreenLabel = Text({text = "Fullscreen", align = "left", outline = 1})
     self.fullscreenToggle = Toggle({
         value = love.window.getFullscreen(),
-        onValueChanged = love.window.setFullscreen
+        onValueChanged = userService.setFullscreen
     })
 
     self.analyticsLabel = Text({text = "Analytics", align = "left", outline = 1})
