@@ -230,6 +230,8 @@ function CreditsScene:init(args)
                 level up.wav by MakoFox -- Attribution 3.0
                 rocker_switch.wav by joedeshon -- Attribution 4.0
                 RBH Glass_Break 04.wav by RHumphries -- Attribution 4.0
+                Cat single meow 2 by ebcrosby -- Attribution 3.0       
+                cat2.wav by NoiseCollector -- Attribution 3.0
             ]]
         },
         {
