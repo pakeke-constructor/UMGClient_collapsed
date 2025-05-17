@@ -62,7 +62,7 @@ function makeTypechecker(self)
                 since it trusts the server 100%.
             So this typecheck function is only used on server-side.
         ]]
-        if cyWorld:isEntity(x) then
+        if cyWorld:exists(x) then
             return true
         end
         return nil, "Not an entity: " .. tostring(x)

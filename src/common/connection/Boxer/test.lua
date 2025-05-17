@@ -74,7 +74,7 @@ local function mockBoxer()
     function mockCyWorld:getEntity(id)
         return id_to_ent[id]
     end
-    function mockCyWorld:isEntity(x)
+    function mockCyWorld:exists(x)
         return type(x) == "table" and x.id
     end
 
