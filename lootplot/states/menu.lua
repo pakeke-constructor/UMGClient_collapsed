@@ -175,6 +175,18 @@ function MenuState:_performLUIButtonsRelease(...)
     self.quitButton:mousereleased(...)
 end
 
+
+function MenuState:_performLUIMouseMoved(...)
+    self.playButton:mousemoved(...)
+    self.discordButton:mousemoved(...)
+    self.wishlistButton:mousemoved(...)
+    self.settingButton:mousemoved(...)
+    self.creditsButton:mousemoved(...)
+    self.quitButton:mousemoved(...)
+end
+
+
+
 -- Since we're making all the button a root element, we have to render them ourselves.
 function MenuState:_performLUIRender(x, y, w, h)
     local s = globalScale.get() * 2
@@ -312,6 +324,11 @@ end)
 MenuState:on("mousereleased", function(self, x, y, b)
     self:_performLUIButtonsRelease(x, y, b)
 end)
+
+MenuState:on("mousemoved", function(self, x, y, dx,dy)
+    self:_performLUIMouseMoved(x, y, dx,dy)
+end)
+
 
 ---@param key love.KeyConstant
 ---@param scancode love.Scancode

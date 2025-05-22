@@ -256,7 +256,12 @@ end
 function Element:mousemoved(mx, my, dx, dy, istouch)
     util.tryCall(self.onMouseMoved, self, mx, my, dx, dy, istouch)
 
+    if self:isRoot() and self:contains(mx, my) then
+        startHover(self, mx, my)
+    end
+
     updateHover(self, mx, my)
+
     for _,child in ipairs(self:getChildren()) do
         updateHover(child, mx, my)
     end
