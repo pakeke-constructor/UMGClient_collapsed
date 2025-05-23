@@ -47,7 +47,7 @@ end
 
 
 
-local function readPacketData(self, reader, packetName)
+local function readPacketData(reader, boxer, packetName)
     --[[
         Transforms a regular packet, checks types,
         then returns data.
@@ -60,8 +60,8 @@ local function readPacketData(self, reader, packetName)
     ]]
     local i = reader.i
     local buffer = reader.buffer
-    local typelist = self.nameToPacketTypelist[packetName]
-    local dataToEntity = self.dataToEntity
+    local typelist = boxer.nameToPacketTypelist[packetName]
+    local dataToEntity = boxer.dataToEntity
 
     local packetSize = #typelist -- packet-size indicated by size of typelist
 
@@ -79,11 +79,11 @@ local function readPacketData(self, reader, packetName)
 
         if SERVER_SIDE then
             -- only do checks on server-side
-            local ok, er = self.typechecker(val, typ)
+            local ok, er = boxer.typechecker(val, typ)
             -- its an error!
             if not ok then
                 log.error("Error reading packet: ", er)
-                self:fail()
+                reader:fail()
                 return
             end
         end
@@ -117,7 +117,7 @@ function Reader:read()
         return nil
     end
 
-    a,b,c,d,e,f = readPacketData(boxer, self, packetName)
+    a,b,c,d,e,f = readPacketData(self, boxer, packetName)
     if self:hasFailed() then
         return nil
     end
