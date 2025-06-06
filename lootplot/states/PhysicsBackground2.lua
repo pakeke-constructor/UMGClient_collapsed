@@ -1,7 +1,7 @@
 local AutoAtlas = require("libs.AutoAtlas.AutoAtlas")
 
 local PHYSICS_ITEM_SIZE = 6
-local GRAVITY = 100
+local GRAVITY = 15
 local NUM_ITEMS = 400
 local MAX_VELOCITY_SCALAR = 50
 local INVISIBLE_Y = 100
