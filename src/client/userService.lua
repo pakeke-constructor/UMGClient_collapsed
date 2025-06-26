@@ -54,6 +54,9 @@ end
 
 local SETTINGS_FILENAME = "umg_client_settings.json"
 
+local MIN_WINDOW_SIZE = 400
+
+
 -- Configure variables here
 local settings = {
     masterVolume = 100,
@@ -94,6 +97,11 @@ local function setupSettings()
     end
 
     love.window.setFullscreen(settings.isFullscreen)
+
+    -- if it gets too small (eg below 200?) it just crashes. Idk why lol
+    settings.windowWidth = math.max(MIN_WINDOW_SIZE, settings.windowWidth)
+    settings.windowHeight = math.max(MIN_WINDOW_SIZE, settings.windowHeight)
+
     if not settings.isFullscreen then
         love.window.setMode(settings.windowWidth, settings.windowHeight, {
             resizable = true
