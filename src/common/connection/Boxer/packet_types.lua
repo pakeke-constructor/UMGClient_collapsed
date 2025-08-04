@@ -55,8 +55,6 @@ def("@gimme_box_version")
 def("@box_version", {VERSION})
 
 
-def("@kick_player") -- unicast, sent to kick a player
-
 
 def("@gimme_world") --client --> server: requests for the world data
 
@@ -68,6 +66,8 @@ def("@ready_to_play") -- client --> server
 -- tells the server that the client is ready to play.
 -- ie, the client has loaded all appropriate mods and stuff.
 
+
+def("@kick_player") -- unicast, sent to kick a player
 
 def("@client_join", {CLIENT_ID, JSON})
 def("@client_leave", {CLIENT_ID})

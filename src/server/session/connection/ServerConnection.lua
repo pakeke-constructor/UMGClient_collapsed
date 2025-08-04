@@ -223,9 +223,6 @@ local NULL_OPT = {}
 ---@param f any
 function ServerConnection:broadcast(options, packetName, a,b,c,d,e,f)
     options = options or NULL_OPT
-    if packetName == "items:setInventorySlot" then
-        log.trace("items:setInventorySlot:::: ", a,b,c)
-    end
     assert(type(options) == "table", "?")
     if not self.isReady then
         return -- no point in sending data if we aint ready!

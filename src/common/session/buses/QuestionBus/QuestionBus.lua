@@ -71,7 +71,7 @@ function QuestionBus:ask(question, reducer, ...)
         if not success then
             local ansInfo = tools.get_func_info(answers[i])
             local redInfo = tools.get_func_info(reducer)
-            error("ERROR CALLING REDUCER `"..redInfo.."` from answer `"..ansInfo.."`: "..ans1)
+            error("Error calling reducer `"..redInfo.."` from answer `"..ansInfo.."`: "..ans1)
         end
     end
 
