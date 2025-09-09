@@ -99,7 +99,7 @@ local love_math_functions = {
 function xtra_math.randomseed()
     -- We need to disallow usage of math.randomseed, because math.random is overriden by
     -- Love's random number generator.
-    error("This function is not supported, use math.setRandomSeed instead.", 2)
+    error("math.randomseed is not supported, use math.setRandomSeed instead.", 2)
 end
 
 
