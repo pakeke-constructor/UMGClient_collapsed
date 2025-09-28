@@ -69,7 +69,7 @@ function SettingScene:init(args)
     self.analyticsLabel = Text({text = localization.localize"Analytics", align = "left", outline = 1})
     self.analyticsButton = StretchableButton({
         color = COMMON_COLOR.BLUE,
-        text = "Change",
+        text = localization.localize"Change",
         scale = 2,
         onClick = function()
             sfx.click()

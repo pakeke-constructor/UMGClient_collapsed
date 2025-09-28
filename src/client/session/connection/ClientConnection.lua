@@ -53,7 +53,12 @@ local function pollPackets(self)
     ]]
     local host = self.enetHost
     return function()
-        return host:service()
+        local ok, a,b,c,d = pcall(host.service, host)
+        if not ok then
+            log.error("ERROR DURING SERVICE: ", a)
+            return nil
+        end
+        return a,b,c,d
     end
 end
 --[[

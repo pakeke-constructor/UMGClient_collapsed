@@ -10,8 +10,14 @@ local dumps = {}
 
 
 local function getLangCode(locale)
-    return locale:match("^[^-^_]+")
+    return locale:lower():match("^[^-^_]+")
 end
+
+assert(getLangCode("BR-br") == "br")
+assert(getLangCode("Br-br") == "br")
+assert(getLangCode("Br_br") == "br")
+assert(getLangCode("EN_br") == "en")
+assert(getLangCode("eN-br") == "en")
 
 
 local function tryLoadJson(locale)
@@ -31,12 +37,22 @@ end
 
 
 
+function localization.isChinese()
+    local locales = love.system.getPreferredLocales()
+    local l = locales and locales[1] and getLangCode(locales[1])
+    return l == "zh"
+end
+
+
 
 function localization.load()
     for _, locale in ipairs(love.system.getPreferredLocales())do
+        local locale = "zh"
         local mapp = tryLoadJson(locale)
         if mapp then
+            log.info("SUCCESS LOADING LOCALE: ", locale)
             mapping = mapp
+            return
         end
     end
 end

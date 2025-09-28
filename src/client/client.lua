@@ -32,25 +32,41 @@ files.ensure_game_folders_exist()
 
 
 
+-- MONKEYPATCH FOR TESTING:
+function love.system.getPreferredLocales()
+    return {"zh"}
+end
+
+
+local localization = require("src.client.localization")
+localization.load()
 
 
 
-local font = love.graphics.newImageFont("assets/fonts/font.png",
-' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789><:$,.!@()|_?#;/\\[]       ')
+
+-- local font = love.graphics.newImageFont("assets/fonts/font.png",
+-- ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789><:$,.!@()|_?#;/\\[]       ')
 
 
 -- FixedSys font:
--- local font = love.graphics.newFont("assets/fonts/FSEX300.ttf")
--- font:setFilter("nearest", "nearest")
+local font = love.graphics.newFont("assets/fonts/FSEX300.ttf")
+
+if localization.isChinese() then
+    font:setFilter("linear", "linear")
+else
+    font:setFilter("nearest", "nearest")
+end
+
+
 
 love.graphics.setFont(font)
 --font:setFilter("nearest", "nearest")
 
+local chineseFont = love.graphics.newFont("assets/fonts/Chinese_Simplified_YRDZST_Semibold.ttf")
+chineseFont:setFilter("linear", "linear")
 
 
-local localization = require("src.client.localization")
-
-localization.load()
+font:setFallbacks(chineseFont)
 
 
 

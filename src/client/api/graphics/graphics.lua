@@ -220,6 +220,17 @@ return function(l)
         graphics[key] = convert_first_arg_to_filedata(l, func)
     end
 
+    do
+    local newFontConverted = convert_first_arg_to_filedata(l, love.graphics.newFont)
+    graphics["newFont"] = function(a,b,c,d,e)
+        if type(a) == "number" then
+            return love.graphics.newFont(a)
+        else
+            return newFontConverted(a,b,c,d,e)
+        end
+    end
+    end
+
     for _, key in ipairs(shaders) do
         local func = love.graphics[key]
         graphics[key] = convert_first_arg_to_shadercode(l, func)
