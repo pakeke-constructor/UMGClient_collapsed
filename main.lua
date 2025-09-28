@@ -47,6 +47,7 @@ rawset(_G, "ui",        require "src.client.ui.ui")
 
 rawset(_G, "userService", require("src.client.userService"))
 
+rawset(_G, "localization",     require("src.client.localization"))
 
 require("src.client.client")
 

@@ -26,16 +26,16 @@ local function rescaleHeightBy(size, parent)
 end
 
 local ANALYTICS_TEXT = {
-    [false] = "OFF",
-    [true] = "ON"
+    [false] = localization.localize"OFF",
+    [true] = localization.localize"ON"
 }
 
 function SettingScene:init(args)
     assert(args.onClose and args.state)
 
-    self.title = Text({text = "Settings", outline = 2})
+    self.title = Text({text = localization.localize"Settings", outline = 2})
 
-    self.sfxSliderLabel0 = Text({text = "SFX Volume", align = "left", outline = 1})
+    self.sfxSliderLabel0 = Text({text = localization.localize"SFX Volume", align = "left", outline = 1})
     self.sfxSliderLabel = Text({text = "", align = "right", outline = 1})
     self.sfxSlider = Slider({
         min = 0,
@@ -47,7 +47,7 @@ function SettingScene:init(args)
             formatSliderLabel(self.sfxSliderLabel, userService.getSFXVolume())
         end
     })
-    self.bgmSliderLabel0 = Text({text = "BGM Volume", align = "left", outline = 1})
+    self.bgmSliderLabel0 = Text({text = localization.localize"BGM Volume", align = "left", outline = 1})
     self.bgmSliderLabel = Text({text = "", align = "right", outline = 1})
     self.bgmSlider = Slider({
         min = 0,
@@ -60,13 +60,13 @@ function SettingScene:init(args)
     })
 
     -- FIXME: This will be incorrect when user pressed Alt+Enter directly. No clean way to fix it.
-    self.fullscreenLabel = Text({text = "Fullscreen", align = "left", outline = 1})
+    self.fullscreenLabel = Text({text = localization.localize"Fullscreen", align = "left", outline = 1})
     self.fullscreenToggle = Toggle({
         value = love.window.getFullscreen(),
         onValueChanged = userService.setFullscreen
     })
 
-    self.analyticsLabel = Text({text = "Analytics", align = "left", outline = 1})
+    self.analyticsLabel = Text({text = localization.localize"Analytics", align = "left", outline = 1})
     self.analyticsButton = StretchableButton({
         color = COMMON_COLOR.BLUE,
         text = "Change",
@@ -79,7 +79,7 @@ function SettingScene:init(args)
 
     self.closeButton = StretchableButton({
         color = COMMON_COLOR.GREEN,
-        text = "Apply",
+        text = localization.localize"Apply",
         scale = 2,
         onClick = function()
             userService.saveSettings()
@@ -138,7 +138,7 @@ function SettingScene:onRender(x, y, w, h)
     self.fullscreenToggle:render(fullscreen:get())
 
     local analyticsLabel, _, analyticsButton = analyticsBase:splitHorizontal(3, 0.05, 1)
-    self.analyticsLabel:setText("Analytics: "..ANALYTICS_TEXT[userService.isUserConsentedForAnalytics()])
+    self.analyticsLabel:setText(localization.localize"Analytics: "..ANALYTICS_TEXT[userService.isUserConsentedForAnalytics()])
     self.analyticsLabel:render(rescaleHeightBy(0.6, analyticsLabel):get())
     -- HACK: Increase the size of analytics button height
     local ah = math.min(analyticsButton.w, analyticsButton.h * 1.5)

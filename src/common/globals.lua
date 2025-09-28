@@ -34,7 +34,6 @@ rawset(_G, "tools",     require "libs.tools.tools" )
 rawset(_G, "tc",        require "libs.typecheck.typecheck")
 rawset(_G, "log",     require("src.common.log"))
 
-
 rawset(_G, "AsyncTask", require("src.common.misc.AsyncTask"))
 rawset(_G, "StateClass", require("src.client.state.StateClass.StateClass"))
 rawset(_G, "StringIdMapper", require("src.common.misc.StringIdMapper"))

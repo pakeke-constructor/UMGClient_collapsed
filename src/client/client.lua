@@ -48,6 +48,9 @@ love.graphics.setFont(font)
 
 
 
+local localization = require("src.client.localization")
+
+localization.load()
 
 
 

@@ -93,7 +93,7 @@ function MenuState:init()
 
     self.playButton = StretchableButton({
         color = COMMON_COLOR.BLUE,
-        text = "Play!",
+        text = localization.localize("Play!"),
         scale = 2,
         onClick = function()
             self.doNotFree = true
@@ -119,7 +119,7 @@ function MenuState:init()
     })
     self.creditsButton = StretchableButton({
         color = COMMON_COLOR.RED,
-        text = "Credits",
+        text = localization.localize"Credits",
         scale = 2,
         onClick = function()
             sfx.click()
@@ -128,7 +128,7 @@ function MenuState:init()
     })
     self.wishlistButton = StretchableButton({
         color = COMMON_COLOR.GREEN,
-        text = "Wishlist!",
+        text = localization.localize"Wishlist!",
         scale = 2,
         onClick = function()
             sfx.click()

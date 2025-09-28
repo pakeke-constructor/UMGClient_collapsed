@@ -8,7 +8,10 @@ local StretchableBox = require("lootplot.elements.StretchableBox")
 local StretchableButton = require("lootplot.elements.StretchableButton")
 
 
-local DESCRIPTION = [[
+
+local loc = localization.localize
+
+local DESCRIPTION = loc[[
 We use analytics to
 improve the game balance
 and to diagnose crashes.
@@ -25,11 +28,11 @@ local AnalyticsPopupScene = LUI.Element()
 function AnalyticsPopupScene:init(state, save)
     local desc = DESCRIPTION:gsub("\r\n", "\n")
 
-    self.title = Text("Analytics Consent")
+    self.title = Text(loc"Analytics Consent")
     self.content = Text(desc)
     self.acceptButton = StretchableButton({
         color = COMMON_COLOR.GREEN,
-        text = "Allow",
+        text = loc"Allow",
         scale = 2,
         onClick = function()
             sfx.click()
@@ -42,7 +45,7 @@ function AnalyticsPopupScene:init(state, save)
     })
     self.rejectButton = StretchableButton({
         color = COMMON_COLOR.RED,
-        text = "Deny",
+        text = loc"Deny",
         scale = 2,
         onClick = function()
             sfx.click()
@@ -55,12 +58,14 @@ function AnalyticsPopupScene:init(state, save)
     })
 
     local status
+    local ENABLED = loc("Enabled")
+    local DISABLED = loc("Disabled")
     if userService.isAnalyticsConsentAsked() then
-        status = userService.isUserConsentedForAnalytics() and "Enabled" or "Disabled"
+        status = userService.isUserConsentedForAnalytics() and ENABLED or DISABLED
     else
         status = "Undecided"
     end
-    self.analyticsStatus = Text("Analytics status: "..status)
+    self.analyticsStatus = Text(loc"Analytics status: "..status)
 
     self:addChild(self.title)
     self:addChild(self.content)
