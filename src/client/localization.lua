@@ -37,6 +37,13 @@ end
 
 
 
+function localization.isRussian()
+    local locales = love.system.getPreferredLocales()
+    local l = locales and locales[1] and getLangCode(locales[1])
+    return l == "ru"
+end
+
+
 function localization.isChinese()
     local locales = love.system.getPreferredLocales()
     local l = locales and locales[1] and getLangCode(locales[1])
@@ -47,7 +54,6 @@ end
 
 function localization.load()
     for _, locale in ipairs(love.system.getPreferredLocales())do
-        local locale = "zh"
         local mapp = tryLoadJson(locale)
         if mapp then
             log.info("SUCCESS LOADING LOCALE: ", locale)

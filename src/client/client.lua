@@ -32,11 +32,6 @@ files.ensure_game_folders_exist()
 
 
 
--- MONKEYPATCH FOR TESTING:
-function love.system.getPreferredLocales()
-    return {"zh"}
-end
-
 
 local localization = require("src.client.localization")
 localization.load()
@@ -44,16 +39,25 @@ localization.load()
 
 
 
--- local font = love.graphics.newImageFont("assets/fonts/font.png",
--- ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789><:$,.!@()|_?#;/\\[]       ')
 
 
--- FixedSys font:
-local font = love.graphics.newFont("assets/fonts/FSEX300.ttf")
+local font
 
 if localization.isChinese() then
+    -- FixedSys font:
+    font = love.graphics.newFont("assets/fonts/FSEX300.ttf", 32, "mono", 1)
     font:setFilter("linear", "linear")
+    local chineseFont = love.graphics.newFont("assets/fonts/Chinese_Simplified_YRDZST_Semibold.ttf", 32, "mono", 1)
+    chineseFont:setFilter("linear", "linear")
+    font:setFallbacks(chineseFont)
+
+elseif localization.isRussian() then
+    font = love.graphics.newFont("assets/fonts/FSEX300.ttf", 32, "mono",1)
+    font:setFilter("linear", "linear")
+
 else
+    font = assert(love.graphics.newImageFont("assets/fonts/font.png",
+    ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789><:$,.!@()|_?#;/\\[]       '))
     font:setFilter("nearest", "nearest")
 end
 
@@ -61,13 +65,6 @@ end
 
 love.graphics.setFont(font)
 --font:setFilter("nearest", "nearest")
-
-local chineseFont = love.graphics.newFont("assets/fonts/Chinese_Simplified_YRDZST_Semibold.ttf")
-chineseFont:setFilter("linear", "linear")
-
-
-font:setFallbacks(chineseFont)
-
 
 
 
