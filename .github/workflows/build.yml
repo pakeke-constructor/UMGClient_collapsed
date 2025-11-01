@@ -1,4 +1,4 @@
-name: build_umg
+name: build_umg2
 
 on:
   workflow_dispatch:
