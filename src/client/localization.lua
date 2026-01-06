@@ -2,7 +2,7 @@
 
 local localization = {}
 
-
+---@type table<string, string>
 local mapping = {}
 
 local dumps = {}
@@ -71,6 +71,7 @@ function localization.dump()
 end
 
 
+---@param txt string
 function localization.localize(txt)
     if constants.DEV_MODE then
         dumps[txt] = txt
