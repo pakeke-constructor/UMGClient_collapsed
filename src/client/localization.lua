@@ -38,28 +38,23 @@ end
 
 
 function localization.isRussian()
-    local locales = love.system.getPreferredLocales()
-    local l = locales and locales[1] and getLangCode(locales[1])
-    return l == "ru"
+    return userService.getLanguage() == "ru"
 end
 
 
 function localization.isChinese()
-    local locales = love.system.getPreferredLocales()
-    local l = locales and locales[1] and getLangCode(locales[1])
-    return l == "zh"
+    return userService.getLanguage() == "zh"
 end
 
 
 
 function localization.load()
-    for _, locale in ipairs(love.system.getPreferredLocales())do
-        local mapp = tryLoadJson(locale)
-        if mapp then
-            log.info("SUCCESS LOADING LOCALE: ", locale)
-            mapping = mapp
-            return
-        end
+    local locale = userService.getLanguage()
+    local mapp = tryLoadJson(locale)
+    if mapp then
+        log.info("SUCCESS LOADING LOCALE: ", locale)
+        mapping = mapp
+        return
     end
 end
 
@@ -83,6 +78,29 @@ function localization.localize(txt)
 
     -- else, fallback to english
     return txt
+end
+
+
+local languageListCache
+---@return string[]
+function localization.getLanguageList()
+    if not languageListCache then
+        local list = {en = true}
+
+        for _, name in ipairs(love.filesystem.getDirectoryItems("assets/localization")) do
+            if name:sub(-5) == ".json" then
+                list[getLangCode(name:sub(1, -6))] = true
+            end
+        end
+
+        languageListCache = {}
+        for k in pairs(list) do
+            languageListCache[#languageListCache+1] = k
+        end
+        table.sort(languageListCache)
+    end
+
+    return languageListCache
 end
 
 
