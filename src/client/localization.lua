@@ -37,6 +37,15 @@ end
 
 
 
+-- If you add more localization, make sure to add the name here!
+localization.NAMES = {
+    en = "English",
+    ru = "Русский",
+    zh = "汉语", -- Note: Chinese is complicated. There's Simplified and Traditional. This is simplified.
+}
+
+
+
 function localization.isRussian()
     return userService.getLanguage() == "ru"
 end

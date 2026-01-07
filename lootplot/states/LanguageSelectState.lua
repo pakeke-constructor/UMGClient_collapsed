@@ -16,15 +16,28 @@ local loc = localization.localize
 local LanguageSelectScene = LUI.Element()
 
 function LanguageSelectScene:init(state)
+    -- Always create the FixedSYS + Chinese fallback font.
+    local font = love.graphics.newFont("assets/fonts/FSEX300.ttf", 32, "mono", 1)
+    font:setFilter("nearest", "nearest")
+    local chineseFont = love.graphics.newFont("assets/fonts/Chinese_Simplified_YRDZST_Semibold.ttf", 32, "mono", 1)
+    chineseFont:setFilter("nearest", "nearest")
+    font:setFallbacks(chineseFont)
+
     self.title = Text(loc"Language Select (Need Restart)")
 
     self.langList = localization.getLanguageList()
     self.languageButtons = {}
     for _, lang in ipairs(self.langList) do
         local selected = userService.getLanguage() == lang
+        local langtext = lang
+        if localization.NAMES[lang] then
+            langtext = string.format("%s (%s)", localization.NAMES[lang], lang)
+        end
+
         local elem = StretchableButton({
             color = selected and COMMON_COLOR.BLUE or COMMON_COLOR.WHITE,
-            text = lang,
+            text = langtext,
+            font = font,
             scale = 2,
             onClick = function()
                 sfx.click()
