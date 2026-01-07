@@ -9,7 +9,7 @@ local lg=love.graphics
 
 local BUTTON_PADDING = {4, 5, 5, 7}
 
-local function giveTextElement(self, elem)
+local function giveTextElement(self, elem, font)
     if not self.text then
         return
     end
@@ -19,6 +19,7 @@ local function giveTextElement(self, elem)
         color = {1, 1, 1},
         outline = 1,
         outlineColor = {0, 0, 0},
+        font = font,
         getScale = function()
             return globalScale.get() * self.scale
         end,
@@ -46,8 +47,8 @@ function StretchableButton:init(args)
     self:addChild(self.buttonPressed)
     self:addChild(self.button)
 
-    giveTextElement(self, self.button)
-    giveTextElement(self, self.buttonPressed)
+    giveTextElement(self, self.button, args.font)
+    giveTextElement(self, self.buttonPressed, args.font)
 end
 
 function StretchableButton:onRender(x,y,w,h)
