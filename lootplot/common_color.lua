@@ -4,4 +4,5 @@ return {
     GREEN = {love.math.colorFromBytes(0x71, 0xc3, 0x48)},
     DARK_BROWN = {love.math.colorFromBytes(181, 110, 29)},
     ULTRA_DARK_BROWN = {love.math.colorFromBytes(121, 50, 18)},
+    WHITE = {1, 1, 1}
 }

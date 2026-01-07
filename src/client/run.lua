@@ -28,6 +28,7 @@ function love.quit()
     end)
     analyticsService.quit(false)
     saveService.getClientDataSave():close()
+    localization.dump()
 end
 
 

@@ -13,6 +13,8 @@ Which means we can have userService be static.
 
 ]]
 
+local localization = require("src.client.localization")
+
 local userService = {}
 
 
@@ -57,6 +59,19 @@ local SETTINGS_FILENAME = "umg_client_settings.json"
 local MIN_WINDOW_SIZE = 400
 
 
+---@param locale string
+---@return string
+local function getLangCode(locale)
+    return locale:lower():match("^[^-^_]+")
+end
+
+assert(getLangCode("BR-br") == "br")
+assert(getLangCode("Br-br") == "br")
+assert(getLangCode("Br_br") == "br")
+assert(getLangCode("EN_br") == "en")
+assert(getLangCode("eN-br") == "en")
+
+
 -- Configure variables here
 local settings = {
     masterVolume = 100,
@@ -67,7 +82,25 @@ local settings = {
     isFullscreen = true,
     windowWidth = 900,
     windowHeight = 1300,
+
+    language = "en", -- fallback, but set below to best user language if needed
 }
+
+-- Pick best language
+do
+    local languages = {}
+    for _, v in ipairs(localization.getLanguageList()) do
+        languages[v] = true
+    end
+
+    for _, lang in ipairs(love.system.getPreferredLocales()) do
+        local l = getLangCode(lang)
+        if languages[l] then
+            settings.language = l
+            break
+        end
+    end
+end
 
 local function setupSettings()
     local currentValues
@@ -199,6 +232,23 @@ end
 ---@param consent boolean
 function userService.setAnalyticsConsent(consent)
     settings.analytics = consent and 1 or 2
+end
+
+function userService.getLanguage()
+    return settings.language
+end
+
+---@param lang string
+function userService.setLanguage(lang)
+    -- Sanity check: Make sure it exist
+    for _, l in ipairs(localization.getLanguageList()) do
+        if l == lang then
+            settings.language = lang
+            return
+        end
+    end
+
+    log.error("language "..lang.." not defined")
 end
 
 

@@ -68,7 +68,7 @@ return function(lobj)
 
     G.json = {
         encode = json.encode,
-        decode = json.json5_decode
+        decode = json.decode
     }
 
     G.bit = G.table.deepCopy(require("bit"))

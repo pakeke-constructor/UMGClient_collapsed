@@ -89,8 +89,7 @@ end
 
 
 function client.getLanguage()
-    -- TODO
-    return love.system.getPreferredLocales()[1] or "en_US"
+    return userService.getLanguage()
 end
 
 
