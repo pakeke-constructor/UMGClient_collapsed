@@ -7,6 +7,7 @@ local COMMON_IMAGE = require("lootplot.common_image")
 local StretchableBox = require("lootplot.elements.StretchableBox")
 local StretchableButton = require("lootplot.elements.StretchableButton")
 local AnalyticsPopupState = require("lootplot.states.AnalyticsPopupState")
+local LanguageSelectState = require("lootplot.states.LanguageSelectState")
 local sfx = require("lootplot.sfx")
 
 local SettingState = StateClass()
@@ -77,6 +78,17 @@ function SettingScene:init(args)
         end
     })
 
+    self.languageLabel = Text({text = localization.localize"Language", align = "left", outline = 1})
+    self.languageButton = StretchableButton({
+        color = COMMON_COLOR.BLUE,
+        text = localization.localize"Change",
+        scale = 2,
+        onClick = function()
+            sfx.click()
+            args.state:push(LanguageSelectState())
+        end
+    })
+
     self.closeButton = StretchableButton({
         color = COMMON_COLOR.GREEN,
         text = localization.localize"Apply",
@@ -102,6 +114,8 @@ function SettingScene:init(args)
     self:addChild(self.fullscreenToggle)
     self:addChild(self.analyticsLabel)
     self:addChild(self.analyticsButton)
+    self:addChild(self.languageLabel)
+    self:addChild(self.languageButton)
     self:addChild(self.closeButton)
 end
 
@@ -118,7 +132,7 @@ function SettingScene:onRender(x, y, w, h)
     local contentUnpad, closeButtonBase = windowRegion:splitVertical(8, 2)
 
     local content = contentUnpad:padRatio(0.04)
-    local sfxLabelBase, sfx, _, bgmLabelBase, bgm, _, fullscreenBase, _, analyticsBase = content:splitVertical(1, 1, 0.6, 1, 1, 0.6, 1, 0.6, 1, 0.6)
+    local sfxLabelBase, sfx, _, bgmLabelBase, bgm, _, fullscreenBase, _, analyticsBase, _, languageBase = content:splitVertical(1, 1, 0.4, 1, 1, 0.4, 1, 0.4, 1, 0.4, 1, 0.4)
 
     local sfxLabel0, _, sfxLabel = rescaleHeightBy(0.6, sfxLabelBase):splitHorizontal(3, 0.1, 1)
     self.sfxSliderLabel0:render(sfxLabel0:get())
@@ -138,12 +152,20 @@ function SettingScene:onRender(x, y, w, h)
     self.fullscreenToggle:render(fullscreen:get())
 
     local analyticsLabel, _, analyticsButton = analyticsBase:splitHorizontal(3, 0.05, 1)
-    self.analyticsLabel:setText(localization.localize"Analytics: "..ANALYTICS_TEXT[userService.isUserConsentedForAnalytics()])
+    self.analyticsLabel:setText(localization.localize("Analytics")..": "..ANALYTICS_TEXT[userService.isUserConsentedForAnalytics()])
     self.analyticsLabel:render(rescaleHeightBy(0.6, analyticsLabel):get())
     -- HACK: Increase the size of analytics button height
     local ah = math.min(analyticsButton.w, analyticsButton.h * 1.5)
     analyticsButton = Region(0, 0, analyticsButton.w, ah):center(analyticsButton)
     self.analyticsButton:render(analyticsButton:get())
+
+    local languageLabelR, _, languageButtonR = languageBase:splitHorizontal(3, 0.05, 1)
+    self.languageLabel:setText(localization.localize("Language")..": "..userService.getLanguage())
+    self.languageLabel:render(rescaleHeightBy(0.6, languageLabelR):get())
+    -- HACK: Increase the size of language button height
+    local lh = math.min(languageButtonR.w, languageButtonR.h * 1.5)
+    languageButtonR = Region(0, 0, languageButtonR.w, lh):center(languageButtonR)
+    self.languageButton:render(languageButtonR:get())
 
     local closeButton = closeButtonBase:padRatio(0, 0.2, 0, 0)
     self.closeButton:render(closeButton:get())
